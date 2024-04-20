@@ -26,8 +26,8 @@ class AudioRecordService : Service() {
         private lateinit var activityResult: ActivityResult
         const val TAG = "AudioRecordService"
         const val NOTIFICATION_ID = 441823
-        const val NOTIFICATION_CHANNEL_ID = "com.myfreax.webrtc.app"
-        const val NOTIFICATION_CHANNEL_NAME = "com.myfreax.webrtc.app"
+        const val NOTIFICATION_CHANNEL_ID = "com.example.webrtc.app"//"com.myfreax.webrtc.app"
+        const val NOTIFICATION_CHANNEL_NAME = "com.example.webrtc.app" //"com.myfreax.webrtc.app"
 
         fun start(context: Context, mediaProjectionActivityResult: ActivityResult) {
             activityResult = mediaProjectionActivityResult
@@ -48,12 +48,11 @@ class AudioRecordService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? {
         Log.d(TAG, "onBind")
-
         return null
     }
 
-    val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.US).format(Date())
-    val fileName = "Capture-$timestamp.pcm"
+    val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
+    val fileName = "SystemAudio-$timestamp.pcm"
 
     private val fileOutputStream by lazy {
         val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
