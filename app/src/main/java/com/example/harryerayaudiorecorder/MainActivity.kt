@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.tooling.preview.Preview
 
 
 class MainActivity : ComponentActivity() {
@@ -39,18 +40,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             HarryErayAudioRecorderTheme {
-                RecordSwitchButton(applicationContext)
-                Column (modifier = Modifier.fillMaxSize(),
-                    verticalArrangement =  Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Button(onClick = { /*TODO*/ }) {
-                        Text(text = "start rec")
-                    }
-                    Button(onClick = { /*TODO*/ }) {
-                        Text(text = "stop rec")
-                    }
-                }
+//                RecordSwitchButton(applicationContext)
+                SimpleFrontPage(applicationContext)
             }
         }
 
@@ -59,7 +50,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun RecordSwitchButton(context: Context) {
         val mycontext = context
-
         Button(
             onClick = {
                 if (recorderRunning) stopRecorder() else startRecorder()
@@ -72,12 +62,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-//    private fun startRecorder(context: android.content.Context){
-//        Log.d(TAG, "startRecorder")
-//        val mediaProjectionManager =
-//            context.getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-//        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
-//    }
+    @Preview
+    @Composable
+    private fun SimpleFrontPagePreview(){
+        SimpleFrontPage(context = this)
+    }
+
+    @Composable
+    fun SimpleFrontPage(context: Context){
+        Column (modifier = Modifier.fillMaxSize(),
+            verticalArrangement =  Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            RecordSwitchButton(context)
+
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(text = "Play Recording")
+            }
+        }
+    }
 
     private fun startRecorder(){
         Log.d(TAG, "startRecorder")
@@ -99,13 +107,6 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "switchButtonStyle")
         recorderRunning = boolean
     }
-
-//    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-//        Log.d(TAG, "Media projection permission granted")
-//        switchButtonStyle(true)
-//        val context = LocalContext.current
-//        AudioRecordService.start(context.applicationContext, it)
-//    }
 
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
