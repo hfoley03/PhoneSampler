@@ -25,9 +25,9 @@ class AudioRecordService : Service() {
     companion object {
         private lateinit var activityResult: ActivityResult
         const val TAG = "AudioRecordService"
-        const val NOTIFICATION_ID = 441823
-        const val NOTIFICATION_CHANNEL_ID = "com.example.webrtc.app"//"com.myfreax.webrtc.app"
-        const val NOTIFICATION_CHANNEL_NAME = "com.example.webrtc.app" //"com.myfreax.webrtc.app"
+        const val NOTIFICATION_ID = 19630303
+        const val NOTIFICATION_CHANNEL_ID = "com.HarryErayAudioRecorder"
+        const val NOTIFICATION_CHANNEL_NAME = "com.HarryErayAudioRecorder"
 
         fun start(context: Context, mediaProjectionActivityResult: ActivityResult) {
             activityResult = mediaProjectionActivityResult
@@ -51,8 +51,8 @@ class AudioRecordService : Service() {
         return null
     }
 
-    val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
-    val fileName = "SystemAudio-$timestamp.pcm"
+    private val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
+    private val fileNamePCM = "SystemAudio-$timestamp.pcm" //PCM file
 
     private val fileOutputStream by lazy {
         val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
@@ -60,24 +60,24 @@ class AudioRecordService : Service() {
             audioCapturesDirectory.mkdirs()
         }
 
-        File(audioCapturesDirectory.absolutePath + "/" + fileName)
-        FileOutputStream(File(audioCapturesDirectory.absolutePath + "/" + fileName))
+        File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM)
+        FileOutputStream(File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM))
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
-        audioRecordingTask.running = false
+        //stop the task
         audioRecordingTask.cancel()
         Log.d(TAG, fileOutputStream.toString())
-        val newfileName = fileName.dropLast(3) + "wav"
+        val fileNameWAV = fileNamePCM.dropLast(3) + "wav"
 
         fileOutputStream.close()
         val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
 
-        val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileName) // The location of your PCM file
+        val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM) // The location of your PCM file
 
         val f2 =
-            File(audioCapturesDirectory.absolutePath + "/" + newfileName) // The location where you want your WAV file
+            File(audioCapturesDirectory.absolutePath + "/" + fileNameWAV) // The location where you want your WAV file
 
         try {
             rawToWave(f1, f2)
@@ -135,7 +135,6 @@ class AudioRecordService : Service() {
 
     private fun startRecording() {
         Log.d(TAG, "startRecording!!!")
-
         audioRecordingTask.execute(fileOutputStream)
     }
 
@@ -182,7 +181,7 @@ class AudioRecordService : Service() {
     }
 
     @Throws(IOException::class)
-    fun fullyReadFileToBytes(f: File): ByteArray? {
+    fun fullyReadFileToBytes(f: File): ByteArray {
         val size = f.length().toInt()
         val bytes = ByteArray(size)
         val tmpBuff = ByteArray(size)

@@ -89,10 +89,8 @@ class MainActivity : ComponentActivity() {
 
     private fun startRecorder(){
         Log.d(TAG, "startRecorder")
-
-        val mediaProjectionManager =
-            getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+        val mediaProjectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent()) //prompt to be approved by user to allow capture
     }
 
     private fun stopRecorder() {

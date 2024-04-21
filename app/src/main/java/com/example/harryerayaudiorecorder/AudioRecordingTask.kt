@@ -23,8 +23,9 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
     companion object {
         const val TAG = "AudioRecordingTask"
     }
-    public var running:Boolean = false
+    private var taskRunning: Boolean = false
     private var audioRecord: AudioRecord? = null
+
     private val job: Job = Job()
 
     override val coroutineContext: CoroutineContext
@@ -32,40 +33,40 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
 
     init {
 
-        if (ActivityCompat.checkSelfPermission(
+        fun hasRecordAudioPermission(context: Context): Boolean {
+            return ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        }
 
-            audioRecord =
-                AudioRecord.Builder()
-                    .setAudioFormat(
-                        AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                            .setSampleRate(44100)
-                            .setChannelMask(
-                                AudioFormat.CHANNEL_IN_MONO
-                            )
-                            .build()
-                    )
-                    .setBufferSizeInBytes(2 * 1024 * 1024)
-                    .setAudioPlaybackCaptureConfig(
-                        AudioPlaybackCaptureConfiguration.Builder(mediaProjection)
-                            .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
-                            .addMatchingUsage(AudioAttributes.USAGE_GAME)
-                            .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
-                            .build()
-                    )
-                    .build()
+        if(hasRecordAudioPermission(context))
+        {
+            //config the audioRecord
+            val audioFormatSettings = AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100)
+                .setChannelMask(AudioFormat.CHANNEL_IN_MONO).build()    //NEED TO CHANGE TO STEREO MIGHT EFFECT WAV CONVERSION ASK ERAY
+
+            val audioPlaybackCapConfig = AudioPlaybackCaptureConfiguration.Builder(mediaProjection)
+                .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
+                .addMatchingUsage(AudioAttributes.USAGE_GAME)
+                .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
+                .build()
+
+            //build audioRecord object
+            audioRecord = AudioRecord.Builder().setAudioFormat(audioFormatSettings).setBufferSizeInBytes(2097152) //2*1024*1024
+                .setAudioPlaybackCaptureConfig(audioPlaybackCapConfig).build()
+
             Log.d(TAG, "audioRecord object started")
 
         } else {
-            throw Exception("AudioPlaybackCapture: Permission Deny")
+            throw Exception("AudioPlaybackCapture: Permission Denied")
         }
     }
 
+
+
     fun cancel() {
-        running = false
+        taskRunning = false
         job.cancel()
         audioRecord = null
         Log.d(TAG, "canceled")
@@ -74,21 +75,18 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
 
     fun execute(fileOutputStream: FileOutputStream) = launch {
         Log.d(TAG, "AudioRecord Start Recording")
-        running = true
+        taskRunning = true
         audioRecord?.startRecording()
         withContext(Dispatchers.IO) {
-            while (running) {
+            while (taskRunning) {
                 try {
-                    val byteArray = ByteArray(1024)
-                    audioRecord?.read(byteArray, 0, byteArray.size)
-                    fileOutputStream.write(byteArray, 0, byteArray.size)
+                    val tempByteArray = ByteArray(1024)
+                    audioRecord?.read(tempByteArray, 0, tempByteArray.size) //read from Audio into the byteArray
+                    fileOutputStream.write(tempByteArray)    //write the byteArray into the file
                     Log.d(TAG, "File Written")
                 } catch (e: IOException){
                     Log.d(TAG, e.toString())
-
                 }
-
-
             }
         }
     }
