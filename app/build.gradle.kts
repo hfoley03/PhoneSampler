@@ -61,6 +61,10 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.7")
     implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.11.1")
+    implementation(    "androidx.compose.material3:material3:1.2.0-beta02")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:1.+")

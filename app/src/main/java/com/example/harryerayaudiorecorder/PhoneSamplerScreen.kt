@@ -28,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
@@ -94,31 +95,38 @@ fun PhoneSamplerApp(
             startDestination = PhoneSamplerScreen.Record.name,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+//                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
             composable(route = PhoneSamplerScreen.Record.name) {
                 RecordScreen(
-                    onNextButtonClicked = {
-                        viewModel.setQuantity(it)
+                    onListButtonClicked = {
                         navController.navigate(PhoneSamplerScreen.RecordingsList.name)
                     },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(dimensionResource(R.dimen.padding_medium))
+
+//                    uiState
                 )
             }
             composable(route = PhoneSamplerScreen.RecordingsList.name) {
                 val context = LocalContext.current
                 RecordingsListScreen(
-                    onNextButtonClicked = { navController.navigate(PhoneSamplerScreen.Playback.name) },
-                    onCancelButtonClicked = {
-                        navController.popBackStack(
-                            PhoneSamplerScreen.Record.name,
-                            inclusive = false
-                        )
+                    onSongButtonClicked = {
+                        viewModel.setSoundCard(it)
+                        navController.navigate(PhoneSamplerScreen.Playback.name)
                     },
+
                     modifier = Modifier.fillMaxHeight()
+                )
+            }
+            composable(route = PhoneSamplerScreen.Playback.name) {
+                PlaybackScreen(
+                    title = uiState.title,
+                    duration = uiState.duration,
+                    filePath = uiState.filePath,
+                    fileSize = uiState.fileSize
                 )
             }
         }

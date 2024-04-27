@@ -72,7 +72,9 @@ class MainActivity : ComponentActivity() {
     @Preview
     @Composable
     private fun SimpleFrontPagePreview(){
-        SimpleFrontPage(context = this)
+//        SimpleFrontPage(context = this)
+        PhoneSamplerApp(SamplerViewModel())
+
     }
 
     @Composable
