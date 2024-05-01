@@ -46,21 +46,3 @@ fun RecordScreen(
         }
     }
 }
-
-@Composable
-fun ListButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(
-            onClick = { },
-            modifier = Modifier.size(width = 80.dp, height = 80.dp)
-        ) {
-            Text(text = "Lists")
-        }
-    }
-}

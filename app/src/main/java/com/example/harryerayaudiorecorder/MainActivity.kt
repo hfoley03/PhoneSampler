@@ -47,7 +47,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             HarryErayAudioRecorderTheme {
 //                RecordSwitchButton(applicationContext)
-                //SimpleFrontPage(applicationContext)
+//                SimpleFrontPage(applicationContext)
+//                PhoneSamplerApp(SamplerViewModel(), context = this)
                 PhoneSamplerApp(SamplerViewModel())
             }
         }
@@ -73,6 +74,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun SimpleFrontPagePreview(){
 //        SimpleFrontPage(context = this)
+//        PhoneSamplerApp(SamplerViewModel(), applicationContext = applicationContext)
         PhoneSamplerApp(SamplerViewModel())
 
     }
