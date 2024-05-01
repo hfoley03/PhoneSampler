@@ -41,7 +41,7 @@ fun RecordingsListScreen(
 //        }
 //    }
 
-    val sc1 = SoundCard("Recording 1", 01.30, "path/to/recording1", 10.0)
+    val sc1 = SoundCard("Recording 1", 01.30, "korhan_Yok.wav", 10.0)
     val sc2 = SoundCard("Recording 2", 00.31, "path/to/recording2", 2.0)
 //    SoundRecordingCard(sc)
     val soundCards = listOf(

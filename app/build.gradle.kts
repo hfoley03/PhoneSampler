@@ -65,6 +65,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.11.1")
     implementation(    "androidx.compose.material3:material3:1.2.0-beta02")
+    implementation ("com.github.lincollincol:compose-audiowaveform:x.y.z") // Replace x.y.z with the actual version
+
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:1.+")

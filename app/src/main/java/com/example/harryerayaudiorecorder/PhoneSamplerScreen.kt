@@ -131,7 +131,7 @@ fun PhoneSamplerApp(
                     AudioViewModel(),
                     title = uiState.title,
                     duration = uiState.duration,
-                    filePath = uiState.filePath,
+                    fileName = uiState.fileName,
                     fileSize = uiState.fileSize,
                 )
             }

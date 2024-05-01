@@ -23,7 +23,7 @@ class SamplerViewModel : ViewModel() {
         _uiState.update { currentState -> currentState.copy(
             title = soundCard.title,
             duration = soundCard.duration,
-            filePath = soundCard.filePath,
+            fileName = soundCard.fileName,
             fileSize = soundCard.fileSize
         ) }
     }
