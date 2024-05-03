@@ -27,29 +27,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import com.example.harryerayaudiorecorder.data.Timer
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
 import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
     companion object {
         const val TAG = "MainActivity"
     }
 
     private var recorderRunning by mutableStateOf(false)
 
+    private lateinit var timer: Timer
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         requestAudioPermissions()
-
+        timer = Timer(this)
         setContent {
             HarryErayAudioRecorderTheme {
-//                RecordSwitchButton(applicationContext)
+                RecordSwitchButton(applicationContext)
 //                SimpleFrontPage(applicationContext)
 //                PhoneSamplerApp(SamplerViewModel(), context = this)
-                PhoneSamplerApp(SamplerViewModel())
+                //PhoneSamplerApp(SamplerViewModel())
             }
         }
 
@@ -102,12 +104,13 @@ class MainActivity : ComponentActivity() {
     private fun startRecorder(){
         Log.d(TAG, "startRecorder")
         val mediaProjectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        timer.start()
         resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent()) //prompt to be approved by user to allow capture
     }
 
     private fun stopRecorder() {
         Log.d(TAG, "stopRecorder")
-
+        timer.stop()
         switchButtonStyle(false)
         val intent = Intent(this, AudioRecordService::class.java)
         stopService(intent)
@@ -134,5 +137,9 @@ class MainActivity : ComponentActivity() {
         ) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
         }
+    }
+
+    override fun onTimerTick(duration: String) {
+        Log.d(TAG, duration)
     }
 }
