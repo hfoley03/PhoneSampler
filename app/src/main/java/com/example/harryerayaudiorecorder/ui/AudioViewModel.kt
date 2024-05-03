@@ -33,4 +33,32 @@ class AudioViewModel : ViewModel() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+
+    // Method to get the current playback position
+    fun getCurrentPosition(): Int {
+        // Return the current position if the media player is not null and is playing, else return 0
+        return mediaPlayer?.let {
+            if (it.isPlaying) it.currentPosition else 0
+        } ?: 0
+    }
+
+    fun getAudioDuration(file: File): Int {
+        var duration = 0
+        val tempPlayer = MediaPlayer()
+        try {
+            tempPlayer.setDataSource(file.absolutePath)
+            tempPlayer.prepare()  // Synchronously prepare the media player
+            duration = tempPlayer.duration  // Get the duration in milliseconds
+        } catch (e: IOException) {
+            Log.e("AudioViewModel", "Error getting audio duration", e)
+        } finally {
+            tempPlayer.release()  // Ensure the temporary player is released after use
+        }
+        return duration
+    }
+
+    fun seekTo(position: Long) {
+        mediaPlayer?.seekTo(position, MediaPlayer.SEEK_CLOSEST)
+    }
+
 }
