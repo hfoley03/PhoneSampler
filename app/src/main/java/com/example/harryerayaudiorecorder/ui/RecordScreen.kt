@@ -1,48 +1,87 @@
 package com.example.harryerayaudiorecorder.ui
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.harryerayaudiorecorder.MainActivity
+import com.example.harryerayaudiorecorder.R
 
 @Composable
 fun RecordScreen(
+    context: Context,
     onListButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    Row(modifier = Modifier.fillMaxSize().background(Color.Black),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.End) {
-        Button(
+    Row(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        StopButton(onClick = { (context as MainActivity).stopRecorder() })
+        RecordButton(onClick = {  (context as MainActivity).startRecorder() })
+        IconButton(
             onClick = onListButtonClicked,
-            modifier = Modifier.size(width = 80.dp, height = 80.dp)
         ) {
-            Text(text = "List")
-        }
-    }
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-            onClick = { },
-            modifier = Modifier.size(width = 80.dp, height = 80.dp)
-        ) {
-//            Text(text = "Rec")
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu),
+                contentDescription = "List",
+                tint = Color.Unspecified,
+            )
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun previewRecordScreen(){
+    RecordScreen(context = LocalContext.current, onListButtonClicked = { /*TODO*/ })
+}
+
+@Composable
+fun RecordButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(id = R.drawable.ic_record),
+            contentDescription = "Record",
+            tint = Color.Unspecified,
+            )
+    }
+}
+
+@Composable
+fun StopButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete),
+            contentDescription = "Stop Record",
+            tint = Color.Unspecified
+        )
+    }
+}
+

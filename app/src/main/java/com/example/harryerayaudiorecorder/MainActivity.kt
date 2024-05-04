@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.harryerayaudiorecorder.data.Timer
-import com.example.harryerayaudiorecorder.ui.SamplerViewModel
 import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
 
 
@@ -48,10 +47,10 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         timer = Timer(this)
         setContent {
             HarryErayAudioRecorderTheme {
-                RecordSwitchButton(applicationContext)
+                //RecordSwitchButton(applicationContext)
 //                SimpleFrontPage(applicationContext)
 //                PhoneSamplerApp(SamplerViewModel(), context = this)
-                //PhoneSamplerApp(SamplerViewModel())
+                PhoneSamplerApp(this)
             }
         }
 
@@ -77,7 +76,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
     private fun SimpleFrontPagePreview(){
 //        SimpleFrontPage(context = this)
 //        PhoneSamplerApp(SamplerViewModel(), applicationContext = applicationContext)
-        PhoneSamplerApp(SamplerViewModel())
+        PhoneSamplerApp(this)
 
     }
 
@@ -101,17 +100,17 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
     }
 
 
-    private fun startRecorder(){
+    fun startRecorder(){
         Log.d(TAG, "startRecorder")
         val mediaProjectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         timer.start()
         resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent()) //prompt to be approved by user to allow capture
     }
 
-    private fun stopRecorder() {
+    fun stopRecorder() {
         Log.d(TAG, "stopRecorder")
         timer.stop()
-        switchButtonStyle(false)
+        //switchButtonStyle(false)
         val intent = Intent(this, AudioRecordService::class.java)
         stopService(intent)
     }
@@ -142,4 +141,6 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
     override fun onTimerTick(duration: String) {
         Log.d(TAG, duration)
     }
+
+
 }

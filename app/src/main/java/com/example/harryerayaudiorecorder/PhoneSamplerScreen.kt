@@ -1,12 +1,11 @@
 package com.example.harryerayaudiorecorder
 
+//import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,12 +29,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.harryerayaudiorecorder.ui.AudioViewModel
-//import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
-import java.io.File
 
 
 enum class PhoneSamplerScreen(@StringRes val title: Int) {
@@ -71,10 +68,10 @@ fun PhoneSamplerAppBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneSamplerApp(
-    viewModel: SamplerViewModel,
+    context: Context,
+    viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavHostController = rememberNavController()
 ){
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -82,7 +79,6 @@ fun PhoneSamplerApp(
     val currentScreen = PhoneSamplerScreen.valueOf(
         backStackEntry?.destination?.route ?: PhoneSamplerScreen.Record.name
     )
-
 
     Scaffold(
         topBar = {
@@ -105,13 +101,14 @@ fun PhoneSamplerApp(
         ) {
             composable(route = PhoneSamplerScreen.Record.name) {
                 RecordScreen(
+                    context = context,
                     onListButtonClicked = {
+                        viewModel.testOnly = 1
                         navController.navigate(PhoneSamplerScreen.RecordingsList.name)
                     },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(dimensionResource(R.dimen.padding_medium))
-
 //                    uiState
                 )
             }

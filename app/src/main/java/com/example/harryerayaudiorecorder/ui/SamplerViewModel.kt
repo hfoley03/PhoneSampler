@@ -1,7 +1,6 @@
 package com.example.harryerayaudiorecorder.ui
 
 import androidx.lifecycle.ViewModel
-import com.example.harryerayaudiorecorder.data.SamplerUiState
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +12,7 @@ class SamplerViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(SoundCard())
     val uiState: StateFlow<SoundCard> = _uiState.asStateFlow()
+    var testOnly: Int = 0
 
 //    fun setSoundCardTitle(fileName: String){
 //        _uiState.update { currentState -> currentState.copy(
@@ -37,5 +37,7 @@ class SamplerViewModel : ViewModel() {
 //        }
 //    }
 //    fun setFileSize(someNumber: Double) {}
+
+
 }
 
