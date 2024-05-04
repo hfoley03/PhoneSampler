@@ -119,6 +119,7 @@ fun PhoneSamplerApp(
                         viewModel.setSoundCard(it)
                         navController.navigate(PhoneSamplerScreen.Playback.name)
                     },
+                    onThreeDotsClicked ={},
 
                     modifier = Modifier.fillMaxHeight()
                 )
@@ -126,7 +127,6 @@ fun PhoneSamplerApp(
             composable(route = PhoneSamplerScreen.Playback.name) {
                 PlaybackScreen(
                     AudioViewModel(),
-                    title = uiState.title,
                     durationSample = uiState.duration,
                     fileName = uiState.fileName,
                     fileSize = uiState.fileSize,

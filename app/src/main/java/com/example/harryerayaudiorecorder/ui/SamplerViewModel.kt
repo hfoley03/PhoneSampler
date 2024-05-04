@@ -21,7 +21,6 @@ class SamplerViewModel : ViewModel() {
 //    }
     fun setSoundCard(soundCard: SoundCard){
         _uiState.update { currentState -> currentState.copy(
-            title = soundCard.title,
             duration = soundCard.duration,
             fileName = soundCard.fileName,
             fileSize = soundCard.fileSize

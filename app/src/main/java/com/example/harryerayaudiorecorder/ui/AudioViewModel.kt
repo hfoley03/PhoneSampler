@@ -2,6 +2,7 @@ package com.example.harryerayaudiorecorder.ui
 
 import android.media.MediaPlayer
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import java.io.File
 import java.io.IOException
@@ -69,6 +70,19 @@ class AudioViewModel : ViewModel() {
 
     fun seekTo(position: Long) {
         mediaPlayer?.seekTo(position, MediaPlayer.SEEK_CLOSEST)
+    }
+
+    fun renameFile(audioCapturesDirectory: File, oldName: String, newName: String) {
+
+        val file = File(audioCapturesDirectory, oldName)
+        if (file.exists()) {
+            val newFile = File(audioCapturesDirectory, newName)
+            if (!newFile.exists()) {
+                file.renameTo(newFile)
+            } else {
+                // Handle the case where a file with the new name already exists
+            }
+        }
     }
 
 }

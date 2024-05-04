@@ -35,7 +35,6 @@ import java.io.File
 
 @Composable
 fun PlaybackScreen(audioViewModel: AudioViewModel,
-                   title: String,
                    durationSample: Int,
                    fileName: String,
                    fileSize: Double,
