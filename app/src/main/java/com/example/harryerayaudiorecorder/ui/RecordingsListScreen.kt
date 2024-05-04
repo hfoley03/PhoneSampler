@@ -1,57 +1,59 @@
 package com.example.harryerayaudiorecorder.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.data.SoundCard
+import java.io.File
 
 @Composable
 fun RecordingsListScreen(
     onSongButtonClicked: (SoundCard) -> Unit,
     modifier: Modifier = Modifier
-) {
-//    Column(
-//        modifier = Modifier.fillMaxSize(),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally) {
-//        Button(
-//            onClick = onSongButtonClicked,
-//            modifier = Modifier.size(width = 80.dp, height = 80.dp)
-//        ) {
-//            Text(text = "Song")
-//        }
-//    }
+)  {
+    val context = LocalContext.current
+    val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
 
-    val sc1 = SoundCard("Recording 1", 01.30, "korhan_Yok.wav", 10.0)
-    val sc2 = SoundCard("Recording 2", 00.31, "path/to/recording2", 2.0)
-//    SoundRecordingCard(sc)
-    val soundCards = listOf(
-        sc1,sc2
-    )
-//    SoundRecordingPage(soundCards, { onSongButtonClicked(scList) })
+    val wavFiles = audioCapturesDirectory.listFiles { file ->
+        file.isFile && file.name.lowercase().endsWith(".wav")
+    }
+//    wavFiles?.forEach { file ->
+//        Log.d("wavfiles",file.name)
+//    }
+    val soundCardList = mutableListOf<SoundCard>()
+
+    for (i in wavFiles.indices) {
+        val dur = AudioViewModel().formatDuration(AudioViewModel().getAudioDuration(wavFiles[i]).toLong())
+        val fSizeMB = wavFiles[i].length().toDouble() / (1024 * 1024)
+        val sc = SoundCard(title = wavFiles[i].nameWithoutExtension, duration = dur, fileName = wavFiles[i].name, fileSize = fSizeMB)
+        soundCardList.add(sc)
+    }
+
+
+//    for (obj in soundCardList) {
+//        println(obj.value)
+//    }
+    // TODO HERE Calculate the recording duration and file size then create the objects
+//    val sc1 = SoundCard("Recording 1", 01.30, "korhan_Yok.wav", 10.0)
+//    val sc2 = SoundCard("Recording 2", 00.31, "path/to/recording2", 2.0)
+////    SoundRecordingCard(sc)
+//    val soundCards = listOf(
+//        sc1,sc2
+//    )
+
 
     LazyColumn {
-        items(count = soundCards.size) { index ->
-            val item = soundCards[index]
+        items(count = soundCardList.size) { index ->
+            val item = soundCardList[index]
             SoundRecordingCard(
                 soundCard = item,
                 onClick = {onSongButtonClicked(item)}
@@ -60,16 +62,7 @@ fun RecordingsListScreen(
     }
 
 }
-//@Composable
-//fun SoundRecordingPage(soundCards: List<SoundCard>, onSongButtonClicked: () -> Unit) {
-//    LazyColumn {
-//        items(count = soundCards.size) { index ->
-//            val item = soundCards[index]
-//            SoundRecordingCard(soundCard = item, onSongButtonClicked)
-//        }
-//
-//    }
-//}
+
 @Composable
 fun SoundRecordingCard(soundCard: SoundCard,onClick: () -> Unit) {
     Surface(
@@ -86,7 +79,7 @@ fun SoundRecordingCard(soundCard: SoundCard,onClick: () -> Unit) {
         ) {
             Text(text = soundCard.title)
             Text(text = "Duration: ${soundCard.duration}")
-            Text(text = "File Size: ${soundCard.fileSize} MB")
+            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB")
         }
     }
 }

@@ -1,11 +1,11 @@
 package com.example.harryerayaudiorecorder.ui
 
-import android.app.Application
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class AudioViewModel : ViewModel() {
     private var mediaPlayer: MediaPlayer? = null
@@ -55,6 +55,16 @@ class AudioViewModel : ViewModel() {
             tempPlayer.release()  // Ensure the temporary player is released after use
         }
         return duration
+    }
+
+    fun formatDuration(millis: Long): String {
+        //hh:mm:ss
+        return String.format("%02d:%02d:%02d",
+            TimeUnit.MILLISECONDS.toHours(millis),
+            TimeUnit.MILLISECONDS.toMinutes(millis) -
+                    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+            TimeUnit.MILLISECONDS.toSeconds(millis) -
+                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
     }
 
     fun seekTo(position: Long) {

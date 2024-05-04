@@ -36,15 +36,15 @@ import java.io.File
 @Composable
 fun PlaybackScreen(audioViewModel: AudioViewModel,
                    title: String,
-                   duration: Double,
+                   duration: String,
                    fileName: String,
                    fileSize: Double,
                    modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val isPlaying = remember { mutableStateOf(false) } // State to track if audio is playing
     lateinit var amplitudesData: List<Int>
-    val externalFilesDir = context.getExternalFilesDir(null)
-    val audioFile = File(externalFilesDir, fileName)  // Adjust the file path and name accordingly.
+    val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
+    val audioFile = File(audioCapturesDirectory.absolutePath, fileName)  // Adjust the file path and name accordingly.
     val scope = rememberCoroutineScope()
     var waveformProgress by remember { mutableStateOf(0F) }
 
