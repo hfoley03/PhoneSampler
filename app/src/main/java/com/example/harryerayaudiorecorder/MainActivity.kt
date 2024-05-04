@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.harryerayaudiorecorder.data.Timer
+import com.example.harryerayaudiorecorder.ui.BottomSheet
 import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
 
 
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         const val TAG = "MainActivity"
     }
 
+    var showSheet by mutableStateOf(false)
 
     private var recorderRunning by mutableStateOf(false)
 
@@ -49,6 +51,13 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
 
 
         setContent {
+
+            if (showSheet) {
+                BottomSheet() {
+                    showSheet = false
+                }
+            }
+
             HarryErayAudioRecorderTheme {
                 //RecordSwitchButton(applicationContext)
 //                SimpleFrontPage(applicationContext)
@@ -114,9 +123,10 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         Log.d(TAG, "stopRecorder")
         timer.stop()
         //switchButtonStyle(false)
-
-        stopService(intent)
+        showSheet = true
+        //stopService(intent)
     }
+
 
     private fun switchButtonStyle(boolean: Boolean){
         Log.d(TAG, "switchButtonStyle")
