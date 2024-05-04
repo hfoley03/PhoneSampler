@@ -29,6 +29,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.data.SoundCard
 import java.io.File
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun RecordingsListScreen(
@@ -42,26 +46,18 @@ fun RecordingsListScreen(
     val wavFiles = audioCapturesDirectory.listFiles { file ->
         file.isFile && file.name.lowercase().endsWith(".wav")
     }
-//    wavFiles?.forEach { file ->
-//        Log.d("wavfiles",file.name)
-//    }
-//    val soundCardList = mutableListOf<SoundCard>()
-//
-//    for (i in wavFiles.indices) {
-//        val dur = AudioViewModel().getAudioDuration(wavFiles[i])
-//        val fSizeMB = wavFiles[i].length().toDouble() / (1024 * 1024)
-//        val sc = SoundCard( duration = dur, fileName = wavFiles[i].name, fileSize = fSizeMB)
-//        soundCardList.add(sc)
-//    }
+
 
     val soundCardList = wavFiles.map { file ->
         val dur = AudioViewModel().getAudioDuration(file)
         val fSizeMB = file.length().toDouble() / (1024 * 1024)
+        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
         mutableStateOf(
             SoundCard(
                 duration = dur,
                 fileName = file.name,
-                fileSize = fSizeMB
+                fileSize = fSizeMB,
+                date = lastModDate.toString(),
             )
         )
     }
@@ -83,27 +79,6 @@ fun RecordingsListScreen(
     }
 
 }
-
-//@Composable
-//fun SoundRecordingCard(soundCard: SoundCard,onClick: () -> Unit) {
-//    Surface(
-//        color = Color.White,
-////        elevation = 4.dp,
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(8.dp)
-//            .clickable(onClick = onClick)
-//    ) {
-//        // Your layout for sound recording card
-//        Column(
-//            modifier = Modifier.padding(16.dp)
-//        ) {
-//            Text(text = soundCard.title)
-//            Text(text = "Duration: ${AudioViewModel().formatDuration(soundCard.duration.toLong())}")
-//            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB")
-//        }
-//    }
-//}
 
 @Composable
 fun SoundRecordingCard(
@@ -151,6 +126,7 @@ fun SoundRecordingCard(
             }
             Text(text = "Duration: ${AudioViewModel().formatDuration(soundCard.duration.toLong())}")
             Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB")
+            Text(text = "Date: ${ soundCard.date }")
         }
     }
 }
