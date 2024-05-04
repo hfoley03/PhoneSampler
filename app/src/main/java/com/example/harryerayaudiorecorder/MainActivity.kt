@@ -1,6 +1,7 @@
 package com.example.harryerayaudiorecorder
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
@@ -97,6 +98,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         recorderRunning = false;
         //switchButtonStyle(false)
         showSheet = true
+        val intent = Intent(this, AudioRecordService::class.java)
         stopService(intent)
     }
 

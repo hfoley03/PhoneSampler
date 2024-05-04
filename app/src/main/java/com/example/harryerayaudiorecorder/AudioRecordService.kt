@@ -89,7 +89,7 @@ class AudioRecordService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
-
+        Log.d(TAG, intent.toString())
         createNotification()
         startRecording()
         return super.onStartCommand(intent, flags, startId)
