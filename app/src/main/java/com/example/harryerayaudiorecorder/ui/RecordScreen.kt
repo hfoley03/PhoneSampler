@@ -3,20 +3,14 @@ package com.example.harryerayaudiorecorder.ui
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +25,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.harryerayaudiorecorder.MainActivity
 import com.example.harryerayaudiorecorder.R
-import com.example.harryerayaudiorecorder.data.SoundCard
 
 @Composable
 fun RecordScreen(
@@ -46,10 +39,7 @@ fun RecordScreen(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        StopButton(onClick = {
-            (context as MainActivity).stopRecorder()
-
-        })
+        StopButton(context, onClick = { (context as MainActivity).stopRecorder() })
         RecordButton(onClick = {  (context as MainActivity).startRecorder() })
         IconButton(
             onClick = onListButtonClicked,
@@ -91,16 +81,28 @@ fun RecordButton(
 
 @Composable
 fun StopButton(
+    context: Context,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     IconButton(
         onClick = onClick,
-        modifier = modifier
+        modifier = modifier,
+        ((context as MainActivity).recorderRunning)
     ) {
+        val imageVectorId = if ((context as MainActivity).recorderRunning) {
+            R.drawable.ic_delete
+        } else {
+            R.drawable.ic_delete_disabled
+        }
+        val contentDescription = if ((context as MainActivity).recorderRunning) {
+            "Stop Record"
+        } else {
+            "Recorder is not running"
+        }
         Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete),
-            contentDescription = "Stop Record",
+            imageVector = ImageVector.vectorResource(id = imageVectorId),
+            contentDescription = contentDescription,
             tint = Color.Unspecified
         )
     }

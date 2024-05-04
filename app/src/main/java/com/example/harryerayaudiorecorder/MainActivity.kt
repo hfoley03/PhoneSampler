@@ -1,7 +1,6 @@
 package com.example.harryerayaudiorecorder
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
@@ -9,22 +8,12 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.harryerayaudiorecorder.data.Timer
 import com.example.harryerayaudiorecorder.ui.BottomSheet
@@ -39,7 +28,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
 
     var showSheet by mutableStateOf(false)
 
-    private var recorderRunning by mutableStateOf(false)
+    var recorderRunning by mutableStateOf(false)
 
     private lateinit var timer: Timer
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,63 +57,47 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
 
     }
 
-    @Composable
-    fun RecordSwitchButton(context: Context) {
-        val mycontext = context
-        Button(
-            onClick = {
-                if (recorderRunning) stopRecorder() else startRecorder()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(text = if (recorderRunning) "Stop Recording" else "Start Recording")
-        }
-    }
+//    @Composable
+//    fun RecordSwitchButton(context: Context) {
+//        val mycontext = context
+//        Button(
+//            onClick = {
+//                if (recorderRunning) stopRecorder() else startRecorder()
+//            },
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp)
+//        ) {
+//            Text(text = if (recorderRunning) "Stop Recording" else "Start Recording")
+//        }
+//    }
 
     @Preview
     @Composable
     private fun SimpleFrontPagePreview(){
-//        SimpleFrontPage(context = this)
 //        PhoneSamplerApp(SamplerViewModel(), applicationContext = applicationContext)
         PhoneSamplerApp(this)
 
     }
 
-    @Composable
-    fun SimpleFrontPage(context: Context){
-        Column (modifier = Modifier.fillMaxSize(),
-            verticalArrangement =  Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            RecordSwitchButton(context)
 
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(text = "Play Recording")
-            }
-        }
-    }
 
 
     fun startRecorder(){
         Log.d(TAG, "startRecorder")
         val mediaProjectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         timer.start()
+        recorderRunning = true;
         resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent()) //prompt to be approved by user to allow capture
     }
 
     fun stopRecorder() {
         Log.d(TAG, "stopRecorder")
         timer.stop()
+        recorderRunning = false;
         //switchButtonStyle(false)
         showSheet = true
-        //stopService(intent)
+        stopService(intent)
     }
 
 
