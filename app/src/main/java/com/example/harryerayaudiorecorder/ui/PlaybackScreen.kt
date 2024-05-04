@@ -36,7 +36,7 @@ import java.io.File
 @Composable
 fun PlaybackScreen(audioViewModel: AudioViewModel,
                    title: String,
-                   duration: String,
+                   durationSample: Int,
                    fileName: String,
                    fileSize: Double,
                    modifier: Modifier = Modifier) {
@@ -66,7 +66,7 @@ fun PlaybackScreen(audioViewModel: AudioViewModel,
                     isPlaying.value = true
                     scope.launch {
                         while (isPlaying.value) {
-                            waveformProgress = audioViewModel.getCurrentPosition() / audioViewModel.getAudioDuration(audioFile).toFloat()
+                            waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
                             delay(100) // Update progress every 100 milliseconds
                         }
                     }

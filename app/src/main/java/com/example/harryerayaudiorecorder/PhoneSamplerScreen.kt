@@ -127,7 +127,7 @@ fun PhoneSamplerApp(
                 PlaybackScreen(
                     AudioViewModel(),
                     title = uiState.title,
-                    duration = uiState.duration,
+                    durationSample = uiState.duration,
                     fileName = uiState.fileName,
                     fileSize = uiState.fileSize,
                 )
