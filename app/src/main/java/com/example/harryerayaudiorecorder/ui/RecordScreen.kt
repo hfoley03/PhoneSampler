@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +31,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.harryerayaudiorecorder.MainActivity
 import com.example.harryerayaudiorecorder.R
+import com.example.harryerayaudiorecorder.data.SoundCard
 
 @Composable
 fun RecordScreen(
@@ -103,39 +106,71 @@ fun StopButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun BottomSheet(onDismiss: () -> Unit) {
+//    val modalBottomSheetState = rememberModalBottomSheetState()
+//    var text by remember { mutableStateOf("") }
+//
+//    ModalBottomSheet(
+//        onDismissRequest = { onDismiss() },
+//        sheetState = modalBottomSheetState,
+//        dragHandle = { BottomSheetDefaults.DragHandle() },
+//    ) {
+//        Column (
+//            modifier = Modifier.fillMaxSize(),
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ){
+//
+//
+//            Text(text = "Save Recording?")
+//            OutlinedTextField(
+//                value = text,
+//                onValueChange = { text = it },
+//                label = { Text("Input File Name") }
+//            )
+//            Row(
+//                horizontalArrangement = Arrangement.Center
+//            ) {
+//                Button(onClick = { /*TODO*/ }) {
+//                    Text(text = "Cancel")
+//                }
+//                Button(onClick = { /*TODO*/ }) {
+//                    Text(text = "Save")
+//                }
+//            }
+//        }
+//    }
+//}
+
 @Composable
 fun BottomSheet(onDismiss: () -> Unit) {
-    val modalBottomSheetState = rememberModalBottomSheetState()
     var text by remember { mutableStateOf("") }
 
-    ModalBottomSheet(
-        onDismissRequest = { onDismiss() },
-        sheetState = modalBottomSheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() },
-    ) {
-        Column (
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-
-
-            Text(text = "Save Recording?")
-            OutlinedTextField(
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("File Name") },
+        text = {
+            TextField(
                 value = text,
-                onValueChange = { text = it },
-                label = { Text("Input File Name") }
+                onValueChange = { newText -> text = newText },
+                label = { Text("New File Name") }
             )
-            Row(
-                horizontalArrangement = Arrangement.Center
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+//                    onFileNameChange(text)
+                    onDismiss()
+                }
             ) {
-                Button(onClick = { /*TODO*/ }) {
-                    Text(text = "Cancel")
-                }
-                Button(onClick = { /*TODO*/ }) {
-                    Text(text = "Save")
-                }
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
             }
         }
-    }
+    )
 }
