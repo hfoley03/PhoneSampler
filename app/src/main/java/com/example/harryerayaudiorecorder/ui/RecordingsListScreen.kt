@@ -32,23 +32,12 @@ fun RecordingsListScreen(
     val soundCardList = mutableListOf<SoundCard>()
 
     for (i in wavFiles.indices) {
-        val dur = AudioViewModel().formatDuration(AudioViewModel().getAudioDuration(wavFiles[i]).toLong())
+        val dur = AudioViewModel().getAudioDuration(wavFiles[i])
         val fSizeMB = wavFiles[i].length().toDouble() / (1024 * 1024)
         val sc = SoundCard(title = wavFiles[i].nameWithoutExtension, duration = dur, fileName = wavFiles[i].name, fileSize = fSizeMB)
         soundCardList.add(sc)
     }
 
-
-//    for (obj in soundCardList) {
-//        println(obj.value)
-//    }
-    // TODO HERE Calculate the recording duration and file size then create the objects
-//    val sc1 = SoundCard("Recording 1", 01.30, "korhan_Yok.wav", 10.0)
-//    val sc2 = SoundCard("Recording 2", 00.31, "path/to/recording2", 2.0)
-////    SoundRecordingCard(sc)
-//    val soundCards = listOf(
-//        sc1,sc2
-//    )
 
 
     LazyColumn {
@@ -78,7 +67,7 @@ fun SoundRecordingCard(soundCard: SoundCard,onClick: () -> Unit) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(text = soundCard.title)
-            Text(text = "Duration: ${soundCard.duration}")
+            Text(text = "Duration: ${AudioViewModel().formatDuration(soundCard.duration.toLong())}")
             Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB")
         }
     }
