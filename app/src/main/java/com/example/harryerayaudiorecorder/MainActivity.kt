@@ -2,7 +2,6 @@ package com.example.harryerayaudiorecorder
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
@@ -37,6 +36,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         const val TAG = "MainActivity"
     }
 
+
     private var recorderRunning by mutableStateOf(false)
 
     private lateinit var timer: Timer
@@ -45,6 +45,9 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         super.onCreate(savedInstanceState)
         requestAudioPermissions()
         timer = Timer(this)
+
+
+
         setContent {
             HarryErayAudioRecorderTheme {
                 //RecordSwitchButton(applicationContext)
@@ -111,7 +114,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         Log.d(TAG, "stopRecorder")
         timer.stop()
         //switchButtonStyle(false)
-        val intent = Intent(this, AudioRecordService::class.java)
+
         stopService(intent)
     }
 

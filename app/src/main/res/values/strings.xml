@@ -7,4 +7,8 @@
     <string name="recordings_list">Recordings List</string>
     <string name="playback">Recording Playback</string>
     <string name="back_button">Back</string>
+    <string name="save_recording">Save Recording?</string>
+    <string name="enter_file_name">Enter File Name</string>
+    <string name="cancel">cancel</string>
+    <string name="ok">ok</string>
 </resources>

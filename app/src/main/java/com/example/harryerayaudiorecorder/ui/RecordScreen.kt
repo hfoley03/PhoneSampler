@@ -31,7 +31,10 @@ fun RecordScreen(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        StopButton(onClick = { (context as MainActivity).stopRecorder() })
+        StopButton(onClick = {
+            (context as MainActivity).stopRecorder()
+
+        })
         RecordButton(onClick = {  (context as MainActivity).startRecorder() })
         IconButton(
             onClick = onListButtonClicked,
@@ -43,6 +46,9 @@ fun RecordScreen(
             )
         }
     }
+
+
+
 }
 
 @Preview(showBackground = true)
