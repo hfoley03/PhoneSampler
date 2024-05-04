@@ -18,7 +18,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,7 +128,7 @@ fun SoundRecordingCard(
         ) { showEditFileNameDialog = false }
     }
     Surface(
-        color = Color.White,
+        color = Color.DarkGray,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
