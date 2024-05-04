@@ -3,11 +3,23 @@ package com.example.harryerayaudiorecorder.ui
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +43,10 @@ fun RecordScreen(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        StopButton(onClick = { (context as MainActivity).stopRecorder() })
+        StopButton(onClick = {
+            (context as MainActivity).stopRecorder()
+
+        })
         RecordButton(onClick = {  (context as MainActivity).startRecorder() })
         IconButton(
             onClick = onListButtonClicked,
@@ -43,6 +58,9 @@ fun RecordScreen(
             )
         }
     }
+
+
+
 }
 
 @Preview(showBackground = true)
@@ -85,3 +103,39 @@ fun StopButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheet(onDismiss: () -> Unit) {
+    val modalBottomSheetState = rememberModalBottomSheetState()
+    var text by remember { mutableStateOf("") }
+
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        Column (
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+
+
+            Text(text = "Save Recording?")
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Input File Name") }
+            )
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Cancel")
+                }
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "Save")
+                }
+            }
+        }
+    }
+}

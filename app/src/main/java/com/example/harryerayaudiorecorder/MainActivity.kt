@@ -2,7 +2,6 @@ package com.example.harryerayaudiorecorder
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
@@ -28,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.harryerayaudiorecorder.data.Timer
+import com.example.harryerayaudiorecorder.ui.BottomSheet
 import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
 
 
@@ -37,6 +37,8 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         const val TAG = "MainActivity"
     }
 
+    var showSheet by mutableStateOf(false)
+
     private var recorderRunning by mutableStateOf(false)
 
     private lateinit var timer: Timer
@@ -45,7 +47,17 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         super.onCreate(savedInstanceState)
         requestAudioPermissions()
         timer = Timer(this)
+
+
+
         setContent {
+
+            if (showSheet) {
+                BottomSheet() {
+                    showSheet = false
+                }
+            }
+
             HarryErayAudioRecorderTheme {
                 //RecordSwitchButton(applicationContext)
 //                SimpleFrontPage(applicationContext)
@@ -111,9 +123,10 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         Log.d(TAG, "stopRecorder")
         timer.stop()
         //switchButtonStyle(false)
-        val intent = Intent(this, AudioRecordService::class.java)
-        stopService(intent)
+        showSheet = true
+        //stopService(intent)
     }
+
 
     private fun switchButtonStyle(boolean: Boolean){
         Log.d(TAG, "switchButtonStyle")
