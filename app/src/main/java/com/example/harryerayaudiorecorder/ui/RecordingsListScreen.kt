@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,15 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.data.SoundCard
 import java.io.File
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun RecordingsListScreen(
@@ -79,6 +79,24 @@ fun RecordingsListScreen(
     }
 
 }
+@Preview
+@Composable
+fun previewSoundRecordingCard(){
+    val audioCapturesDirectory = null
+
+    val mockFunction: (String) -> Unit = { input ->
+        println("Mock function received input: $input")}
+    val tempFile = createTempFile("mockFile", ".txt")
+
+    SoundRecordingCard(
+        soundCard = SoundCard(10, "Noise Recording 1", 16.0, "16-08-2022"),
+        audioCapturesDirectory = tempFile,
+        onClick = { /*TODO*/ },
+        onThreeDotsClicked = mockFunction
+    )
+
+}
+
 
 @Composable
 fun SoundRecordingCard(
@@ -103,7 +121,8 @@ fun SoundRecordingCard(
         ) { showEditFileNameDialog = false }
     }
     Surface(
-        color = Color.DarkGray,
+        color = MaterialTheme.colorScheme.primary,
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
@@ -117,16 +136,17 @@ fun SoundRecordingCard(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = soundCard.fileName,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.inversePrimary
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = { showEditFileNameDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit Title")
                 }
             }
-            Text(text = "Duration: ${AudioViewModel().formatDuration(soundCard.duration.toLong())}")
-            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB")
-            Text(text = "Date: ${ soundCard.date }")
+            Text(text = "Duration: ${AudioViewModel().formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "Date: ${ soundCard.date }", color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }

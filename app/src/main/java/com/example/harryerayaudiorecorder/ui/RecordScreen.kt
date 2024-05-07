@@ -9,6 +9,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -35,7 +36,7 @@ fun RecordScreen(
 
     Row(modifier = Modifier
         .fillMaxSize()
-        .background(Color.Black),
+        .background(MaterialTheme.colorScheme.background),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -47,7 +48,7 @@ fun RecordScreen(
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu),
                 contentDescription = "List",
-                tint = Color.Unspecified,
+                tint = MaterialTheme.colorScheme.onBackground,
             )
         }
     }
@@ -90,21 +91,21 @@ fun StopButton(
         modifier = modifier,
         ((context as MainActivity).recorderRunning)
     ) {
-        val imageVectorId = if ((context as MainActivity).recorderRunning) {
-            R.drawable.ic_delete
+
+        if ((context as MainActivity).recorderRunning){
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete),
+                contentDescription = "Stop Record",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         } else {
-            R.drawable.ic_delete_disabled
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete_disabled),
+                contentDescription = "Recorder is not running",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
         }
-        val contentDescription = if ((context as MainActivity).recorderRunning) {
-            "Stop Record"
-        } else {
-            "Recorder is not running"
-        }
-        Icon(
-            imageVector = ImageVector.vectorResource(id = imageVectorId),
-            contentDescription = contentDescription,
-            tint = Color.Unspecified
-        )
+
     }
 }
 
