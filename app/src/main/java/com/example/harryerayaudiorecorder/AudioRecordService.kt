@@ -23,7 +23,7 @@ import java.util.*
 
 class AudioRecordService : Service() {
     companion object {
-        private lateinit var activityResult: ActivityResult
+        lateinit var activityResult: ActivityResult
         const val TAG = "AudioRecordService"
         const val NOTIFICATION_ID = 19630303
         const val NOTIFICATION_CHANNEL_ID = "com.HarryErayAudioRecorder"
@@ -36,7 +36,7 @@ class AudioRecordService : Service() {
         }
     }
 
-    private val audioRecordingTask by lazy {
+    val audioRecordingTask by lazy {
         val mediaProjectionManager =
             getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val mediaProjection = mediaProjectionManager.getMediaProjection(
@@ -133,7 +133,7 @@ class AudioRecordService : Service() {
 
     }
 
-    private fun startRecording() {
+    fun startRecording() {
         Log.d(TAG, "startRecording!!!")
         audioRecordingTask.execute(fileOutputStream)
     }

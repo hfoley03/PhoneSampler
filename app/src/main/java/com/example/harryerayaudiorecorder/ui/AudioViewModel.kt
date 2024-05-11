@@ -9,7 +9,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class AudioViewModel : ViewModel() {
-    private var mediaPlayer: MediaPlayer? = null
+    var mediaPlayer: MediaPlayer? = null
 
     fun playAudio(file: File) {
         mediaPlayer?.release() // Release any previously playing player
@@ -30,7 +30,7 @@ class AudioViewModel : ViewModel() {
         mediaPlayer = null
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         mediaPlayer?.release()
         mediaPlayer = null
     }

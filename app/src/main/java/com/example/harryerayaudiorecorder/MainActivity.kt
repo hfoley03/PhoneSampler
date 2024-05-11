@@ -49,34 +49,17 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
             }
 
             HarryErayAudioRecorderTheme {
-                //RecordSwitchButton(applicationContext)
-//                SimpleFrontPage(applicationContext)
-//                PhoneSamplerApp(SamplerViewModel(), context = this)
                 PhoneSamplerApp(this)
             }
         }
 
     }
 
-//    @Composable
-//    fun RecordSwitchButton(context: Context) {
-//        val mycontext = context
-//        Button(
-//            onClick = {
-//                if (recorderRunning) stopRecorder() else startRecorder()
-//            },
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(16.dp)
-//        ) {
-//            Text(text = if (recorderRunning) "Stop Recording" else "Start Recording")
-//        }
-//    }
+
 
     @Preview
     @Composable
     private fun SimpleFrontPagePreview(){
-//        PhoneSamplerApp(SamplerViewModel(), applicationContext = applicationContext)
         PhoneSamplerApp(this)
 
     }
@@ -115,7 +98,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
             AudioRecordService.start(this.applicationContext, it)
         }
 
-    private fun requestAudioPermissions() {
+    fun requestAudioPermissions() {
         Log.d(TAG, "requestAudioPermissions")
         if (ActivityCompat.checkSelfPermission(
                 this,
