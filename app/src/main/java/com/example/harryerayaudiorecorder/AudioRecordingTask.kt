@@ -3,7 +3,6 @@ package com.example.harryerayaudiorecorder
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioPlaybackCaptureConfiguration
 import android.media.AudioRecord
@@ -25,14 +24,13 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
     }
     private var taskRunning: Boolean = false
     private var audioRecord: AudioRecord? = null
-
     private val job: Job = Job()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
     init {
-
+        val audioSettings = AudioSettings();
         fun hasRecordAudioPermission(context: Context): Boolean {
             return ActivityCompat.checkSelfPermission(
                 context,
@@ -43,17 +41,17 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
         if(hasRecordAudioPermission(context))
         {
             //config the audioRecord
-            val audioFormatSettings = AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100)
-                .setChannelMask(AudioFormat.CHANNEL_IN_MONO).build()    //NEED TO CHANGE TO STEREO MIGHT EFFECT WAV CONVERSION ASK ERAY
+            val audioFormatSettings = AudioFormat.Builder().setEncoding(audioSettings.encoding).setSampleRate(audioSettings.sampleRate)
+                .setChannelMask(audioSettings.channelMask).build()    //NEED TO CHANGE TO STEREO MIGHT EFFECT WAV CONVERSION ASK ERAY
 
             val audioPlaybackCapConfig = AudioPlaybackCaptureConfiguration.Builder(mediaProjection)
-                .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
-                .addMatchingUsage(AudioAttributes.USAGE_GAME)
-                .addMatchingUsage(AudioAttributes.USAGE_UNKNOWN)
+                .addMatchingUsage(audioSettings.usages[0])
+                .addMatchingUsage(audioSettings.usages[1])
+                .addMatchingUsage(audioSettings.usages[2])
                 .build()
 
             //build audioRecord object
-            audioRecord = AudioRecord.Builder().setAudioFormat(audioFormatSettings).setBufferSizeInBytes(2097152) //2*1024*1024
+            audioRecord = AudioRecord.Builder().setAudioFormat(audioFormatSettings).setBufferSizeInBytes(audioSettings.bufferSize) //2*1024*1024
                 .setAudioPlaybackCaptureConfig(audioPlaybackCapConfig).build()
 
             Log.d(TAG, "audioRecord object started")

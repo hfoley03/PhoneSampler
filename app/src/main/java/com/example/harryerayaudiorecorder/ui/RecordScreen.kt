@@ -94,15 +94,15 @@ fun StopButton(
 
         if ((context as MainActivity).recorderRunning){
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete_disabled),
                 contentDescription = "Stop Record",
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onBackground
             )
         } else {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete_disabled),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete),
                 contentDescription = "Recorder is not running",
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 

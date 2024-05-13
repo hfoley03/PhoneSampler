@@ -1,6 +1,7 @@
-package com.example.harryerayaudiorecorder
+package com.example.harryerayaudiorecorder.com.example.harryerayaudiorecorder
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import com.example.harryerayaudiorecorder.MainActivity
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

@@ -1,6 +1,7 @@
 package com.example.harryerayaudiorecorder
 
 //import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
+import AudioViewModel
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,7 +29,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.harryerayaudiorecorder.ui.AudioViewModel
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
@@ -72,7 +72,9 @@ fun PhoneSamplerAppBar(
 fun PhoneSamplerApp(
     context: Context,
     viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    audioViewModel: AudioViewModel
+
 ){
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
@@ -120,13 +122,13 @@ fun PhoneSamplerApp(
                         navController.navigate(PhoneSamplerScreen.Playback.name)
                     },
                     onThreeDotsClicked ={},
-
                     modifier = Modifier.fillMaxHeight()
+
                 )
             }
             composable(route = PhoneSamplerScreen.Playback.name) {
                 PlaybackScreen(
-                    AudioViewModel(),
+                    audioViewModel,
                     durationSample = uiState.duration,
                     fileName = uiState.fileName,
                     fileSize = uiState.fileSize,

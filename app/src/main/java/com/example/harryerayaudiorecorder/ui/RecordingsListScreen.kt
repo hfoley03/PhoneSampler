@@ -1,5 +1,7 @@
 package com.example.harryerayaudiorecorder.ui
 
+import AndroidMediaPlayerWrapper
+import AudioViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +36,8 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
+
+
 @Composable
 fun RecordingsListScreen(
     onSongButtonClicked: (SoundCard) -> Unit,
@@ -42,6 +46,8 @@ fun RecordingsListScreen(
 )  {
     val context = LocalContext.current
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
+    var audioViewModel: AudioViewModel
+    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
 
     val wavFiles = audioCapturesDirectory.listFiles { file ->
         file.isFile && file.name.lowercase().endsWith(".wav")
@@ -49,7 +55,7 @@ fun RecordingsListScreen(
 
 
     val soundCardList = wavFiles.map { file ->
-        val dur = AudioViewModel().getAudioDuration(file)
+        val dur = audioViewModel.getAudioDuration(file)
         val fSizeMB = file.length().toDouble() / (1024 * 1024)
         val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
         mutableStateOf(
@@ -106,12 +112,13 @@ fun SoundRecordingCard(
     onThreeDotsClicked: (String) -> Unit
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
-
+    var audioViewModel: AudioViewModel
+    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
     if (showEditFileNameDialog) {
         FileNameEditDialog(
             soundCard = soundCard,
             onFileNameChange = { newFileName ->
-                AudioViewModel().renameFile(audioCapturesDirectory,
+                audioViewModel.renameFile(audioCapturesDirectory,
                     soundCard.fileName,
                     newFileName)
                 onThreeDotsClicked(newFileName)
@@ -144,7 +151,7 @@ fun SoundRecordingCard(
                     Icon(Icons.Default.Edit, contentDescription = "Edit Title")
                 }
             }
-            Text(text = "Duration: ${AudioViewModel().formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimary)
             Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB", color = MaterialTheme.colorScheme.onPrimary)
             Text(text = "Date: ${ soundCard.date }", color = MaterialTheme.colorScheme.onPrimary)
         }

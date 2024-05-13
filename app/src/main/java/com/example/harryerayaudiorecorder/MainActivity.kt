@@ -1,8 +1,9 @@
 package com.example.harryerayaudiorecorder
 
+import AndroidMediaPlayerWrapper
+import AudioViewModel
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.util.Log
@@ -25,11 +26,15 @@ import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
 class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
     companion object {
         const val TAG = "MainActivity"
+        const val RECORD_AUDIO_REQUEST_CODE = 1
+
     }
 
     var showSheet by mutableStateOf(false)
 
     var recorderRunning by mutableStateOf(false)
+
+    private lateinit var audioViewModel: AudioViewModel
 
     private lateinit var timer: Timer
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +42,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
         super.onCreate(savedInstanceState)
         requestAudioPermissions()
         timer = Timer(this)
+        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
 
 
 
@@ -49,7 +55,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
             }
 
             HarryErayAudioRecorderTheme {
-                PhoneSamplerApp(this)
+                PhoneSamplerApp(this, audioViewModel = audioViewModel)
             }
         }
 
@@ -60,7 +66,7 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
     @Preview
     @Composable
     private fun SimpleFrontPagePreview(){
-        PhoneSamplerApp(this)
+        PhoneSamplerApp(this, audioViewModel = audioViewModel)
 
     }
 
@@ -98,14 +104,25 @@ class MainActivity : ComponentActivity(), Timer.OnTimerTickListener {
             AudioRecordService.start(this.applicationContext, it)
         }
 
+//    fun requestAudioPermissions() {
+//        Log.d(TAG, "requestAudioPermissions")
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.RECORD_AUDIO
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+//        }
+//    }
+
     fun requestAudioPermissions() {
         Log.d(TAG, "requestAudioPermissions")
-        if (ActivityCompat.checkSelfPermission(
+        if (!AudioUtils.hasRecordAudioPermission(this)) {
+            ActivityCompat.requestPermissions(
                 this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                RECORD_AUDIO_REQUEST_CODE
+            )
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.harryerayaudiorecorder.ui
 
+import AudioViewModel
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,7 +46,8 @@ fun PlaybackScreen(audioViewModel: AudioViewModel,
     val audioFile = File(audioCapturesDirectory.absolutePath, fileName)  // Adjust the file path and name accordingly.
     val scope = rememberCoroutineScope()
     var waveformProgress by remember { mutableStateOf(0F) }
-
+    //var audioViewModel: AudioViewModel
+    //audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
 //CHANGE THIS TO TWO BUTTONS PAUSE AND PLAY INSTEAD OF ONE BUTTON THAT TOGGLES BETWEEN THE TWO, THINK IT IS EASIER TO TEST
     Column(
         modifier = Modifier

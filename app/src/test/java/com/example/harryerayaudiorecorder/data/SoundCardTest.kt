@@ -1,6 +1,5 @@
-package com.example.harryerayaudiorecorder
+package com.example.harryerayaudiorecorder.data
 
-import com.example.harryerayaudiorecorder.data.SoundCard
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test

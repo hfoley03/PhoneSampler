@@ -75,6 +75,7 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.8")
     testImplementation("androidx.test:runner:1.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.mockito:mockito-core:4.8.0")
 
     androidTestImplementation("io.mockk:mockk-android:1.12.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
