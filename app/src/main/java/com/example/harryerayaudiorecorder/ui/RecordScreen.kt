@@ -5,11 +5,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -24,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.MainActivity
 import com.example.harryerayaudiorecorder.R
 
@@ -33,23 +38,31 @@ fun RecordScreen(
     onListButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-    Row(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+    Surface(
+        color = MaterialTheme.colorScheme.primary,
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
     ) {
-        StopButton(context, onClick = { (context as MainActivity).stopRecorder() })
-        RecordButton(onClick = {  (context as MainActivity).startRecorder() })
-        IconButton(
-            onClick = onListButtonClicked,
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.primary),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu),
-                contentDescription = "List",
-                tint = MaterialTheme.colorScheme.onBackground,
-            )
+            StopButton(context, onClick = { (context as MainActivity).stopRecorder() })
+            RecordButton(onClick = { (context as MainActivity).startRecorder() })
+            IconButton(
+                onClick = onListButtonClicked,
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu),
+                    contentDescription = "List",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                )
+            }
         }
     }
 
