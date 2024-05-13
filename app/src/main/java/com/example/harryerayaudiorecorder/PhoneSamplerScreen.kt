@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +50,10 @@ fun PhoneSamplerAppBar(
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
+        title = { Text(
+            text = stringResource(currentScreen.title),
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )},
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
@@ -59,8 +62,9 @@ fun PhoneSamplerAppBar(
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back_button),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
@@ -111,7 +115,6 @@ fun PhoneSamplerApp(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(dimensionResource(R.dimen.padding_medium))
-//                    uiState
                 )
             }
             composable(route = PhoneSamplerScreen.RecordingsList.name) {
@@ -123,7 +126,6 @@ fun PhoneSamplerApp(
                     },
                     onThreeDotsClicked ={},
                     modifier = Modifier.fillMaxHeight()
-
                 )
             }
             composable(route = PhoneSamplerScreen.Playback.name) {
