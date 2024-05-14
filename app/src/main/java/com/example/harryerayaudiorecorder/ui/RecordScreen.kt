@@ -28,6 +28,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun RecordScreen(
@@ -39,7 +42,7 @@ fun RecordScreen(
     var showBottomSheet by remember { mutableStateOf(false) }  // State to manage BottomSheet visibility
 
     if (showBottomSheet) {
-        BottomSheet(onDismiss = { showBottomSheet = false })
+        BottomSheet(audioViewModel = audioViewModel, onDismiss = { showBottomSheet = false })
     }
 
     Surface(
@@ -56,9 +59,13 @@ fun RecordScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            StopButton(isRecording, onClick = { audioViewModel.stopRecording()
+            StopButton(isRecording, onClick = {
+                val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
+                val defaultFileName = "SystemAudio-$timestamp"
+                audioViewModel.stopRecording(defaultFileName)
                 showBottomSheet = true
             })
+
             RecordButton(onClick = { audioViewModel.startRecording() })
             IconButton(
                 onClick = onListButtonClicked,
@@ -121,9 +128,10 @@ fun StopButton(
     }
 }
 
+
 @Composable
-fun BottomSheet(onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf("") }
+fun BottomSheet(audioViewModel: AudioViewModel, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf(audioViewModel.currentFileName.value ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -138,7 +146,9 @@ fun BottomSheet(onDismiss: () -> Unit) {
         confirmButton = {
             Button(
                 onClick = {
-//                    onFileNameChange(text)
+                    audioViewModel.currentFileName.value?.let { currentFileName ->
+                        audioViewModel.renameFile(currentFileName, text)
+                    }
                     onDismiss()
                 }
             ) {
@@ -152,5 +162,6 @@ fun BottomSheet(onDismiss: () -> Unit) {
         }
     )
 }
+
 
 

@@ -1,3 +1,4 @@
+
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.runtime.State
@@ -61,10 +62,17 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 }
 
 // ViewModel using the wrapper
-class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper, private val recorderControl: RecorderControl) : ViewModel() {
+class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
+                     private val recorderControl: RecorderControl,
+                     val audioCapturesDirectory: File
+) : ViewModel() {
 
     val _recorderRunning = mutableStateOf(false)
     val recorderRunning: State<Boolean> = _recorderRunning
+
+    private val _currentFileName = mutableStateOf<String?>(null)
+    val currentFileName: State<String?> = _currentFileName
+
 
     fun playAudio(file: File) {
         mediaPlayerWrapper.setDataSource(file.absolutePath)
@@ -106,27 +114,90 @@ class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper, private
         mediaPlayerWrapper.release()
     }
 
-    fun renameFile(audioCapturesDirectory: File, oldName: String, newName: String) {
+//    fun renameFile(audioCapturesDirectory: File, oldName: String, newName: String) {
+//
+//        val file = File(audioCapturesDirectory, oldName)
+//        if (file.exists()) {
+//            val newFile = File(audioCapturesDirectory, newName)
+//            if (!newFile.exists()) {
+//                file.renameTo(newFile)
+//            } else {
+//                // Handle the case where a file with the new name already exists
+//            }
+//        }
+//    }
 
-        val file = File(audioCapturesDirectory, oldName)
-        if (file.exists()) {
-            val newFile = File(audioCapturesDirectory, newName)
-            if (!newFile.exists()) {
-                file.renameTo(newFile)
-            } else {
-                // Handle the case where a file with the new name already exists
+    fun renameFile(oldName: String, newName: String) {
+//        Log.d("AudioViewModel", getLastCreatedFile(audioCapturesDirectory).toString())
+//        getLastCreatedFile(audioCapturesDirectory)?.let { Log.d("AudioViewModel", it.name) }
+//
+//        Log.d("AudioViewModel", _currentFileName.value.toString())
+//        Log.d("AudioViewModel", oldName)
+//        Log.d("AudioViewModel", newName)
+
+
+        val file =  getLastCreatedFile(audioCapturesDirectory)//File(audioCapturesDirectory, oldName)
+
+        if (file != null) {
+            if (file.exists()) {
+                val newFile = File(audioCapturesDirectory, newName)
+                if (!newFile.exists()) {
+                    file.renameTo(newFile)
+                    _currentFileName.value = newName
+                } else {
+                    // Handle the case where a file with the new name already exists
+                }
+            }
+            else {
+                Log.d("AudioViewModel", "no such file")
             }
         }
     }
 
+    fun renameFileFromList(oldName: String, newName: String) {
+//        Log.d("AudioViewModel", getLastCreatedFile(audioCapturesDirectory).toString())
+//        getLastCreatedFile(audioCapturesDirectory)?.let { Log.d("AudioViewModel", it.name) }
+//
+//        Log.d("AudioViewModel", _currentFileName.value.toString())
+//        Log.d("AudioViewModel", oldName)
+//        Log.d("AudioViewModel", newName)
+
+
+        val file =  File(audioCapturesDirectory, oldName)
+
+
+            if (file.exists()) {
+                val newFile = File(audioCapturesDirectory, newName)
+                if (!newFile.exists()) {
+                    file.renameTo(newFile)
+                    _currentFileName.value = newName
+                } else {
+                    // Handle the case where a file with the new name already exists
+                }
+            }
+            else {
+                Log.d("AudioViewModel", "no such file")
+            }
+
+    }
     fun startRecording() {
         recorderControl.startRecorder()
         _recorderRunning.value = true
 
     }
 
-    fun stopRecording() {
+    fun stopRecording(defaultFileName: String) {
         recorderControl.stopRecorder()
         _recorderRunning.value = false
+        _currentFileName.value = "$defaultFileName.wav"
     }
+
+    fun setTemporaryFileName(tempFileName: String) {
+        _currentFileName.value = tempFileName
+    }
+
+    fun getLastCreatedFile(directory: File): File? {
+        return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
+    }
+
 }

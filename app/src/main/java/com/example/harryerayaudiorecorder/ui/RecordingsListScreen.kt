@@ -114,13 +114,11 @@ fun SoundRecordingCard(
     onThreeDotsClicked: (String) -> Unit
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
-//    var audioViewModel: AudioViewModel
-//    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
     if (showEditFileNameDialog) {
         FileNameEditDialog(
             soundCard = soundCard,
             onFileNameChange = { newFileName ->
-                audioViewModel.renameFile(audioCapturesDirectory,
+                audioViewModel.renameFileFromList(
                     soundCard.fileName,
                     newFileName)
                 onThreeDotsClicked(newFileName)

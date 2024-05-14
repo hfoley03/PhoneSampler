@@ -11,10 +11,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
+import java.io.File
 
 interface RecorderControl {
     fun startRecorder()
@@ -33,7 +32,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         requestAudioPermissions()
-        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this)
+        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this, File(this.getExternalFilesDir(null), "/AudioCaptures"))
 
         setContent {
             HarryErayAudioRecorderTheme {
@@ -43,12 +42,12 @@ class MainActivity : ComponentActivity(), RecorderControl {
     }
 
 
-    @Preview
-    @Composable
-    private fun SimpleFrontPagePreview(){
-        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this)
-        PhoneSamplerApp( audioViewModel = audioViewModel)
-    }
+//    @Preview
+//    @Composable
+//    private fun SimpleFrontPagePreview(){
+//        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this)
+//        PhoneSamplerApp( audioViewModel = audioViewModel)
+//    }
 
     override fun startRecorder(){
         Log.d(TAG, "startRecorder")
@@ -65,7 +64,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             Log.d(TAG, "Media projection permission granted")
-            AudioRecordService.start(this.applicationContext, it)
+            AudioRecordService.start(this.applicationContext, it, "dummt")
         }
 
     fun requestAudioPermissions() {

@@ -25,9 +25,13 @@ class AudioRecordService : Service() {
         const val NOTIFICATION_CHANNEL_ID = "com.HarryErayAudioRecorder"
         const val NOTIFICATION_CHANNEL_NAME = "com.HarryErayAudioRecorder"
 
-        fun start(context: Context, mediaProjectionActivityResult: ActivityResult) {
+        fun start(context: Context, mediaProjectionActivityResult: ActivityResult, fileName: String) {
             activityResult = mediaProjectionActivityResult
             val intent = Intent(context, AudioRecordService::class.java)
+
+//                .apply{
+//                putExtra("FILE_NAME", fileName)
+//            }
             context.startForegroundService(intent)
         }
     }
@@ -48,7 +52,8 @@ class AudioRecordService : Service() {
     }
 
     private val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
-    private val fileNamePCM = "SystemAudio-$timestamp.pcm" //PCM file
+    //private val fileNamePCM = "SystemAudio-$timestamp.pcm" //PCM file
+    private lateinit var fileNamePCM: String
 
     private val fileOutputStream by lazy {
         val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
@@ -62,18 +67,14 @@ class AudioRecordService : Service() {
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
-        //stop the task
+        // Stop the task
         audioRecordingTask.cancel()
-        Log.d(TAG, fileOutputStream.toString())
-        val fileNameWAV = fileNamePCM.dropLast(3) + "wav"
-
         fileOutputStream.close()
+
         val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
-
-        val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM) // The location of your PCM file
-
-        val f2 =
-            File(audioCapturesDirectory.absolutePath + "/" + fileNameWAV) // The location where you want your WAV file
+        val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM)
+        val fileNameWAV = fileNamePCM.dropLast(3) + "wav"
+        val f2 = File(audioCapturesDirectory.absolutePath + "/" + fileNameWAV)
 
         try {
             AudioConversionUtils.rawToWave(f1, f2)
@@ -82,10 +83,45 @@ class AudioRecordService : Service() {
         }
         super.onDestroy()
     }
+//    override fun onDestroy() {
+//        Log.d(TAG, "onDestroy")
+//        //stop the task
+//        audioRecordingTask.cancel()
+//        Log.d(TAG, fileOutputStream.toString())
+//        val fileNameWAV = fileNamePCM.dropLast(3) + "wav"
+//
+//        fileOutputStream.close()
+//        val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
+//
+//        val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM) // The location of your PCM file
+//
+//        val f2 =
+//            File(audioCapturesDirectory.absolutePath + "/" + fileNameWAV) // The location where you want your WAV file
+//
+//        try {
+//            AudioConversionUtils.rawToWave(f1, f2)
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//        }
+//        super.onDestroy()
+//    }
+
+//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//        Log.d(TAG, "onStartCommand")
+//        Log.d(TAG, intent.toString())
+//        createNotification()
+//        startRecording()
+//        return super.onStartCommand(intent, flags, startId)
+//    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
-        Log.d(TAG, intent.toString())
+        intent?.getStringExtra("FILE_NAME")?.let { fileName ->
+            fileNamePCM = "$fileName.pcm"
+        } ?: run {
+            val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
+            fileNamePCM = "SystemAudio-$timestamp.pcm"
+        }
         createNotification()
         startRecording()
         return super.onStartCommand(intent, flags, startId)

@@ -1,4 +1,5 @@
 package com.example.harryerayaudiorecorder
+import android.util.Log
 import java.io.*
 object AudioConversionUtils {
     @Throws(IOException::class)
@@ -30,6 +31,7 @@ object AudioConversionUtils {
             output.write(fullyReadFileToBytes(rawFile))
         } finally {
             output?.close()
+            Log.d("AudioConversionUtil","file written")
         }
     }
 
