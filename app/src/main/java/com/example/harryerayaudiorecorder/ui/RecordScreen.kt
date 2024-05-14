@@ -1,6 +1,6 @@
 package com.example.harryerayaudiorecorder.ui
 
-import android.content.Context
+import AudioViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -25,19 +25,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.harryerayaudiorecorder.MainActivity
 import com.example.harryerayaudiorecorder.R
 
 @Composable
 fun RecordScreen(
-    context: Context,
+    audioViewModel: AudioViewModel,
     onListButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isRecording by audioViewModel.recorderRunning
     Surface(
         color = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(8.dp),
@@ -52,8 +50,8 @@ fun RecordScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            StopButton(context, onClick = { (context as MainActivity).stopRecorder() })
-            RecordButton(onClick = { (context as MainActivity).startRecorder() })
+            StopButton(isRecording, onClick = { audioViewModel.stopRecording() })
+            RecordButton(onClick = { audioViewModel.startRecording() })
             IconButton(
                 onClick = onListButtonClicked,
             ) {
@@ -70,11 +68,11 @@ fun RecordScreen(
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun previewRecordScreen(){
-    RecordScreen(context = LocalContext.current, onListButtonClicked = { /*TODO*/ })
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun previewRecordScreen(){
+//    RecordScreen(context = LocalContext.current, onListButtonClicked = { /*TODO*/ })
+//}
 
 @Composable
 fun RecordButton(
@@ -95,17 +93,17 @@ fun RecordButton(
 
 @Composable
 fun StopButton(
-    context: Context,
+    isRecording: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     IconButton(
         onClick = onClick,
         modifier = modifier,
-        ((context as MainActivity).recorderRunning)
+        (isRecording)
     ) {
 
-        if ((context as MainActivity).recorderRunning){
+        if (isRecording){
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_delete_disabled),
                 contentDescription = "Stop Record",

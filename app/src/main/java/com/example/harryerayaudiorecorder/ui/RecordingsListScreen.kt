@@ -1,6 +1,5 @@
 package com.example.harryerayaudiorecorder.ui
 
-import AndroidMediaPlayerWrapper
 import AudioViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.data.SoundCard
 import java.io.File
@@ -40,14 +38,15 @@ import java.util.Date
 
 @Composable
 fun RecordingsListScreen(
+    audioViewModel: AudioViewModel,
     onSongButtonClicked: (SoundCard) -> Unit,
     onThreeDotsClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 )  {
     val context = LocalContext.current
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
-    var audioViewModel: AudioViewModel
-    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
+//    var audioViewModel: AudioViewModel
+//    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
 
     val wavFiles = audioCapturesDirectory.listFiles { file ->
         file.isFile && file.name.lowercase().endsWith(".wav")
@@ -74,6 +73,7 @@ fun RecordingsListScreen(
         items(count = soundCardList.size) { index ->
             val item = soundCardList[index]
             SoundRecordingCard(
+                audioViewModel,
                 soundCard = item.value,
                 audioCapturesDirectory = audioCapturesDirectory,
                 onClick = {onSongButtonClicked(item.value)},
@@ -85,35 +85,37 @@ fun RecordingsListScreen(
     }
 
 }
-@Preview
-@Composable
-fun previewSoundRecordingCard(){
-    val audioCapturesDirectory = null
+//@Preview
+//@Composable
+//fun previewSoundRecordingCard(){
+//    val audioCapturesDirectory = null
+//
+//    val mockFunction: (String) -> Unit = { input ->
+//        println("Mock function received input: $input")}
+//    val tempFile = createTempFile("mockFile", ".txt")
+//
+//    SoundRecordingCard(
+//
+//        soundCard = SoundCard(10, "Noise Recording 1", 16.0, "16-08-2022"),
+//        audioCapturesDirectory = tempFile,
+//        onClick = { /*TODO*/ },
+//        onThreeDotsClicked = mockFunction
+//    )
 
-    val mockFunction: (String) -> Unit = { input ->
-        println("Mock function received input: $input")}
-    val tempFile = createTempFile("mockFile", ".txt")
-
-    SoundRecordingCard(
-        soundCard = SoundCard(10, "Noise Recording 1", 16.0, "16-08-2022"),
-        audioCapturesDirectory = tempFile,
-        onClick = { /*TODO*/ },
-        onThreeDotsClicked = mockFunction
-    )
-
-}
+//}
 
 
 @Composable
 fun SoundRecordingCard(
+    audioViewModel: AudioViewModel,
     soundCard: SoundCard,
     audioCapturesDirectory: File,
     onClick: () -> Unit,
     onThreeDotsClicked: (String) -> Unit
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
-    var audioViewModel: AudioViewModel
-    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
+//    var audioViewModel: AudioViewModel
+//    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
     if (showEditFileNameDialog) {
         FileNameEditDialog(
             soundCard = soundCard,

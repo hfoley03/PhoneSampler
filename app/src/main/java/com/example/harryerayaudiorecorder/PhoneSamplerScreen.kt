@@ -2,7 +2,6 @@ package com.example.harryerayaudiorecorder
 
 //import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import AudioViewModel
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -74,7 +73,6 @@ fun PhoneSamplerAppBar(
 
 @Composable
 fun PhoneSamplerApp(
-    context: Context,
     viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavHostController = rememberNavController(),
     audioViewModel: AudioViewModel
@@ -107,9 +105,8 @@ fun PhoneSamplerApp(
         ) {
             composable(route = PhoneSamplerScreen.Record.name) {
                 RecordScreen(
-                    context = context,
+                    audioViewModel,
                     onListButtonClicked = {
-                        viewModel.testOnly = 1
                         navController.navigate(PhoneSamplerScreen.RecordingsList.name)
                     },
                     modifier = Modifier
@@ -120,6 +117,7 @@ fun PhoneSamplerApp(
             composable(route = PhoneSamplerScreen.RecordingsList.name) {
                 val context = LocalContext.current
                 RecordingsListScreen(
+                    audioViewModel,
                     onSongButtonClicked = {
                         viewModel.setSoundCard(it)
                         navController.navigate(PhoneSamplerScreen.Playback.name)

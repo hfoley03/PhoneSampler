@@ -1,6 +1,9 @@
 import android.media.MediaPlayer
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.harryerayaudiorecorder.RecorderControl
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -58,7 +61,11 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 }
 
 // ViewModel using the wrapper
-class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper) : ViewModel() {
+class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper, private val recorderControl: RecorderControl) : ViewModel() {
+
+    private val _recorderRunning = mutableStateOf(false)
+    val recorderRunning: State<Boolean> = _recorderRunning
+
     fun playAudio(file: File) {
         mediaPlayerWrapper.setDataSource(file.absolutePath)
         try {
@@ -110,5 +117,16 @@ class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper) : ViewM
                 // Handle the case where a file with the new name already exists
             }
         }
+    }
+
+    fun startRecording() {
+        recorderControl.startRecorder()
+        _recorderRunning.value = true
+
+    }
+
+    fun stopRecording() {
+        recorderControl.stopRecorder()
+        _recorderRunning.value = false
     }
 }

@@ -12,7 +12,6 @@ class SamplerViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(SoundCard())
     val uiState: StateFlow<SoundCard> = _uiState.asStateFlow()
-    var testOnly: Int = 0
 
 //    fun setSoundCardTitle(fileName: String){
 //        _uiState.update { currentState -> currentState.copy(
