@@ -1,5 +1,6 @@
 
 import android.media.MediaPlayer
+import com.example.harryerayaudiorecorder.RecorderControl
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -13,12 +14,16 @@ class AudioViewModelTest {
     @Mock
     private lateinit var mediaPlayerWrapper: MediaPlayerWrapper
 
+    @Mock
+    private lateinit var recorderControl: RecorderControl  // Mock for the RecorderControl interface
+
+
     private lateinit var audioViewModel: AudioViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        audioViewModel = AudioViewModel(mediaPlayerWrapper)
+        audioViewModel = AudioViewModel(mediaPlayerWrapper, recorderControl)
     }
 
     @Test
@@ -35,6 +40,18 @@ class AudioViewModelTest {
         audioViewModel.stopAudio()
         verify(mediaPlayerWrapper).stop()
         verify(mediaPlayerWrapper).release()
+    }
+
+    @Test
+    fun testStartRecording() {
+        audioViewModel.startRecording()
+        verify(recorderControl).startRecorder()  // Verify that startRecorder was called on the mocked RecorderControl
+    }
+
+    @Test
+    fun testStopRecording() {
+        audioViewModel.stopRecording()
+        verify(recorderControl).stopRecorder()  // Verify that stopRecorder was called on the mocked RecorderControl
     }
 
     @Test

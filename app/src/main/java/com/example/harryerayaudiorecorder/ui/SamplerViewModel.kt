@@ -8,36 +8,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-class SamplerViewModel : ViewModel() {
+interface ISamplerViewModel {
+    val uiState: StateFlow<SoundCard>
+    fun setSoundCard(soundCard: SoundCard)
+}
+
+class SamplerViewModel : ViewModel(), ISamplerViewModel {
 
     private val _uiState = MutableStateFlow(SoundCard())
-    val uiState: StateFlow<SoundCard> = _uiState.asStateFlow()
+    override val uiState: StateFlow<SoundCard> = _uiState.asStateFlow()
 
-//    fun setSoundCardTitle(fileName: String){
-//        _uiState.update { currentState -> currentState.copy(
-//            title = fileName
-//        ) }
-//    }
-    fun setSoundCard(soundCard: SoundCard){
-        _uiState.update { currentState -> currentState.copy(
-            duration = soundCard.duration,
-            fileName = soundCard.fileName,
-            fileSize = soundCard.fileSize
-        ) }
+    override fun setSoundCard(soundCard: SoundCard) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                duration = soundCard.duration,
+                fileName = soundCard.fileName,
+                fileSize = soundCard.fileSize
+            )
+        }
     }
-
-    //TODO : Implement this functions (first calculate or save)
-//    fun setDuration(someNumber: Double) {
-//        _uiState.update { currentState ->
-//            currentState.copy(
-//                duration = someNumber,
-//            )
-//        }
-//    }
-//    fun setFileSize(someNumber: Double) {}
-
-
-
-
 }
 

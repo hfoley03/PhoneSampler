@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
@@ -32,7 +31,6 @@ import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
-
 
 enum class PhoneSamplerScreen(@StringRes val title: Int) {
     Record(title = R.string.record),
@@ -115,7 +113,6 @@ fun PhoneSamplerApp(
                 )
             }
             composable(route = PhoneSamplerScreen.RecordingsList.name) {
-                val context = LocalContext.current
                 RecordingsListScreen(
                     audioViewModel,
                     onSongButtonClicked = {

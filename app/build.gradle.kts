@@ -73,12 +73,14 @@ dependencies {
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
     testImplementation("org.robolectric:robolectric:4.8")
-    testImplementation("androidx.test:runner:1.4.0")
+    testImplementation("androidx.test:runner:1.5.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("org.mockito:mockito-core:4.8.0")
     testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")  // Add this line
 
-    androidTestImplementation("org.mockito:mockito-core:4.8.0")
+    androidTestImplementation("org.mockito:mockito-core:4.0.0")
     androidTestImplementation("androidx.navigation:navigation-testing:2.7.4")
 
     androidTestImplementation("io.mockk:mockk-android:1.12.0")
@@ -87,6 +89,9 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    androidTestImplementation("org.mockito:mockito-android:4.0.0")
+
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 

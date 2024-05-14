@@ -36,6 +36,12 @@ fun RecordScreen(
     modifier: Modifier = Modifier
 ) {
     val isRecording by audioViewModel.recorderRunning
+    var showBottomSheet by remember { mutableStateOf(false) }  // State to manage BottomSheet visibility
+
+    if (showBottomSheet) {
+        BottomSheet(onDismiss = { showBottomSheet = false })
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(8.dp),
@@ -50,7 +56,9 @@ fun RecordScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            StopButton(isRecording, onClick = { audioViewModel.stopRecording() })
+            StopButton(isRecording, onClick = { audioViewModel.stopRecording()
+                showBottomSheet = true
+            })
             RecordButton(onClick = { audioViewModel.startRecording() })
             IconButton(
                 onClick = onListButtonClicked,
@@ -67,12 +75,6 @@ fun RecordScreen(
 
 
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun previewRecordScreen(){
-//    RecordScreen(context = LocalContext.current, onListButtonClicked = { /*TODO*/ })
-//}
 
 @Composable
 fun RecordButton(
@@ -116,46 +118,8 @@ fun StopButton(
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-
     }
 }
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun BottomSheet(onDismiss: () -> Unit) {
-//    val modalBottomSheetState = rememberModalBottomSheetState()
-//    var text by remember { mutableStateOf("") }
-//
-//    ModalBottomSheet(
-//        onDismissRequest = { onDismiss() },
-//        sheetState = modalBottomSheetState,
-//        dragHandle = { BottomSheetDefaults.DragHandle() },
-//    ) {
-//        Column (
-//            modifier = Modifier.fillMaxSize(),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ){
-//
-//
-//            Text(text = "Save Recording?")
-//            OutlinedTextField(
-//                value = text,
-//                onValueChange = { text = it },
-//                label = { Text("Input File Name") }
-//            )
-//            Row(
-//                horizontalArrangement = Arrangement.Center
-//            ) {
-//                Button(onClick = { /*TODO*/ }) {
-//                    Text(text = "Cancel")
-//                }
-//                Button(onClick = { /*TODO*/ }) {
-//                    Text(text = "Save")
-//                }
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun BottomSheet(onDismiss: () -> Unit) {

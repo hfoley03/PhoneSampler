@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
         const val RECORD_AUDIO_REQUEST_CODE = 1
     }
 
-    private lateinit var audioViewModel: AudioViewModel
+    lateinit var audioViewModel: AudioViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)

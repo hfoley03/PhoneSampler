@@ -63,7 +63,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 // ViewModel using the wrapper
 class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper, private val recorderControl: RecorderControl) : ViewModel() {
 
-    private val _recorderRunning = mutableStateOf(false)
+    val _recorderRunning = mutableStateOf(false)
     val recorderRunning: State<Boolean> = _recorderRunning
 
     fun playAudio(file: File) {
