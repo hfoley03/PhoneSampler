@@ -59,6 +59,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.3.0-alpha06")
+
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.7")
     implementation("androidx.navigation:navigation-compose:2.7.4")
     implementation("com.google.android.material:material:1.11.0")
@@ -68,6 +70,8 @@ dependencies {
     implementation ("com.github.lincollincol:compose-audiowaveform:1.1.2")
     implementation ("com.github.lincollincol:amplituda:2.2.2")
     implementation("androidx.test:core-ktx:1.5.0")
+    implementation("com.arthenica:ffmpeg-kit-full:4.4.LTS")
+
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.12.0")

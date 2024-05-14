@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.arthenica.ffmpegkit.FFmpegKit
 import com.example.harryerayaudiorecorder.RecorderControl
 import java.io.File
 import java.io.IOException
@@ -62,7 +63,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 }
 
 // ViewModel using the wrapper
-class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
+open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
                      private val recorderControl: RecorderControl,
                      val audioCapturesDirectory: File
 ) : ViewModel() {
@@ -107,6 +108,7 @@ class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
     }
 
     fun seekTo(position: Long) {
+        Log.d("AudioViewModel", "SEEK TO")
         mediaPlayerWrapper.seekTo(position.toInt(), MediaPlayer.SEEK_CLOSEST)
     }
 
@@ -114,26 +116,7 @@ class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
         mediaPlayerWrapper.release()
     }
 
-//    fun renameFile(audioCapturesDirectory: File, oldName: String, newName: String) {
-//
-//        val file = File(audioCapturesDirectory, oldName)
-//        if (file.exists()) {
-//            val newFile = File(audioCapturesDirectory, newName)
-//            if (!newFile.exists()) {
-//                file.renameTo(newFile)
-//            } else {
-//                // Handle the case where a file with the new name already exists
-//            }
-//        }
-//    }
-
     fun renameFile(oldName: String, newName: String) {
-//        Log.d("AudioViewModel", getLastCreatedFile(audioCapturesDirectory).toString())
-//        getLastCreatedFile(audioCapturesDirectory)?.let { Log.d("AudioViewModel", it.name) }
-//
-//        Log.d("AudioViewModel", _currentFileName.value.toString())
-//        Log.d("AudioViewModel", oldName)
-//        Log.d("AudioViewModel", newName)
 
 
         val file =  getLastCreatedFile(audioCapturesDirectory)//File(audioCapturesDirectory, oldName)
@@ -155,13 +138,6 @@ class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
     }
 
     fun renameFileFromList(oldName: String, newName: String) {
-//        Log.d("AudioViewModel", getLastCreatedFile(audioCapturesDirectory).toString())
-//        getLastCreatedFile(audioCapturesDirectory)?.let { Log.d("AudioViewModel", it.name) }
-//
-//        Log.d("AudioViewModel", _currentFileName.value.toString())
-//        Log.d("AudioViewModel", oldName)
-//        Log.d("AudioViewModel", newName)
-
 
         val file =  File(audioCapturesDirectory, oldName)
 
@@ -198,6 +174,21 @@ class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
 
     fun getLastCreatedFile(directory: File): File? {
         return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
+    }
+
+    fun trimAudio(file: File, startMillis: Int, endMillis: Int) {
+        val outputTrimmedFile = File(audioCapturesDirectory, "trimmed_${file.name}")
+        val startSeconds = startMillis / 1000
+        val durationSeconds = (endMillis - startMillis) / 1000
+        val command = "-i ${file.absolutePath} -ss $startSeconds -t $durationSeconds -c copy ${outputTrimmedFile.absolutePath}"
+
+        FFmpegKit.execute(command).apply {
+            if (returnCode.isSuccess) {
+                Log.d("AudioViewModel", "Trimming successful: ${outputTrimmedFile.absolutePath}")
+            } else {
+                Log.e("AudioViewModel", "Trimming failed")
+            }
+        }
     }
 
 }
