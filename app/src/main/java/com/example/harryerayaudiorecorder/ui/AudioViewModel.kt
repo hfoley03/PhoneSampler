@@ -23,6 +23,9 @@ interface MediaPlayerWrapper {
     fun seekTo(position: Long, mode: Int)
     fun pause()
     fun isMediaPlayer(): Any
+
+    fun onCleared()
+    fun reset()
 }
 
 // Real implementation of MediaPlayer
@@ -30,32 +33,60 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
     private var mediaPlayer: MediaPlayer? = null
 
     override fun setDataSource(path: String) {
-        Log.d("AndroidMediaPlayerWrapper", "setdatasource()")
-        //mediaPlayer?.release()
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(path)
+        mediaPlayer?.reset()
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer().apply {
+                setOnPreparedListener {
+                    Log.d("AndroidMediaPlayerWrapper", "MediaPlayer prepared")
+                }
+                setOnSeekCompleteListener {
+                    Log.d("AndroidMediaPlayerWrapper", "Seek completed")
+                    start()  // Start playback after seek completes
+                }
+            }
         }
+        mediaPlayer?.setDataSource(path)
+        Log.d("AndroidMediaPlayerWrapper", "setDataSource() - path: $path")
     }
 
     override fun prepare() {
         mediaPlayer?.prepare()
+        Log.d("AndroidMediaPlayerWrapper", "prepare() - MediaPlayer prepared")
     }
 
     override fun start() {
         mediaPlayer?.start()
+        Log.d("AndroidMediaPlayerWrapper", "start() - MediaPlayer started")
     }
 
-    override fun isMediaPlayer(): Boolean = mediaPlayer != null
+    override fun seekTo(position: Long, mode: Int) {
+        Log.d("AndroidMediaPlayerWrapper", "seekTo() - position: $position, mode: $mode")
+        if (mediaPlayer != null) {
+            mediaPlayer?.seekTo(position, mode) // Ensure position is converted to Int
+            Log.d("AndroidMediaPlayerWrapper", "seekTo() - Seek operation called")
+        } else {
+            Log.e("AndroidMediaPlayerWrapper", "seekTo() - MediaPlayer is null")
+        }
+    }
 
-    override fun stop() {
-        mediaPlayer?.stop()
+    override fun pause() {
+        mediaPlayer?.pause()
+        Log.d("AndroidMediaPlayerWrapper", "pause() - MediaPlayer paused")
     }
 
     override fun release() {
-        Log.d("AndroidMediaPlayerWrapper", "rlease 51()")
+        mediaPlayer?.let {
+            it.release()
+            mediaPlayer = null
+            Log.d("AndroidMediaPlayerWrapper", "release() - MediaPlayer released")
+        }
+    }
 
+    override fun stop() {
+        mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
+        Log.d("AndroidMediaPlayerWrapper", "stop() - MediaPlayer stopped and released")
     }
 
     override fun isPlaying(): Boolean = mediaPlayer?.isPlaying ?: false
@@ -64,20 +95,30 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 
     override fun getDuration(): Int = mediaPlayer?.duration ?: 0
 
-    override fun seekTo(position: Long, mode: Int) {
-        Log.d("AudioViewModel", "seekto 61")
-        mediaPlayer?.seekTo(position, mode)
+    override fun reset() {
+        mediaPlayer?.reset()
+        Log.d("AndroidMediaPlayerWrapper", "reset() - MediaPlayer reset")
     }
 
-    override fun pause() {
-        mediaPlayer?.pause();
+    override fun isMediaPlayer(): Boolean = mediaPlayer != null
+
+    override fun onCleared() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+        Log.d("AndroidMediaPlayerWrapper", "onCleared() - MediaPlayer cleared")
     }
 }
 
+
+
+
+
+
 // ViewModel using the wrapper
-open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
-                     private val recorderControl: RecorderControl,
-                     val audioCapturesDirectory: File
+open class AudioViewModel(
+    private val mediaPlayerWrapper: MediaPlayerWrapper,
+    private val recorderControl: RecorderControl,
+    val audioCapturesDirectory: File
 ) : ViewModel() {
 
     val _recorderRunning = mutableStateOf(false)
@@ -88,7 +129,8 @@ open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
 
 
     fun playAudio(file: File) {
-        Log.d("AudioViewModel", "exists: " + mediaPlayerWrapper.isMediaPlayer().toString())
+        stopAudio() // Ensure the previous instance is stopped and released
+
         mediaPlayerWrapper.setDataSource(file.absolutePath)
         try {
             mediaPlayerWrapper.prepare()
@@ -103,8 +145,10 @@ open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
     }
 
     fun stopAudio() {
-        mediaPlayerWrapper.stop()
-        mediaPlayerWrapper.release()
+        if (mediaPlayerWrapper.isPlaying()) {
+            mediaPlayerWrapper.stop()
+        }
+        mediaPlayerWrapper.onCleared()
     }
 
     fun getCurrentPosition(): Int = mediaPlayerWrapper.getCurrentPosition()
@@ -126,12 +170,11 @@ open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
 
     fun seekTo(position: Long) {
         Log.d("AudioViewModel", position.toString())
-        mediaPlayerWrapper.seekTo(position, MediaPlayer.SEEK_PREVIOUS_SYNC)
+        mediaPlayerWrapper.seekTo(position, MediaPlayer.SEEK_CLOSEST)
     }
 
     override fun onCleared() {
         Log.d("AndroidMediaPlayerWrapper", "oncleared()")
-
         mediaPlayerWrapper.release()
     }
 
@@ -157,7 +200,7 @@ open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
     }
 
     fun renameFileFromList(oldName: String, newName: String) {
-        val file =  File(audioCapturesDirectory, oldName)
+        val file = File(audioCapturesDirectory, oldName)
             if (file.exists()) {
                 val newFile = File(audioCapturesDirectory, newName)
                 if (!newFile.exists()) {
@@ -170,7 +213,6 @@ open class AudioViewModel(private val mediaPlayerWrapper: MediaPlayerWrapper,
             else {
                 Log.d("AudioViewModel", "no such file")
             }
-
     }
     fun startRecording() {
         recorderControl.startRecorder()
