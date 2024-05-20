@@ -117,7 +117,7 @@ fun PlaybackScreen(
         ) {
             Button(onClick = {
                 isRepeatOn.value = !isRepeatOn.value
-                //audioViewModel.setRepeatMode(isRepeatOn.value)
+                audioViewModel.setLooping(isRepeatOn.value)
             }) {
                 Icon(
                     painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
@@ -152,7 +152,7 @@ fun PlaybackScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = { /* Fast rewind functionality here */ }) {
+            Button(onClick = { audioViewModel.fastRewind(3000) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.round_fast_rewind_24),
                     contentDescription = "Rewind",
@@ -190,7 +190,7 @@ fun PlaybackScreen(
                 )
             }
 
-            Button(onClick = { /* Fast forward functionality here */ }) {
+            Button(onClick = { audioViewModel.fastForward(3000) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.round_fast_forward_24),
                     contentDescription = "Fast Forward",

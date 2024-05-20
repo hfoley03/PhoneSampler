@@ -24,6 +24,8 @@ interface MediaPlayerWrapper {
     fun pause()
     fun isMediaPlayer(): Any
 
+    fun setLooping(state: Boolean)
+
     fun onCleared()
     fun reset()
 }
@@ -101,6 +103,10 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
     }
 
     override fun isMediaPlayer(): Boolean = mediaPlayer != null
+    override fun setLooping(state: Boolean) {
+        mediaPlayer?.isLooping = state
+        Log.d("looping", mediaPlayer?.isLooping.toString())
+    }
 
     override fun onCleared() {
         mediaPlayer?.release()
@@ -162,6 +168,10 @@ open class AudioViewModel(
         return mediaPlayerWrapper.getDuration()
     }
 
+    fun setLooping(state: Boolean){
+        mediaPlayerWrapper.setLooping(state)
+    }
+
     fun formatDuration(millis: Long): String {
         return String.format("%02d:%02d:%02d",
             TimeUnit.MILLISECONDS.toHours(millis),
@@ -179,6 +189,16 @@ open class AudioViewModel(
     override fun onCleared() {
         Log.d("AndroidMediaPlayerWrapper", "oncleared()")
         mediaPlayerWrapper.release()
+    }
+
+    fun fastForward(skipMillis: Int) {
+        val newPosition = (getCurrentPosition() + skipMillis)
+        seekTo(newPosition.toLong())
+    }
+
+    fun fastRewind(skipMillis: Int) {
+        val newPosition = (getCurrentPosition() - skipMillis).coerceAtLeast(0)
+        seekTo(newPosition.toLong())
     }
 
     fun renameFile(oldName: String, newName: String) {
@@ -204,8 +224,8 @@ open class AudioViewModel(
 
     fun renameFileFromList(oldName: String, newName: String) {
         val file = File(audioCapturesDirectory, oldName)
-            if (file.exists()) {
-                val newFile = File(audioCapturesDirectory, newName)
+        if (file.exists()) {
+            val newFile = File(audioCapturesDirectory, newName)
                 if (!newFile.exists()) {
                     file.renameTo(newFile)
                     _currentFileName.value = newName
