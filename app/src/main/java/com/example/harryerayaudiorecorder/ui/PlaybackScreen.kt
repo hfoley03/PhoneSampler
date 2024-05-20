@@ -64,7 +64,7 @@ fun PlaybackScreen(
     amplituda.processAudio(audioFile.path)[
         { result: AmplitudaResult<String?> ->
             amplitudesData = result.amplitudesAsList()
-            Log.d("amplitudesData", audioFile.path)
+            //Log.d("amplitudesData", audioFile.path)
             val amplitudesForFirstSecond =
                 result.amplitudesForSecond(1)
             val duration = result.getAudioDuration(AmplitudaResult.DurationUnit.SECONDS)
@@ -100,6 +100,7 @@ fun PlaybackScreen(
                     waveformProgress = newProgress
                     val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
                     audioViewModel.seekTo(newPosition)
+                    Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
                 }
             )
         }
@@ -114,7 +115,7 @@ fun PlaybackScreen(
         ) {
             Button(onClick = {
                 isRepeatOn.value = !isRepeatOn.value
-                audioViewModel.setRepeatMode(isRepeatOn.value)
+                //audioViewModel.setRepeatMode(isRepeatOn.value)
             }) {
                 Icon(
                     painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
@@ -160,7 +161,7 @@ fun PlaybackScreen(
             Button(
                 onClick = {
                     if (isPlaying.value) {
-                        audioViewModel.stopAudio()
+                        audioViewModel.pauseAudio()
                         isPlaying.value = false
                     } else {
                         if (audioFile.exists()) {
