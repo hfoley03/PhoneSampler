@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.R
 import com.linc.audiowaveform.AudioWaveform
 import kotlinx.coroutines.delay
@@ -57,6 +59,7 @@ fun PlaybackScreen(
     val scope = rememberCoroutineScope()
     var waveformProgress by remember { mutableStateOf(0F) }
     var amplitudesData: List<Int> = listOf()
+    var currentPosition by remember { mutableStateOf(0) }
 
     val amplituda = Amplituda(context)
 
@@ -74,7 +77,17 @@ fun PlaybackScreen(
             if (exception is AmplitudaIOException) {
                 println("IO Exception!")
             }
-        }]
+        }
+    ]
+
+    LaunchedEffect(isPlaying.value) {
+        while (isPlaying.value) {
+            currentPosition = audioViewModel.getCurrentPosition() // Convert milliseconds to seconds
+            //waveformProgress = (audioViewModel.getCurrentPosition().toFloat() / audioViewModel.getAudioDuration(audioFile).toFloat())
+            waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
+            delay(20) // Update every second
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -84,6 +97,8 @@ fun PlaybackScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = fileName, modifier = Modifier.padding(bottom = 16.dp))
+
+        Text(text = formatTime(currentPosition), modifier = Modifier.padding(32.dp), fontSize = 64.sp)
 
         Box(
             modifier = Modifier
@@ -152,7 +167,11 @@ fun PlaybackScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = { audioViewModel.fastRewind(3000) }) {
+            Button(onClick = {
+                audioViewModel.fastRewind(3000)
+                isPlaying.value = true
+            })
+            {
                 Icon(
                     painter = painterResource(id = R.drawable.round_fast_rewind_24),
                     contentDescription = "Rewind",
@@ -171,10 +190,10 @@ fun PlaybackScreen(
                             audioViewModel.playAudio(audioFile, startPosition)
                             isPlaying.value = true
                             scope.launch {
-                                while (isPlaying.value) {
-                                    waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
-                                    delay(100)
-                                }
+//                                while (isPlaying.value) {
+//                                    waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
+//                                    delay(100)
+//                                }
                             }
                         } else {
                             // Handle the case where the file does not exist
@@ -190,7 +209,10 @@ fun PlaybackScreen(
                 )
             }
 
-            Button(onClick = { audioViewModel.fastForward(3000) }) {
+            Button(onClick = {
+                audioViewModel.fastForward(3000)
+                isPlaying.value = true
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.round_fast_forward_24),
                     contentDescription = "Fast Forward",
@@ -199,6 +221,13 @@ fun PlaybackScreen(
             }
         }
     }
+}
+
+fun formatTime(milliseconds: Int): String {
+    val minutes = (milliseconds / 1000) / 60
+    val seconds = (milliseconds / 1000) % 60
+    val centiseconds = (milliseconds / 10) % 100
+    return String.format("%02d:%02d:%02d", minutes, seconds, centiseconds)
 }
 
 
