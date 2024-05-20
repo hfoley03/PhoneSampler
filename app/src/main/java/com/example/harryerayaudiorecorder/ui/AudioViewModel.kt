@@ -127,13 +127,14 @@ open class AudioViewModel(
     private val _currentFileName = mutableStateOf<String?>(null)
     val currentFileName: State<String?> = _currentFileName
 
-
-    fun playAudio(file: File) {
+    var currentPosition: Long = 0
+    fun playAudio(file: File, startPosition: Long = 0) {
         stopAudio() // Ensure the previous instance is stopped and released
 
         mediaPlayerWrapper.setDataSource(file.absolutePath)
         try {
             mediaPlayerWrapper.prepare()
+            mediaPlayerWrapper.seekTo(startPosition, MediaPlayer.SEEK_CLOSEST)
             mediaPlayerWrapper.start()
         } catch (e: IOException) {
             Log.e("AudioViewModel", "Could not play audio", e)
@@ -142,10 +143,12 @@ open class AudioViewModel(
 
     fun pauseAudio(){
         mediaPlayerWrapper.pause();
+        currentPosition = mediaPlayerWrapper.getCurrentPosition().toLong()
     }
 
     fun stopAudio() {
         if (mediaPlayerWrapper.isPlaying()) {
+            currentPosition = mediaPlayerWrapper.getCurrentPosition().toLong()
             mediaPlayerWrapper.stop()
         }
         mediaPlayerWrapper.onCleared()

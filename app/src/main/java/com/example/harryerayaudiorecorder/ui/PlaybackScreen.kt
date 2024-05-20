@@ -163,11 +163,12 @@ fun PlaybackScreen(
             Button(
                 onClick = {
                     if (isPlaying.value) {
-                        audioViewModel.stopAudio()
+                        audioViewModel.pauseAudio()
                         isPlaying.value = false
                     } else {
                         if (audioFile.exists()) {
-                            audioViewModel.playAudio(audioFile)
+                            val startPosition = audioViewModel.getCurrentPosition().toLong()
+                            audioViewModel.playAudio(audioFile, startPosition)
                             isPlaying.value = true
                             scope.launch {
                                 while (isPlaying.value) {
