@@ -36,7 +36,7 @@ import java.util.Locale
 fun RecordScreen(
     audioViewModel: AudioViewModel,
     onListButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.background(MaterialTheme.colorScheme.background)
 ) {
     val isRecording by audioViewModel.recorderRunning
     var showBottomSheet by remember { mutableStateOf(false) }  // State to manage BottomSheet visibility
@@ -47,7 +47,7 @@ fun RecordScreen(
 
     Surface(
         color = MaterialTheme.colorScheme.primary,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)

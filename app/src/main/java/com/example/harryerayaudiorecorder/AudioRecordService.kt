@@ -74,6 +74,10 @@ class AudioRecordService : Service() {
         val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
         val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM)
         val fileNameWAV = fileNamePCM.dropLast(3) + "wav"
+        val fileNameWAVTrimmed = fileNamePCM.dropLast(4) + "trimed.wav"
+        Log.d(TAG, fileNameWAV)
+        Log.d(TAG, fileNameWAVTrimmed)
+
         val f2 = File(audioCapturesDirectory.absolutePath + "/" + fileNameWAV)
 
         try {
@@ -81,39 +85,21 @@ class AudioRecordService : Service() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+        val originalFilePath = audioCapturesDirectory.absolutePath + "/" + fileNameWAV
+        val trimmedFilePath = audioCapturesDirectory.absolutePath + "/" + fileNameWAVTrimmed
+
+        //trim
+        AudioRemoveSilence.trimSilenceFromAudio( originalFilePath, trimmedFilePath) { success ->
+            if (success) {
+                Log.d(TAG, "audio trimmed")
+            } else {
+                Log.d(TAG, "failed at audio trimmed")
+            }
+        }
+
         super.onDestroy()
     }
-//    override fun onDestroy() {
-//        Log.d(TAG, "onDestroy")
-//        //stop the task
-//        audioRecordingTask.cancel()
-//        Log.d(TAG, fileOutputStream.toString())
-//        val fileNameWAV = fileNamePCM.dropLast(3) + "wav"
-//
-//        fileOutputStream.close()
-//        val audioCapturesDirectory = File(getExternalFilesDir(null), "/AudioCaptures")
-//
-//        val f1 = File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM) // The location of your PCM file
-//
-//        val f2 =
-//            File(audioCapturesDirectory.absolutePath + "/" + fileNameWAV) // The location where you want your WAV file
-//
-//        try {
-//            AudioConversionUtils.rawToWave(f1, f2)
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//        }
-//        super.onDestroy()
-//    }
-
-//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        Log.d(TAG, "onStartCommand")
-//        Log.d(TAG, intent.toString())
-//        createNotification()
-//        startRecording()
-//        return super.onStartCommand(intent, flags, startId)
-//    }
-
+    
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
         intent?.getStringExtra("FILE_NAME")?.let { fileName ->

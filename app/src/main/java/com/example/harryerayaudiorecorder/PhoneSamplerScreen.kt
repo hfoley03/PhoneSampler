@@ -3,6 +3,7 @@ package com.example.harryerayaudiorecorder
 //import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import AudioViewModel
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -99,6 +100,7 @@ fun PhoneSamplerApp(
             startDestination = PhoneSamplerScreen.Record.name,
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
 //                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {

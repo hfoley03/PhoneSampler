@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -91,7 +93,7 @@ fun RecordingsListScreen(
                 onPencilClicked = { newFileName ->
                     audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
                 },
-                onLongClick = {
+                onDeleteClick = {
                     audioViewModel.deleteSoundCard(item.value, soundCardList) // Handle long click
                 }
             )
@@ -128,7 +130,7 @@ fun SoundRecordingCard(
     audioCapturesDirectory: File,
     onClick: () -> Unit,
     onPencilClicked: (String) -> Unit,
-    onLongClick: () -> Unit
+    onDeleteClick: () -> Unit
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
     if (showEditFileNameDialog) {
@@ -146,13 +148,13 @@ fun SoundRecordingCard(
     }
     Surface(
         color = MaterialTheme.colorScheme.primary,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onLongPress = { onLongClick() }, // Handle long press
+                    onLongPress = {  }, // Handle long press
                     onTap = { onClick() } // Handle single tap
                 )
             }
@@ -166,13 +168,21 @@ fun SoundRecordingCard(
                 Text(
                     text = soundCard.fileName,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.inversePrimary
+                    color = MaterialTheme.colorScheme.inversePrimary,
+                    fontSize = 20.sp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                IconButton(onClick = { showEditFileNameDialog = true }) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Title")
+                Column {
+                    IconButton(onClick = { showEditFileNameDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit Title")
+                    }
+                    IconButton(onClick = { onDeleteClick() }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
                 }
+
             }
+
             Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimary)
             Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB", color = MaterialTheme.colorScheme.onPrimary)
             Text(text = "Date: ${ soundCard.date }", color = MaterialTheme.colorScheme.onPrimary)
