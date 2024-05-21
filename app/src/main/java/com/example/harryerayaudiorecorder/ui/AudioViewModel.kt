@@ -38,6 +38,8 @@ interface MediaPlayerWrapper {
 
     fun setLooping(state: Boolean)
 
+    fun setPlaybackSpeed(speed: Float)
+
     fun onCleared()
     fun reset()
 }
@@ -120,6 +122,13 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         Log.d("looping", mediaPlayer?.isLooping.toString())
     }
 
+    override fun setPlaybackSpeed(speed: Float) {
+        mediaPlayer?.let {
+            it.playbackParams = it.playbackParams.setSpeed(speed)
+            Log.d("AndroidMediaPlayerWrapper", "setPlaybackSpeed() - speed: $speed")
+        }
+    }
+
     override fun onCleared() {
         mediaPlayer?.release()
         mediaPlayer = null
@@ -197,6 +206,7 @@ open class AudioViewModel(
     fun seekTo(position: Long) {
         Log.d("AudioViewModel", position.toString())
         mediaPlayerWrapper.seekTo(position, MediaPlayer.SEEK_CLOSEST)
+        _recorderRunning.value = true
     }
 
     override fun onCleared() {
@@ -207,11 +217,14 @@ open class AudioViewModel(
     fun fastForward(skipMillis: Int) {
         val newPosition = (getCurrentPosition() + skipMillis)
         seekTo(newPosition.toLong())
+        _recorderRunning.value = true
+
     }
 
     fun fastRewind(skipMillis: Int) {
         val newPosition = (getCurrentPosition() - skipMillis).coerceAtLeast(0)
         seekTo(newPosition.toLong())
+        _recorderRunning.value = true
     }
 
     fun renameFile(oldName: String, newName: String) {
@@ -236,23 +249,37 @@ open class AudioViewModel(
         }
 
     }
-
     fun renameFileFromList(oldName: String, newName: String) {
         val file = File(audioCapturesDirectory, oldName)
-            if (file.exists())
+        if (file.exists())
+        {
+            val newFile = File(audioCapturesDirectory, newName)
+            if (!newFile.exists())
             {
-                val newFile = File(audioCapturesDirectory, newName)
-                if (!newFile.exists()) {
-                    file.renameTo(newFile)
-                    _currentFileName.value = newName
-                } else {
+                file.renameTo(newFile)
+                _currentFileName.value = newName
+            }
+            else
+            {
                     // Handle the case where a file with the new name already exists
-                }
             }
-            else {
-                Log.d("AudioViewModel", "no such file")
-            }
+        }
+        else
+        {
+            Log.d("AudioViewModel", "no such file")
+        }
     }
+
+    fun setPlaybackSpeed(speed: Float) {
+        if (mediaPlayerWrapper.isPlaying()) {
+            mediaPlayerWrapper.setPlaybackSpeed(speed)
+        }
+    }
+
+    fun adjustPlaybackSpeed(speed: Float) {
+        mediaPlayerWrapper.setPlaybackSpeed(speed)
+    }
+
     fun startRecording() {
         recorderControl.startRecorder()
         _recorderRunning.value = true
