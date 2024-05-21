@@ -1,15 +1,21 @@
 
 import android.media.MediaPlayer
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.example.harryerayaudiorecorder.RecorderControl
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
+import com.example.harryerayaudiorecorder.data.SoundCard
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -301,6 +307,19 @@ open class AudioViewModel(
 
         GlobalScope.launch {
             db.audioRecordDoa().insert(record)
+        }
+    }
+
+    fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val audioRecordEntity = db.audioRecordDoa().getAll()
+                .find { it.filename == soundCard.fileName } // Assuming filename is unique
+            audioRecordEntity?.let {
+                db.audioRecordDoa().delete(it)
+                withContext(Dispatchers.Main) {
+                    soundCardList.removeIf { it.value.fileName == soundCard.fileName }
+                }
+            }
         }
     }
 
