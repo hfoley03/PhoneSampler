@@ -316,11 +316,39 @@ open class AudioViewModel(
                 .find { it.filename == soundCard.fileName } // Assuming filename is unique
             audioRecordEntity?.let {
                 db.audioRecordDoa().delete(it)
+
+                val file = File(it.filePath)
+                if(file.exists()){
+                    file.delete()
+                    Log.d("DELETE", "DELTEED")
+                }
+
                 withContext(Dispatchers.Main) {
                     soundCardList.removeIf { it.value.fileName == soundCard.fileName }
                 }
             }
         }
     }
+
+    fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val audioRecordEntity = db.audioRecordDoa().getAll()
+                .find { it.filename == soundCard.fileName } // Assuming filename is unique
+            audioRecordEntity?.let { entity ->
+
+                    entity.filename = newFileName
+                    db.audioRecordDoa().update(entity)
+
+                    withContext(Dispatchers.Main) {
+                        val index = soundCardList.indexOfFirst { it.value.fileName == soundCard.fileName }
+                        if (index != -1) {
+                            soundCardList[index].value = soundCard.copy(fileName = newFileName)
+                        }
+                    }
+
+            }
+        }
+    }
+
 
 }

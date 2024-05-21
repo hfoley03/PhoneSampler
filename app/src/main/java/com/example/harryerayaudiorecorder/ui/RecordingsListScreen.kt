@@ -89,12 +89,11 @@ fun RecordingsListScreen(
                 audioCapturesDirectory = audioCapturesDirectory,
                 onClick = { onSongButtonClicked(item.value) },
                 onPencilClicked = { newFileName ->
-                    item.value = item.value.copy(fileName = newFileName)
+                    audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
                 },
                 onLongClick = {
                     audioViewModel.deleteSoundCard(item.value, soundCardList) // Handle long click
                 }
-
             )
         }
     }
