@@ -1,6 +1,7 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -21,7 +23,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,9 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.data.SoundCard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
 
 
 
@@ -45,39 +50,44 @@ fun RecordingsListScreen(
 )  {
     val context = LocalContext.current
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
-//    var audioViewModel: AudioViewModel
-//    audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper())
+    val soundCardList = remember { mutableStateListOf<MutableState<SoundCard>>() }
 
-    val wavFiles = audioCapturesDirectory.listFiles { file ->
-        file.isFile && file.name.lowercase().endsWith(".wav")
+    //val soundCardList: MutableList<MutableState<SoundCard>> = mutableListOf()
+
+// Launch a coroutine to fetch and populate the list
+    LaunchedEffect(Unit) {        // Switch to the IO dispatcher for database operations
+        withContext(Dispatchers.IO) {
+            val soundRecordDatabaseList = audioViewModel.db.audioRecordDoa().getAll()
+
+            // Map each record to a MutableState<SoundCard> and add it to the soundCardList
+            soundRecordDatabaseList.forEach { record ->
+                val soundCard = SoundCard(
+                    duration = record.duration,
+                    fileName = record.filename,
+                    fileSize = record.fileSize,
+                    date = record.date
+                )
+                Log.d("Created SoundCard", "${soundCard.fileName}") // Log each SoundCard
+
+                // Add to the list on the main thread
+                withContext(Dispatchers.Main) {
+                    soundCardList.add(mutableStateOf(soundCard))
+                }
+            }
+        }
     }
 
 
-    val soundCardList = wavFiles.map { file ->
-        val dur = audioViewModel.getAudioDuration(file)
-        val fSizeMB = file.length().toDouble() / (1024 * 1024)
-        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
-        mutableStateOf(
-            SoundCard(
-                duration = dur,
-                fileName = file.name,
-                fileSize = fSizeMB,
-                date = lastModDate.toString(),
-            )
-        )
-    }
 
 
-
-    LazyColumn {
-        items(count = soundCardList.size) { index ->
-            val item = soundCardList[index]
+    LazyColumn(modifier = modifier) {
+        items(soundCardList) { item ->
             SoundRecordingCard(
                 audioViewModel,
                 soundCard = item.value,
                 audioCapturesDirectory = audioCapturesDirectory,
-                onClick = {onSongButtonClicked(item.value)},
-                onThreeDotsClicked = {newFileName ->
+                onClick = { onSongButtonClicked(item.value) },
+                onPencilClicked = { newFileName ->
                     item.value = item.value.copy(fileName = newFileName)
                 }
             )
@@ -85,6 +95,8 @@ fun RecordingsListScreen(
     }
 
 }
+
+
 //@Preview
 //@Composable
 //fun previewSoundRecordingCard(){
@@ -111,7 +123,7 @@ fun SoundRecordingCard(
     soundCard: SoundCard,
     audioCapturesDirectory: File,
     onClick: () -> Unit,
-    onThreeDotsClicked: (String) -> Unit
+    onPencilClicked: (String) -> Unit
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
     if (showEditFileNameDialog) {
@@ -121,7 +133,7 @@ fun SoundRecordingCard(
                 audioViewModel.renameFileFromList(
                     soundCard.fileName,
                     newFileName)
-                onThreeDotsClicked(newFileName)
+                onPencilClicked(newFileName)
                 showEditFileNameDialog = false
 
             }

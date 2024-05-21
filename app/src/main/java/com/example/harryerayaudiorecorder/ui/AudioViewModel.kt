@@ -6,8 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.example.harryerayaudiorecorder.RecorderControl
+import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
+import com.example.harryerayaudiorecorder.data.AudioRecordEntity
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 // Media player interface for abstraction
@@ -124,7 +130,8 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 open class AudioViewModel(
     private val mediaPlayerWrapper: MediaPlayerWrapper,
     private val recorderControl: RecorderControl,
-    val audioCapturesDirectory: File
+    val audioCapturesDirectory: File,
+    val db : AudioRecordDatabase
 ) : ViewModel() {
 
     val _recorderRunning = mutableStateOf(false)
@@ -204,7 +211,7 @@ open class AudioViewModel(
     fun renameFile(oldName: String, newName: String) {
 
 
-        val file =  getLastCreatedFile(audioCapturesDirectory)//File(audioCapturesDirectory, oldName)
+        val file =  getLastCreatedFile(audioCapturesDirectory) //File(audioCapturesDirectory, oldName)
 
         if (file != null) {
             if (file.exists()) {
@@ -215,17 +222,20 @@ open class AudioViewModel(
                 } else {
                     // Handle the case where a file with the new name already exists
                 }
+//                save(file, newName)
             }
             else {
                 Log.d("AudioViewModel", "no such file")
             }
         }
+
     }
 
     fun renameFileFromList(oldName: String, newName: String) {
         val file = File(audioCapturesDirectory, oldName)
-        if (file.exists()) {
-            val newFile = File(audioCapturesDirectory, newName)
+            if (file.exists())
+            {
+                val newFile = File(audioCapturesDirectory, newName)
                 if (!newFile.exists()) {
                     file.renameTo(newFile)
                     _currentFileName.value = newName
@@ -269,6 +279,28 @@ open class AudioViewModel(
             } else {
                 Log.e("AudioViewModel", "Trimming failed")
             }
+        }
+    }
+
+    fun save(name: String){
+
+        val file = File(audioCapturesDirectory, name)
+
+        val dur =  getAudioDuration(file)
+        val fSizeMB = file.length().toDouble() / (1024 * 1024)
+        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
+        Log.d("AUDIOVIEWMODEL", lastModDate)
+
+        var record = AudioRecordEntity(name, file.absolutePath, dur, fSizeMB, lastModDate)
+
+        Log.d("AudioViewModel", record.filename)
+        Log.d("AudioViewModel", record.filePath)
+        Log.d("AudioViewModel", record.fileSize.toString())
+        Log.d("AudioViewModel", record.duration.toString())
+
+
+        GlobalScope.launch {
+            db.audioRecordDoa().insert(record)
         }
     }
 

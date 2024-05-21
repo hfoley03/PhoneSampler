@@ -114,7 +114,6 @@ fun PlaybackScreen(
                 onProgressChange = { newProgress ->
                     waveformProgress = newProgress
                     val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
-                    //audioViewModel.seekTo(newPosition)
                     audioViewModel.seekTo(newPosition)
                     Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
                     isPlaying.value = true

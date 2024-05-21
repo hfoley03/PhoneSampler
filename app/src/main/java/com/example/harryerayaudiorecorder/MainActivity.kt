@@ -12,6 +12,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.ActivityCompat
+import androidx.room.Room
+import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
 import java.io.File
 
@@ -28,15 +30,27 @@ class MainActivity : ComponentActivity(), RecorderControl {
     }
 
     lateinit var audioViewModel: AudioViewModel
+
+    lateinit var db : AudioRecordDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         requestAudioPermissions()
-        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this, File(this.getExternalFilesDir(null), "/AudioCaptures"))
+
+        db = Room.databaseBuilder(
+            this,
+            AudioRecordDatabase::class.java,
+            "audioRecordsDatabase"
+        ).fallbackToDestructiveMigration() // Add this line
+            .build()
+
+        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this, File(this.getExternalFilesDir(null), "/AudioCaptures"), db)
+
+
 
         setContent {
             HarryErayAudioRecorderTheme {
-                PhoneSamplerApp(audioViewModel = audioViewModel)
+                PhoneSamplerApp(audioViewModel = audioViewModel, db = db)
             }
         }
     }

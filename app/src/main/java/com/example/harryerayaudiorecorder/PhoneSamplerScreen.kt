@@ -27,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
@@ -73,8 +74,8 @@ fun PhoneSamplerAppBar(
 fun PhoneSamplerApp(
     viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavHostController = rememberNavController(),
-    audioViewModel: AudioViewModel
-
+    audioViewModel: AudioViewModel,
+    db : AudioRecordDatabase
 ){
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
