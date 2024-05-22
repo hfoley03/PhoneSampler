@@ -2,13 +2,17 @@ package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +27,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -65,6 +71,9 @@ fun PlaybackScreen(
     val showSpeedSlider = remember { mutableStateOf(false) }
     val playbackSpeed = remember { mutableStateOf(1.0f) }
 
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
     val amplituda = Amplituda(context)
 
     /* Step 2: process audio and handle result */
@@ -92,149 +101,390 @@ fun PlaybackScreen(
             delay(20) // Update every second
         }
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = fileName, modifier = Modifier.padding(bottom = 16.dp))
-
-//        Text(text = formatTime(currentPosition), modifier = Modifier.padding(32.dp), fontSize = 64.sp)
-
-        EvenlySpacedText2(text = formatTime(currentPosition))
-
+    if(isLandscape){
         Box(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
         ) {
-            AudioWaveform(
-                amplitudes = amplitudesData,
-                progress = waveformProgress,
-                progressBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                waveformBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
-                onProgressChange = { newProgress ->
-                    waveformProgress = newProgress
-                    val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
-                    audioViewModel.seekTo(newPosition)
-                    audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
-                    Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
-                    isPlaying.value = true
-                }
-            )
-        }
-
-        if (showSpeedSlider.value) {
-            Slider(
-                value = playbackSpeed.value,
-                onValueChange = {
-                    playbackSpeed.value = it
-                    audioViewModel.setPlaybackSpeed(it)
-                },
-                valueRange = 0.25f..4.0f,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .padding(horizontal = 16.dp)
-                .align(Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = {
-                isRepeatOn.value = !isRepeatOn.value
-                audioViewModel.setLooping(isRepeatOn.value)
-            }) {
-                Icon(
-                    painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
-                    contentDescription = "Repeat",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-
-            Button(
-                onClick = { showSpeedSlider.value = !showSpeedSlider.value },
-                modifier = Modifier.padding(horizontal = 16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.speed),
-                    contentDescription = "Speed",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+                Box(
+                    modifier = Modifier
+                        .weight(3f)
+                        .fillMaxHeight()
+                        .padding(
+                            PaddingValues(
+                                start = 8.dp,
+                                top = 8.dp,
+                                end = 4.dp,
+                                bottom = 8.dp
+                            )
+                        )
+                        .clip(RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                ){
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
 
-            Button(onClick = { /* Share functionality here */ }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.share),
-                    contentDescription = "Share",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
 
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = {
-                audioViewModel.fastRewind(3000)
-                audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                isPlaying.value = true
-            })
-            {
-                Icon(
-                    painter = painterResource(id = R.drawable.round_fast_rewind_24),
-                    contentDescription = "Rewind",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+                        EvenlySpacedText2(text = formatTime(currentPosition))
 
-            Button(
-                onClick = {
-                    if (isPlaying.value) {
-                        audioViewModel.pauseAudio()
-                        isPlaying.value = false
-                    } else {
-                        if (audioFile.exists()) {
-                            val startPosition = audioViewModel.getCurrentPosition().toLong()
-                            audioViewModel.playAudio(audioFile, startPosition)
-                            audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                            isPlaying.value = true
-
-                        } else {
-                            // Handle the case where the file does not exist
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AudioWaveform(
+                                amplitudes = amplitudesData,
+                                progress = waveformProgress,
+                                progressBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                waveformBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                                onProgressChange = { newProgress ->
+                                    waveformProgress = newProgress
+                                    val newPosition =
+                                        (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
+                                    audioViewModel.seekTo(newPosition)
+                                    audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
+                                    Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
+                                    isPlaying.value = true
+                                }
+                            )
                         }
                     }
-                },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(2f)
+                        .fillMaxHeight()
+                        .padding(
+                            PaddingValues(
+                            start = 4.dp,
+                            top = 8.dp,
+                            end = 8.dp,
+                            bottom = 8.dp
+                        ))
+                        .clip(RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                ){
+                    Column(
+                        modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (showSpeedSlider.value) {
+                            Slider(
+                                value = playbackSpeed.value,
+                                onValueChange = {
+                                    playbackSpeed.value = it
+                                    audioViewModel.setPlaybackSpeed(it)
+                                },
+                                valueRange = 0.25f..4.0f,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        else{
+                            Text(
+                                text = fileName,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .padding(bottom = 16.dp)
+                                .padding(horizontal = 16.dp)
+                                .align(Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(onClick = {
+                                isRepeatOn.value = !isRepeatOn.value
+                                audioViewModel.setLooping(isRepeatOn.value)
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
+                                    contentDescription = "Repeat",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+
+                            Button(
+                                onClick = { showSpeedSlider.value = !showSpeedSlider.value },
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.speed),
+                                    contentDescription = "Speed",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+
+                            Button(onClick = { /* Share functionality here */ }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.share),
+                                    contentDescription = "Share",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .align(Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(onClick = {
+                                audioViewModel.fastRewind(3000)
+                                audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                                isPlaying.value = true
+                            })
+                            {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.round_fast_rewind_24),
+                                    contentDescription = "Rewind",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+
+                            Button(
+                                onClick = {
+                                    if (isPlaying.value) {
+                                        audioViewModel.pauseAudio()
+                                        isPlaying.value = false
+                                    } else {
+                                        if (audioFile.exists()) {
+                                            val startPosition = audioViewModel.getCurrentPosition().toLong()
+                                            audioViewModel.playAudio(audioFile, startPosition)
+                                            audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                                            isPlaying.value = true
+
+                                        } else {
+                                            // Handle the case where the file does not exist
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    contentDescription = if (isPlaying.value) "Stop" else "Play",
+                                )
+                            }
+
+                            Button(onClick = {
+                                audioViewModel.fastForward(3000)
+                                audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                                isPlaying.value = true
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.round_fast_forward_24),
+                                    contentDescription = "Fast Forward",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .weight(3f)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
-                Icon(
-                    painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    contentDescription = if (isPlaying.value) "Stop" else "Play",
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    EvenlySpacedText2(text = formatTime(currentPosition))
+
+                    AudioWaveform(
+                        amplitudes = amplitudesData,
+                        progress = waveformProgress,
+                        progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                        waveformBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
+                        onProgressChange = { newProgress ->
+                            waveformProgress = newProgress
+                            val newPosition =
+                                (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
+                            audioViewModel.seekTo(newPosition)
+                            audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
+                            Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
+                            isPlaying.value = true
+                        }
+                    )
+                }
             }
 
-            Button(onClick = {
-                audioViewModel.fastForward(3000)
-                audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                isPlaying.value = true
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.round_fast_forward_24),
-                    contentDescription = "Fast Forward",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ){
+                if (showSpeedSlider.value) {
+                    Slider(
+                        value = playbackSpeed.value,
+                        onValueChange = {
+                            playbackSpeed.value = it
+                            audioViewModel.setPlaybackSpeed(it)
+                        },
+                        valueRange = 0.25f..4.0f,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+                else {
+                    Text(text = fileName, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(onClick = {
+                            isRepeatOn.value = !isRepeatOn.value
+                            audioViewModel.setLooping(isRepeatOn.value)
+                        }) {
+                            Icon(
+                                painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
+                                contentDescription = "Repeat",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                        Button(
+                            onClick = { showSpeedSlider.value = !showSpeedSlider.value },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.speed),
+                                contentDescription = "Speed",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                        Button(onClick = { /* Share functionality here */ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.share),
+                                contentDescription = "Share",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(onClick = {
+                            audioViewModel.fastRewind(3000)
+                            audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                            isPlaying.value = true
+                        })
+                        {
+                            Icon(
+                                painter = painterResource(id = R.drawable.round_fast_rewind_24),
+                                contentDescription = "Rewind",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                if (isPlaying.value) {
+                                    audioViewModel.pauseAudio()
+                                    isPlaying.value = false
+                                } else {
+                                    if (audioFile.exists()) {
+                                        val startPosition =
+                                            audioViewModel.getCurrentPosition().toLong()
+                                        audioViewModel.playAudio(audioFile, startPosition)
+                                        audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                                        isPlaying.value = true
+
+                                    } else {
+                                        // Handle the case where the file does not exist
+                                    }
+                                }
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                contentDescription = if (isPlaying.value) "Stop" else "Play",
+                            )
+                        }
+
+                        Button(onClick = {
+                            audioViewModel.fastForward(3000)
+                            audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                            isPlaying.value = true
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.round_fast_forward_24),
+                                contentDescription = "Fast Forward",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -261,10 +511,18 @@ fun EvenlySpacedText2(text: String, modifier: Modifier = Modifier) {
                 text = char.toString(),
                 style = TextStyle(
                     fontSize = 64.sp
-                )
+                ),
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }
+}
+
+
+
+@Composable
+fun landscapeScreen(){
+
 }
 
 

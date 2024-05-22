@@ -10,11 +10,12 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.room.Room
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
-import com.example.harryerayaudiorecorder.ui.theme.HarryErayAudioRecorderTheme
+import com.example.harryerayaudiorecorder.ui.theme.AppTheme
 import java.io.File
 
 interface RecorderControl {
@@ -22,7 +23,6 @@ interface RecorderControl {
     fun stopRecorder()
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity(), RecorderControl {
     companion object {
         const val TAG = "MainActivity"
@@ -49,8 +49,11 @@ class MainActivity : ComponentActivity(), RecorderControl {
 
 
         setContent {
-            HarryErayAudioRecorderTheme {
-                PhoneSamplerApp(audioViewModel = audioViewModel, db = db)
+            AppTheme {
+                Surface(tonalElevation = 25.dp) {
+                    PhoneSamplerApp(audioViewModel = audioViewModel, db = db)
+                }
+
             }
         }
     }

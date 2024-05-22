@@ -147,8 +147,9 @@ fun SoundRecordingCard(
         ) { showEditFileNameDialog = false }
     }
     Surface(
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
         shape = RoundedCornerShape(16.dp),
+
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
@@ -168,7 +169,7 @@ fun SoundRecordingCard(
                 Text(
                     text = soundCard.fileName,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.inversePrimary,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = 20.sp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -183,9 +184,9 @@ fun SoundRecordingCard(
 
             }
 
-            Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimary)
-            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB", color = MaterialTheme.colorScheme.onPrimary)
-            Text(text = "Date: ${ soundCard.date }", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB", color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(text = "Date: ${ soundCard.date }", color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }

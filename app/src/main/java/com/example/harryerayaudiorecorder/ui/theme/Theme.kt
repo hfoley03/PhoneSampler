@@ -257,7 +257,7 @@ val unspecified_scheme = ColorFamily(
 )
 
 @Composable
-fun HarryErayAudioRecorderTheme(
+fun MyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -283,7 +283,25 @@ fun HarryErayAudioRecorderTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
         content = content
     )
 }
+
+@Composable
+fun AppTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable() () -> Unit
+) {
+    val colors = if (!useDarkTheme) {
+        lightScheme
+    } else {
+        darkScheme
+    }
+
+    MaterialTheme(
+        colorScheme = colors,
+        content = content
+    )
+}
+
+
