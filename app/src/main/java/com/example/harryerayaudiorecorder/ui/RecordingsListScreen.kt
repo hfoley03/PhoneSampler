@@ -152,7 +152,7 @@ fun SoundRecordingCard(
 
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(16.dp, 8.dp, 16.dp, 8.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = {  }, // Handle long press
@@ -170,7 +170,7 @@ fun SoundRecordingCard(
                     text = soundCard.fileName,
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 20.sp
+                    fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Column {

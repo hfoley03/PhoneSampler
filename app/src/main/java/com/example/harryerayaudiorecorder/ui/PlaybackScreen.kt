@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.R
+import com.example.harryerayaudiorecorder.shareAudioFile
 import com.linc.audiowaveform.AudioWaveform
 import kotlinx.coroutines.delay
 import linc.com.amplituda.Amplituda
@@ -166,18 +167,19 @@ fun PlaybackScreen(
                         .fillMaxHeight()
                         .padding(
                             PaddingValues(
-                            start = 4.dp,
-                            top = 8.dp,
-                            end = 8.dp,
-                            bottom = 8.dp
-                        ))
+                                start = 4.dp,
+                                top = 8.dp,
+                                end = 8.dp,
+                                bottom = 8.dp
+                            )
+                        )
                         .clip(RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 ){
                     Column(
                         modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(16.dp),
+                            .fillMaxHeight()
+                            .padding(16.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -229,7 +231,9 @@ fun PlaybackScreen(
                                 )
                             }
 
-                            Button(onClick = { /* Share functionality here */ }) {
+                            Button(onClick = {
+                                shareAudioFile(context, audioFile)
+                            }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.share),
                                     contentDescription = "Share",
@@ -316,10 +320,12 @@ fun PlaybackScreen(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(8.dp)
-                    .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
+
+
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -352,7 +358,8 @@ fun PlaybackScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
+                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
@@ -376,8 +383,8 @@ fun PlaybackScreen(
                 modifier = Modifier
                     .weight(2f)
                     .fillMaxWidth()
-                    .padding(8.dp)
-                    .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
+                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -417,7 +424,10 @@ fun PlaybackScreen(
                             )
                         }
 
-                        Button(onClick = { /* Share functionality here */ }) {
+                        Button(onClick = {
+                            shareAudioFile(context, audioFile)
+
+                        }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.share),
                                 contentDescription = "Share",
