@@ -25,14 +25,14 @@ class AudioUtilsTest {
     }
 
     @Test
-    fun `hasRecordAudioPermission returns true when permission is granted`() {
+    fun hasRecordAudioPermissionEeturnsTrueWhenPermissionIsGranted() {
         every { ContextCompat.checkSelfPermission(any(), android.Manifest.permission.RECORD_AUDIO) } returns PackageManager.PERMISSION_GRANTED
         val result = AudioUtils.hasRecordAudioPermission(context)
         assert(result) { "Expected to have record audio permission" }
     }
 
     @Test
-    fun `hasRecordAudioPermission returns false when permission is not granted`() {
+    fun hasRecordAudioPermissionEeturnsFalseeWhenPermissionIsNotGranted() {
         every { ContextCompat.checkSelfPermission(any(), android.Manifest.permission.RECORD_AUDIO) } returns PackageManager.PERMISSION_DENIED
         val result = AudioUtils.hasRecordAudioPermission(context)
         assert(!result) { "Expected not to have record audio permission" }
