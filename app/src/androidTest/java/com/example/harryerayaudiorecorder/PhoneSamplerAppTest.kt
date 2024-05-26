@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.harryerayaudiorecorder.MainActivity
 import com.example.harryerayaudiorecorder.PhoneSamplerApp
 import com.example.harryerayaudiorecorder.PhoneSamplerScreen
+import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
@@ -23,6 +24,7 @@ class AppIntegrationTests {
     private lateinit var navController: TestNavHostController
     private lateinit var viewModel: SamplerViewModel
     private lateinit var audioViewModel: AudioViewModel
+    private  lateinit var db : AudioRecordDatabase
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun testNavigationFromRecordToPlayback() = runBlockingTest {
@@ -33,7 +35,7 @@ class AppIntegrationTests {
         audioViewModel = Mockito.mock(AudioViewModel::class.java)
 
         composeTestRule.setContent {
-            PhoneSamplerApp(viewModel, navController, audioViewModel)
+            PhoneSamplerApp(viewModel, navController, audioViewModel, db)
         }
 
         // Simulate interactions and verify navigation

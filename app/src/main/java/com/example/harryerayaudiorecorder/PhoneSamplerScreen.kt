@@ -86,13 +86,13 @@ fun PhoneSamplerApp(
     val currentScreen = PhoneSamplerScreen.valueOf(
         backStackEntry?.destination?.route ?: PhoneSamplerScreen.Record.name
     )
-
-        Scaffold(
-            topBar = {
-                PhoneSamplerAppBar(
-                    currentScreen = currentScreen,
-                    canNavigateBack = navController.previousBackStackEntry != null,
-                    navigateUp = { navController.navigateUp() }
+    Scaffold(
+        topBar =
+        {
+            PhoneSamplerAppBar(
+                currentScreen = currentScreen,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                navigateUp = { navController.navigateUp() }
                 )
             }
             ) { innerPadding ->

@@ -98,12 +98,17 @@ dependencies {
     androidTestImplementation("org.mockito:mockito-android:4.0.0")
 
 
+    androidTestImplementation("androidx.room:room-testing:2.4.0")
+    androidTestImplementation("org.robolectric:robolectric:4.6.1")
+
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
 
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation(kotlin("test"))
 
 
 }

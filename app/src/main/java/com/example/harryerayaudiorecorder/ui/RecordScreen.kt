@@ -170,7 +170,7 @@ fun BottomSheet(audioViewModel: AudioViewModel, onDismiss: () -> Unit) {
             Button(
                 onClick = {
                     audioViewModel.currentFileName.value?.let { currentFileName ->
-                        audioViewModel.renameFile(currentFileName, text)
+                        audioViewModel.renameFile(text)
                     }
                     audioViewModel.currentFileName.value?.let { audioViewModel.save(it) }
                     onDismiss()
