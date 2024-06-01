@@ -2,6 +2,7 @@ package com.example.harryerayaudiorecorder
 
 //import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import AudioViewModel
+import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -18,11 +19,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -74,6 +78,7 @@ fun PhoneSamplerAppBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun PhoneSamplerApp(
     viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
@@ -81,6 +86,10 @@ fun PhoneSamplerApp(
     audioViewModel: AudioViewModel,
     db : AudioRecordDatabase
 ) {
+    val localContext = LocalContext.current
+    val activity = localContext as? Activity ?: throw IllegalStateException("Context is not Activity!!")
+    val windowSizeClass = calculateWindowSizeClass(activity)
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = PhoneSamplerScreen.valueOf(
@@ -93,18 +102,18 @@ fun PhoneSamplerApp(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
-                )
-            }
-            ) { innerPadding ->
-            val uiState by viewModel.uiState.collectAsState()
+            )
+        }
+    ) { innerPadding ->
+        val uiState by viewModel.uiState.collectAsState()
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                Image(
-                    painter = painterResource(id = R.drawable.bez1),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.bez1),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
 
             NavHost(
                 navController = navController,
@@ -119,6 +128,7 @@ fun PhoneSamplerApp(
                         onListButtonClicked = {
                             navController.navigate(PhoneSamplerScreen.RecordingsList.name)
                         },
+                        windowSizeClass,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(dimensionResource(R.dimen.padding_medium))
