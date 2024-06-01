@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.test:core-ktx:1.5.0")
     implementation("com.arthenica:ffmpeg-kit-full:4.4.LTS")
 
+    implementation("androidx.compose.material3:material3-window-size-class")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.12.0")

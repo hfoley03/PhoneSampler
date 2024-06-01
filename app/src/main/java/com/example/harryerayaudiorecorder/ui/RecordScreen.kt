@@ -81,8 +81,8 @@ fun RecordScreen(
 
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                        .fillMaxWidth(),
+//                        .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
