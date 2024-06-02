@@ -151,6 +151,7 @@ fun PhoneSamplerApp(
                         durationSample = uiState.duration,
                         fileName = uiState.fileName,
                         fileSize = uiState.fileSize,
+                        windowSizeClass
                     )
                 }
             }
