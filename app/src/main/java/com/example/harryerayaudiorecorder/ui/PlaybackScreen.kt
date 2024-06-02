@@ -214,7 +214,7 @@ fun PlaybackScreen(
                                     audioViewModel.setPlaybackSpeed(it)
                                 },
                                 valueRange = 0.25f..4.0f,
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(16.dp).fillMaxWidth()
                             )
                         }
                         else{
@@ -223,7 +223,7 @@ fun PlaybackScreen(
                                 text = displayedFileName,
                                 fontSize = textSize.value.sp,
                                 lineHeight = lineHeight.value.sp,
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(16.dp).fillMaxWidth()
                             )
                         }
 
@@ -233,7 +233,7 @@ fun PlaybackScreen(
                                 .padding(horizontal = 16.dp)
                                 .align(Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Button(onClick = {
                                 isRepeatOn.value = !isRepeatOn.value
@@ -276,7 +276,7 @@ fun PlaybackScreen(
                                 .padding(16.dp)
                                 .align(Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Button(onClick = {
                                 audioViewModel.fastRewind(3000)
@@ -448,10 +448,11 @@ fun PlaybackScreen(
                 ) {
                     Row(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(bottom = 16.dp)
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(onClick = {
                             isRepeatOn.value = !isRepeatOn.value
@@ -467,7 +468,6 @@ fun PlaybackScreen(
 
                         Button(
                             onClick = { showSpeedSlider.value = !showSpeedSlider.value },
-                            modifier = Modifier.padding(horizontal = 16.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.speed),
@@ -492,9 +492,11 @@ fun PlaybackScreen(
 
                     Row(
                         modifier = Modifier
-                            .padding(16.dp),
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                            .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(onClick = {
                             audioViewModel.fastRewind(3000)
@@ -528,7 +530,6 @@ fun PlaybackScreen(
                                     }
                                 }
                             },
-                            modifier = Modifier.padding(horizontal = 16.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
