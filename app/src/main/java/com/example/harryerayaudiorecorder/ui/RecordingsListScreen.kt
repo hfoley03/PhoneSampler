@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -54,6 +56,10 @@ fun RecordingsListScreen(
     val context = LocalContext.current
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
     val soundCardList = remember { mutableStateListOf<MutableState<SoundCard>>() }
+    val fileNameFontSize = when {
+        SamplerViewModel().isTablet() -> 32
+        else -> 22
+    }
 
     //val soundCardList: MutableList<MutableState<SoundCard>> = mutableListOf()
 
@@ -89,6 +95,7 @@ fun RecordingsListScreen(
                 audioViewModel,
                 soundCard = item.value,
                 audioCapturesDirectory = audioCapturesDirectory,
+                fileNameFontSize= fileNameFontSize,
                 onClick = { onSongButtonClicked(item.value) },
                 onPencilClicked = { newFileName ->
                     audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
@@ -128,11 +135,13 @@ fun SoundRecordingCard(
     audioViewModel: AudioViewModel,
     soundCard: SoundCard,
     audioCapturesDirectory: File,
+    fileNameFontSize: Int,
     onClick: () -> Unit,
     onPencilClicked: (String) -> Unit,
     onDeleteClick: () -> Unit
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
+
     if (showEditFileNameDialog) {
         FileNameEditDialog(
             soundCard = soundCard,
@@ -155,38 +164,54 @@ fun SoundRecordingCard(
             .padding(16.dp, 8.dp, 16.dp, 8.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onLongPress = {  }, // Handle long press
+                    onLongPress = { }, // Handle long press
                     onTap = { onClick() } // Handle single tap
                 )
             }
     ) {
-        // Your layout for sound recording card
+
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding((fileNameFontSize/2.0).toInt().dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.width(4.dp))
+//                Spacer(modifier = Modifier.width((fileNameFontSize/10.0).toInt().dp))
                 Text(
                     text = soundCard.fileName,
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = 16.sp
+                    fontSize = fileNameFontSize.sp,
+                    lineHeight = fileNameFontSize.sp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Column {
                     IconButton(onClick = { showEditFileNameDialog = true }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Title")
+                        Icon(Icons.Default.Edit,
+                            contentDescription = "Edit Title",
+                            modifier = Modifier.size((fileNameFontSize*1.5).toInt().dp)
+                        )
                     }
                     IconButton(onClick = { onDeleteClick() }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        Icon(Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.size((fileNameFontSize*1.5).toInt().dp)
+                        )
                     }
                 }
 
             }
 
-            Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}", color = MaterialTheme.colorScheme.onPrimaryContainer)
-            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB", color = MaterialTheme.colorScheme.onPrimaryContainer)
-            Text(text = "Date: ${ soundCard.date }", color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontSize = fileNameFontSize.sp
+            )
+            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontSize = fileNameFontSize.sp)
+
+            Text(text = "Date: ${ soundCard.date }",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontSize = fileNameFontSize.sp
+            )
         }
     }
 }
@@ -194,21 +219,47 @@ fun SoundRecordingCard(
 @Composable
 fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(soundCard.fileName) }
+    var showMaxLengthWarning by remember { mutableStateOf(false)}
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edit File Name") },
         text = {
-            TextField(
-                value = text,
-                onValueChange = { newText -> text = newText },
-                label = { Text("New File Name") }
-            )
+            Column {
+                TextField(
+                    value = text,
+                    onValueChange = { newText ->
+                        if (newText.length <= 54) {
+                            // Ensuring the last 4 characters remain `.wav`
+                            text = newText.take(newText.length - 4) + ".wav"
+                            showMaxLengthWarning = false
+                        }else{
+                            showMaxLengthWarning = true
+                        }
+
+                    },
+                    label = { Text("New File Name")
+                    }
+                )
+
+                if (showMaxLengthWarning) {
+                    Text(
+                        text = "Maximum file name size exceeded. Only 50 characters allowed before '.wav'.",
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+            }
+
+
         },
         confirmButton = {
             Button(
                 onClick = {
-                    onFileNameChange(text)
+                    if (text.length > 4) {  // Confirm the text only if it's longer than just the extension
+                        onFileNameChange(text)
+                    }
                     onDismiss()
                 }
             ) {

@@ -1,5 +1,7 @@
 package com.example.harryerayaudiorecorder.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.ViewModel
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,13 @@ class SamplerViewModel : ViewModel(), ISamplerViewModel {
                 fileSize = soundCard.fileSize
             )
         }
+    }
+
+    @Composable
+    fun isTablet(): Boolean {
+        val configuration = LocalConfiguration.current
+        // Tablets typically have a smallest width of 600dp or more.
+        return configuration.smallestScreenWidthDp >= 600
     }
 }
 
