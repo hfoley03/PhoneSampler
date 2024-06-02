@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arthenica.ffmpegkit.FFmpegKit
 import com.example.harryerayaudiorecorder.RecorderControl
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
@@ -384,4 +385,39 @@ open class AudioViewModel(
             }
         }
     }
+
+    fun trimAudio(file: File, startMillis: Int, endMillis: Int, onTrimmed: (File) -> Unit) {
+        val outputTrimmedFile = File(audioCapturesDirectory, "trimmed_${file.name}")
+        val startSeconds = startMillis / 1000
+        val durationSeconds = (endMillis - startMillis) / 1000
+        val command = "-i ${file.absolutePath} -ss $startSeconds -t $durationSeconds -c copy ${outputTrimmedFile.absolutePath}"
+
+        viewModelScope.launch(Dispatchers.IO) {
+            FFmpegKit.execute(command).apply {
+                if (returnCode.isSuccess) {
+                    Log.d("AudioViewModel", "Trimming successful: ${outputTrimmedFile.absolutePath}")
+                    withContext(Dispatchers.Main) {
+                        onTrimmed(outputTrimmedFile)
+                        saveTrimmed(outputTrimmedFile)
+                    }
+                } else {
+                    Log.e("AudioViewModel", "Trimming failed")
+                }
+            }
+        }
+    }
+
+    fun saveTrimmed(file: File){
+        val dur = getAudioDuration(file)
+        val fSizeMB = file.length().toDouble() / (1024 * 1024)
+        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
+        val name = file.name
+        val record = AudioRecordEntity(name, file.absolutePath, dur, fSizeMB, lastModDate)
+
+
+        GlobalScope.launch {
+            db.audioRecordDoa().insert(record)
+        }
+    }
+
 }

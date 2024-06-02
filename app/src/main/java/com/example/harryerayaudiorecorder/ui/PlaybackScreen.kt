@@ -186,7 +186,7 @@ fun PlaybackScreen(
                 }
                 Box(
                     modifier = Modifier
-                        .weight(2f)
+                        .weight(2.5f)
                         .fillMaxHeight()
                         .padding(
                             PaddingValues(
