@@ -218,7 +218,8 @@ fun SoundRecordingCard(
 
 @Composable
 fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf(soundCard.fileName) }
+    // Initialize the text state without the '.wav' extension
+    var text by remember { mutableStateOf(soundCard.fileName.dropLast(4)) }
     var showMaxLengthWarning by remember { mutableStateOf(false)}
 
     AlertDialog(
@@ -229,11 +230,10 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
                 TextField(
                     value = text,
                     onValueChange = { newText ->
-                        if (newText.length <= 54) {
-                            // Ensuring the last 4 characters remain `.wav`
-                            text = newText.take(newText.length - 4) + ".wav"
+                        if (newText.length <= 50) {
+                            text = newText
                             showMaxLengthWarning = false
-                        }else{
+                        } else {
                             showMaxLengthWarning = true
                         }
 
@@ -244,7 +244,7 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
 
                 if (showMaxLengthWarning) {
                     Text(
-                        text = "Maximum file name size exceeded. Only 50 characters allowed before '.wav'.",
+                        text = "Maximum file name size exceeded. Only 50 characters allowed.",
                         color = Color.Red,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -257,8 +257,8 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
         confirmButton = {
             Button(
                 onClick = {
-                    if (text.length > 4) {  // Confirm the text only if it's longer than just the extension
-                        onFileNameChange(text)
+                    if (!showMaxLengthWarning && text.isNotEmpty()) {
+                        onFileNameChange("$text.wav")
                     }
                     onDismiss()
                 }

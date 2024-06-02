@@ -189,7 +189,7 @@ fun ControlButtonsRow(
     ColumnOrRow(isLandscape = isLandscape) {
         ScalableIconButton(
             onClick = { },
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.size(iconSize),
             iconResId = R.drawable.ic_settings
         )
         if (isRecording) {
@@ -251,24 +251,49 @@ fun ScalableIconButton(
 @Composable
 fun BottomSheet(audioViewModel: AudioViewModel, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(audioViewModel.currentFileName.value ?: "") }
+    var showMaxLengthWarning by remember { mutableStateOf(false)}
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("File Name") },
         text = {
-            TextField(
-                value = text,
-                onValueChange = { newText -> text = newText },
-                label = { Text("New File Name") }
-            )
+            Column {
+                TextField(
+                    value = text,
+                    onValueChange = { newText ->
+                        if (newText.length <= 50) {
+                            text = newText
+                            showMaxLengthWarning = false
+                        } else {
+                            showMaxLengthWarning = true
+                        }
+
+                    },
+                    label = { Text("New File Name")
+                    }
+                )
+
+                if (showMaxLengthWarning) {
+                    Text(
+                        text = "Maximum file name size exceeded. Only 50 characters allowed.",
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+            }
+
+
         },
         confirmButton = {
             Button(
                 onClick = {
-                    audioViewModel.currentFileName.value?.let { currentFileName ->
-                        audioViewModel.renameFile(text)
-                    }
-                    audioViewModel.currentFileName.value?.let { audioViewModel.save(it) }
+                    if (!showMaxLengthWarning && text.isNotEmpty()) {
+                        audioViewModel.currentFileName.value?.let { currentFileName ->
+                            audioViewModel.renameFile(text)
+                        }
+                        audioViewModel.currentFileName.value?.let { audioViewModel.save(it) }                    }
+
                     onDismiss()
                 }
             ) {
