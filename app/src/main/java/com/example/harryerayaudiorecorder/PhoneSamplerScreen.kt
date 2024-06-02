@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
+import com.example.harryerayaudiorecorder.ui.EditRecordingScreen
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
@@ -44,7 +46,8 @@ import com.example.harryerayaudiorecorder.ui.SamplerViewModel
 enum class PhoneSamplerScreen(@StringRes val title: Int) {
     Record(title = R.string.record),
     RecordingsList(title = R.string.recordings_list),
-    Playback(title = R.string.playback)
+    Playback(title = R.string.playback),
+    EditRecord(title = R.string.edit_recording);
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,13 +56,16 @@ fun PhoneSamplerAppBar(
     currentScreen: PhoneSamplerScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actionButton: @Composable (() -> Unit)? = null
 ) {
     TopAppBar(
-        title = { Text(
-            text = stringResource(currentScreen.title),
-            color = MaterialTheme.colorScheme.onBackground
-        )},
+        title = {
+            Text(
+                text = stringResource(currentScreen.title),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
         ),
@@ -74,6 +80,9 @@ fun PhoneSamplerAppBar(
                     )
                 }
             }
+        },
+        actions = {
+            actionButton?.invoke()
         }
     )
 }
@@ -84,24 +93,34 @@ fun PhoneSamplerApp(
     viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavHostController = rememberNavController(),
     audioViewModel: AudioViewModel,
-    db : AudioRecordDatabase
+    db: AudioRecordDatabase
 ) {
     val localContext = LocalContext.current
     val activity = localContext as? Activity ?: throw IllegalStateException("Context is not Activity!!")
     val windowSizeClass = calculateWindowSizeClass(activity)
 
     val backStackEntry by navController.currentBackStackEntryAsState()
-    // Get the name of the current screen
     val currentScreen = PhoneSamplerScreen.valueOf(
         backStackEntry?.destination?.route ?: PhoneSamplerScreen.Record.name
     )
+
     Scaffold(
-        topBar =
-        {
+        topBar = {
             PhoneSamplerAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
+                navigateUp = { navController.navigateUp() },
+                actionButton = if (currentScreen == PhoneSamplerScreen.Playback) {
+                    {
+                        IconButton(onClick = { navController.navigate(PhoneSamplerScreen.EditRecord.name) }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.edit_recording),
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                } else null
             )
         }
     ) { innerPadding ->
@@ -147,6 +166,18 @@ fun PhoneSamplerApp(
                 }
                 composable(route = PhoneSamplerScreen.Playback.name) {
                     PlaybackScreen(
+                        audioViewModel,
+                        durationSample = uiState.duration,
+                        fileName = uiState.fileName,
+                        fileSize = uiState.fileSize,
+                        windowSizeClass,
+                        onEditButtonClicked = {
+                            navController.navigate(PhoneSamplerScreen.EditRecord.name)
+                        }
+                    )
+                }
+                composable(route = PhoneSamplerScreen.EditRecord.name) {
+                    EditRecordingScreen(
                         audioViewModel,
                         durationSample = uiState.duration,
                         fileName = uiState.fileName,
