@@ -58,14 +58,6 @@ class MainActivity : ComponentActivity(), RecorderControl {
         }
     }
 
-
-//    @Preview
-//    @Composable
-//    private fun SimpleFrontPagePreview(){
-//        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this)
-//        PhoneSamplerApp( audioViewModel = audioViewModel)
-//    }
-
     override fun startRecorder(){
         Log.d(TAG, "startRecorder")
         val mediaProjectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager

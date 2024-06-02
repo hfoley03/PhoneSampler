@@ -23,6 +23,7 @@ class AppIntegrationTests {
 
     private lateinit var navController: TestNavHostController
     private lateinit var viewModel: SamplerViewModel
+
     private lateinit var audioViewModel: AudioViewModel
     private  lateinit var db : AudioRecordDatabase
     @OptIn(ExperimentalMaterial3Api::class)
