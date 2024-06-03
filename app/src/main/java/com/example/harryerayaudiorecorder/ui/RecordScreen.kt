@@ -1,13 +1,13 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
-import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
-import android.util.Log
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +30,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,22 +37,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.example.harryerayaudiorecorder.R
-import com.example.harryerayaudiorecorder.TokenResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.cos
+import kotlin.math.sin
+
 
 @Composable
 fun RecordScreen(
@@ -129,7 +127,7 @@ fun LayoutForOrientation(
                     .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
-                MyCanvas(Modifier.fillMaxHeight())
+                MyBezierCanvas(Modifier.fillMaxHeight(), isRecording, isLandscape)
 
             }
 
@@ -145,7 +143,7 @@ fun LayoutForOrientation(
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
-                MyCanvas(Modifier.fillMaxWidth())
+                MyBezierCanvas(Modifier.fillMaxWidth(), isRecording, isLandscape)
             }
             Box(
                 modifier = Modifier
@@ -346,29 +344,78 @@ fun ColumnOrRow(
     }
 }
 
+
+
+
+
+
 @Composable
-fun MyCanvas(modifier: Modifier) {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        // Draw a red circle
-        drawCircle(
-            color = Color.Red,
-            radius = 100f,
-            center = this.center
+fun MyBezierCanvas(modifier: Modifier = Modifier, isRecording: Boolean, isLandscape: Boolean ) {
+    // State to control the animation progress
+    val infiniteTransition = rememberInfiniteTransition()
+    val direction = if (isRecording) -1 else +1
+    val animationProgressSpeed1 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2500, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    val animationProgressSpeed2 by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 20000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    // Only run the animation if recording is true
+    val progress = if (isRecording) animationProgressSpeed1 else animationProgressSpeed2
+
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        val halfHeight = canvasHeight / 2
+        val halfWidth = canvasWidth / 2
+        val d1 = if (isLandscape) canvasWidth / 5 else canvasHeight / 5
+        val d2 = if (isLandscape) canvasWidth / 4 else canvasHeight / 2
+
+
+        // Points p1 and p2 are located halfway down the canvas
+        val p0 = if (isLandscape) Offset(halfWidth - d1, halfHeight) else Offset(halfWidth, halfHeight - d1)
+        val p3 = if (isLandscape ) Offset(halfWidth + d1, halfHeight ) else Offset(halfWidth, halfHeight + d1)
+
+        // Calculate p0 and p3 positions based on sine and cosine functions
+        val angle = progress * 2 * Math.PI
+        val p1 = Offset(
+            x = p0.x -1 * direction * d2 * cos(angle).toFloat(),
+            y = p0.y + d2 * sin(angle).toFloat()
+        )
+        val p2 = Offset(
+            x = p3.x + direction * d2 * cos(angle).toFloat(),
+            y = p3.y + d2 * sin(angle).toFloat()
         )
 
-        // Draw a blue rectangle
-        drawRect(
-            color = Color.Red,
-            topLeft = this.center.copy(x = this.center.x - 50, y = this.center.y - 50),
-            size = size / 4f
-        )
+        // Draw the Bézier curve using the control points p0, p1, p2, and p3
+        val path = Path().apply {
+            moveTo(p0.x, p0.y)
+            cubicTo(
+                p1.x, p1.y,
+                p2.x, p2.y,
+                p3.x, p3.y
+            )
+        }
 
-        // Draw a green line
-        drawLine(
-            color = Color.Green,
-            start = this.center,
-            end = this.center.copy(x = this.size.width, y = this.size.height),
-            strokeWidth = 5.dp.toPx()
-        )
+        drawPath(path, color = Color.White, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 20f))
+
+        // Optionally, draw the control points for visualization
+        drawCircle(Color.White, radius = 50f, center = p0)
+//        drawCircle(Color.Black, radius = 10f, center = p1)
+//        drawCircle(Color.Black, radius = 10f, center = p2)
+        drawCircle(Color.White, radius = 50f, center = p3)
     }
 }
+
