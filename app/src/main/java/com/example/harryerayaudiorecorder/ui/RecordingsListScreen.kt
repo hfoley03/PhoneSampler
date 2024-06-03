@@ -228,7 +228,6 @@ fun SoundRecordingCard(
                             Icons.Default.Delete,
                             contentDescription = "Delete",
                             modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
                     IconButton(onClick = {
