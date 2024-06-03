@@ -1,4 +1,5 @@
 // Import necessary packages and libraries
+import android.content.ClipDescription
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -8,14 +9,34 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arthenica.ffmpegkit.FFmpegKit
+import com.example.harryerayaudiorecorder.ApiService
+import com.example.harryerayaudiorecorder.FreesoundService
 import com.example.harryerayaudiorecorder.RecorderControl
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
 import com.example.harryerayaudiorecorder.data.SoundCard
+import android.content.Context
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import com.example.harryerayaudiorecorder.R
+import com.example.harryerayaudiorecorder.TokenResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Path
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -419,5 +440,156 @@ open class AudioViewModel(
             db.audioRecordDoa().insert(record)
         }
     }
+
+    fun downloadSound(soundId: String, accessToken: String, context: Context) {
+        val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
+        val call = freesoundService.downloadSound(soundId, "Bearer $accessToken")
+
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    // Handle the binary data of the sound file
+                    response.body()?.let { responseBody ->
+                        // Save the file or process it as needed
+                        saveSoundToFile(responseBody,context)
+                    }
+                } else {
+
+                    Log.e("API Error", "Failed with HTTP status ${response.code()} and message ${response.message()}")
+                    response.errorBody()?.let {
+                        Log.e("API Error Details", "Error body: ${it.string()}")
+                    }
+
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("API Error", "Network error: ${t.message}")
+            }
+        })
+    }
+
+    private fun saveSoundToFile(body: ResponseBody,context: Context) {
+
+        val soundFile = File(context.filesDir, "downloaded_sound.mp3")
+        soundFile.outputStream().use {
+            it.write(body.bytes())
+        }
+        Log.d("Freesound file saved",soundFile.path)
+    }
+
+    fun exchangeCode(clientId: String, clientSecret: String, code: String, redirectUri: String, callback: Callback<TokenResponse>) {
+        val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
+        val call = freesoundService.exchangeCode(clientId, clientSecret, "authorization_code", code, redirectUri)
+        call.enqueue(callback)
+    }
+
+    fun uploadSound(accessToken: String, file: File, name: String, tags: String, description: String, license: String,
+                    pack: String, geotag: String) {
+        val requestFile = file.asRequestBody("audio/wav".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("audiofile", file.name, requestFile)
+        val license = license.toRequestBody("text/plain".toMediaTypeOrNull())
+        val name = name.toRequestBody("text/plain".toMediaTypeOrNull())
+        val description = description.toRequestBody("text/plain".toMediaTypeOrNull())
+        val tags = tags.toRequestBody("text/plain".toMediaTypeOrNull())
+        val pack = pack.toRequestBody("text/plain".toMediaTypeOrNull())
+        val geotag = geotag.toRequestBody("text/plain".toMediaTypeOrNull())
+
+
+        Log.d("UploadSound", "Access Token: $accessToken")
+        Log.d("UploadSound", "File: ${file.absolutePath}")
+
+        val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
+        val call = freesoundService.uploadSound(
+            authToken = "Bearer $accessToken",
+            audiofile = body,
+            name = name,
+            tags = tags,
+            description = description,
+            license = license,
+//            pack = pack,
+//            geotag = geotag
+        )
+
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("Upload Success", "File uploaded successfully!")
+                    showApiResponseMessage("File uploaded successfully to FreeSound, it awaits for manual moderation confirmation!", true)
+                } else {
+                    val error = response.errorBody()?.string() ?: "Unknown error"
+                    showApiResponseMessage("Failed: $error", false)
+                    Log.e("API Error", "Failed with HTTP status ${response.code()} and message ${response.message()}")
+
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("API Error", "Network error: ${t.message}")
+                showApiResponseMessage("Network error: ${t.message}", false)
+            }
+        })
+    }
+
+
+    companion object {
+        private const val PREFS_NAME = "auth_prefs"
+        private const val KEY_ACCESS_TOKEN = "access_token"
+        private const val KEY_TIMESTAMP = "timestamp"
+        private const val EXPIRATION_TIME = 24 * 60 * 60 * 1000 // 24 hours in ms
+    }
+
+
+    // Function to get the authentication token
+    fun getAccessToken(context: Context): String? {
+        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentTime = System.currentTimeMillis()
+        val savedTime = sharedPreferences.getLong(KEY_TIMESTAMP, 0)
+
+        return if ((currentTime - savedTime) < EXPIRATION_TIME) {
+            sharedPreferences.getString(KEY_ACCESS_TOKEN, null)
+        } else {
+            clearAccessToken(context)
+            null
+        }
+    }
+
+    // Function to set the authentication token
+    fun setAccessToken(context: Context, token: String) {
+        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentTime = System.currentTimeMillis()
+        with(sharedPreferences.edit()) {
+            putString(KEY_ACCESS_TOKEN, token)
+            putLong(KEY_TIMESTAMP, currentTime)
+            apply()
+        }
+    }
+
+
+    // Function to clear the authentication token
+    fun clearAccessToken(context: Context) {
+        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            remove(KEY_ACCESS_TOKEN)
+            remove(KEY_TIMESTAMP)
+            apply()
+        }
+    }
+
+
+    private val _apiResponse = mutableStateOf<Pair<String, Boolean>?>(null)
+    val apiResponse: State<Pair<String, Boolean>?> = _apiResponse
+
+    // Call this method to show an API response message
+    fun showApiResponseMessage(message: String, isSuccess: Boolean) {
+        _apiResponse.value = Pair(message, isSuccess)
+    }
+
+    fun clearApiResponseMessage() {
+        _apiResponse.value = null
+    }
+
+
+
 
 }

@@ -1,8 +1,10 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +16,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +45,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.harryerayaudiorecorder.ApiResponseDialog
+import com.example.harryerayaudiorecorder.OAuthWebViewScreen
+import com.example.harryerayaudiorecorder.TokenResponse
+import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 
@@ -60,6 +73,9 @@ fun RecordingsListScreen(
         SamplerViewModel().isTablet() -> 32
         else -> 22
     }
+    var showOAuthWebView by remember { mutableStateOf(false) }
+    val accessToken = remember { mutableStateOf<String?>(null) }
+
 
     //val soundCardList: MutableList<MutableState<SoundCard>> = mutableListOf()
 
@@ -84,28 +100,50 @@ fun RecordingsListScreen(
                 }
             }
         }
+        accessToken.value = audioViewModel.getAccessToken(context)
+
     }
 
 
 
 
-    LazyColumn(modifier = modifier) {
-        items(soundCardList) { item ->
-            SoundRecordingCard(
-                audioViewModel,
-                soundCard = item.value,
-                audioCapturesDirectory = audioCapturesDirectory,
-                fileNameFontSize= fileNameFontSize,
-                onClick = { onSongButtonClicked(item.value) },
-                onPencilClicked = { newFileName ->
-                    audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
-                },
-                onDeleteClick = {
-                    audioViewModel.deleteSoundCard(item.value, soundCardList) // Handle long click
-                }
-            )
+    if (showOAuthWebView) {
+        authenticate(
+            audioViewModel = audioViewModel,
+            setShowOAuthWebView = { showOAuthWebView = it },
+            context = context,
+            onAuthenticated = { token ->
+                accessToken.value = token
+                showOAuthWebView = false
+            }
+        )
+    } else {
+        LazyColumn(modifier = modifier) {
+            items(soundCardList) { item ->
+                SoundRecordingCard(
+                    audioViewModel,
+                    soundCard = item.value,
+                    audioCapturesDirectory = audioCapturesDirectory,
+                    fileNameFontSize= fileNameFontSize,
+                    onClick = { onSongButtonClicked(item.value) },
+                    onPencilClicked = { newFileName ->
+                        audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
+                    },
+                    onDeleteClick = {
+                        audioViewModel.deleteSoundCard(item.value, soundCardList) // Handle long click
+                    },
+                    setShowOAuthWebView = { showOAuthWebView = it },
+                    accessToken = accessToken.value,
+                    context = LocalContext.current
+
+                )
+            }
         }
     }
+
+    ApiResponseDialog(audioViewModel)
+
+
 
 }
 
@@ -138,9 +176,13 @@ fun SoundRecordingCard(
     fileNameFontSize: Int,
     onClick: () -> Unit,
     onPencilClicked: (String) -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    setShowOAuthWebView: (Boolean) -> Unit,
+    accessToken: String?,
+    context: Context
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
+    var showUploadDialog by remember { mutableStateOf(false) }
 
     if (showEditFileNameDialog) {
         FileNameEditDialog(
@@ -155,10 +197,33 @@ fun SoundRecordingCard(
             }
         ) { showEditFileNameDialog = false }
     }
+
+    if (showUploadDialog) {
+        UploadSoundDialog(
+            onDismiss = { showUploadDialog = false },
+            onConfirm = { tags, description, license, pack, geotag ->
+                if (accessToken != null) {
+                    Log.d("filenamexd", audioCapturesDirectory.absolutePath + "/" + soundCard.fileName)
+                    Log.d("accessToken", accessToken)
+                    Log.d("License Info", "License: $license")
+                    audioViewModel.uploadSound(
+                        accessToken,
+                        File(audioCapturesDirectory.absolutePath + "/" + soundCard.fileName),
+                        name = soundCard.fileName,
+                        tags = tags,
+                        description = description,
+                        license = license,
+                        pack = pack,
+                        geotag = geotag
+                    )
+                }
+            }
+        )
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
         shape = RoundedCornerShape(16.dp),
-
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 8.dp, 16.dp, 8.dp)
@@ -169,12 +234,10 @@ fun SoundRecordingCard(
                 )
             }
     ) {
-
         Column(
-            modifier = Modifier.padding((fileNameFontSize/2.0).toInt().dp)
+            modifier = Modifier.padding((fileNameFontSize / 2.0).toInt().dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-//                Spacer(modifier = Modifier.width((fileNameFontSize/10.0).toInt().dp))
                 Text(
                     text = soundCard.fileName,
                     modifier = Modifier.weight(1f),
@@ -187,17 +250,28 @@ fun SoundRecordingCard(
                     IconButton(onClick = { showEditFileNameDialog = true }) {
                         Icon(Icons.Default.Edit,
                             contentDescription = "Edit Title",
-                            modifier = Modifier.size((fileNameFontSize*1.5).toInt().dp)
+                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
                     IconButton(onClick = { onDeleteClick() }) {
                         Icon(Icons.Default.Delete,
                             contentDescription = "Delete",
-                            modifier = Modifier.size((fileNameFontSize*1.5).toInt().dp)
+                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
+                        )
+                    }
+                    IconButton(onClick = {
+                        if (accessToken == null) {
+                            setShowOAuthWebView(true)
+                        } else {
+                            showUploadDialog = true
+                        }
+                    }) {
+                        Icon(Icons.Default.AddCircle,
+                            contentDescription = "Upload",
+                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
                 }
-
             }
 
             Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}",
@@ -206,9 +280,9 @@ fun SoundRecordingCard(
             )
             Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp)
-
-            Text(text = "Date: ${ soundCard.date }",
+                fontSize = fileNameFontSize.sp
+            )
+            Text(text = "Date: ${soundCard.date}",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
@@ -273,3 +347,89 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
         }
     )
 }
+
+@Composable
+fun UploadSoundDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (tags: String, description: String, license: String, pack: String, geotag: String) -> Unit
+) {
+    var tags by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var license by remember { mutableStateOf("") }
+    var pack by remember { mutableStateOf("") }
+    var geotag by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    val licenseOptions = listOf("Attribution", "Attribution NonCommercial", "Creative Commons 0")
+    val isUploadEnabled = tags.split(" ").filter { it.isNotEmpty() }.size >= 3 && description.isNotEmpty() && license.isNotEmpty()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Upload Sound To FreeSound") },
+        text = {
+            Column {
+                TextField(
+                    value = tags,
+                    onValueChange = { tags = it },
+                    label = { Text("Tags (Min 3 Required)") }
+                )
+                TextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description (Required)") }
+                )
+                Box {
+                    TextField(
+                        value = license,
+                        onValueChange = { },
+                        label = { Text("License (Required)") },
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
+                            }
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        licenseOptions.forEach { option ->
+                            DropdownMenuItem(text = { Text(option) },onClick = {
+                                license = option
+                                expanded = false
+                            })
+                        }
+                    }
+                }
+//                TextField(
+//                    value = pack,
+//                    onValueChange = { pack = it },
+//                    label = { Text("Pack (Optional)") }
+//                )
+//                TextField(
+//                    value = geotag,
+//                    onValueChange = { geotag = it },
+//                    label = { Text("Geotag (Optional)") }
+//                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(tags, description, license, pack, geotag)
+                    onDismiss()
+                },
+                enabled = isUploadEnabled
+            ) {
+                Text("Upload")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+

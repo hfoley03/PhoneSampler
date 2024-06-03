@@ -72,8 +72,10 @@ dependencies {
     implementation ("com.github.lincollincol:amplituda:2.2.2")
     implementation("androidx.test:core-ktx:1.5.0")
     implementation("com.arthenica:ffmpeg-kit-full:4.4.LTS")
-
     implementation("androidx.compose.material3:material3-window-size-class")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.12.0")

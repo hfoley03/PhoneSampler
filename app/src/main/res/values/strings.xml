@@ -12,4 +12,5 @@
     <string name="enter_file_name">Enter File Name</string>
     <string name="cancel">cancel</string>
     <string name="ok">ok</string>
+    <string name="attribution">Attribution</string>
 </resources>

@@ -32,7 +32,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!--            for auth callbacks          -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="myapp"
+                    android:host="oauthresponse" />
+            </intent-filter>
         </activity>
+
         <service
             android:exported="false"
             android:enabled="true"
