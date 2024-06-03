@@ -57,8 +57,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-
-
 @Composable
 fun RecordingsListScreen(
     audioViewModel: AudioViewModel,
@@ -77,14 +75,10 @@ fun RecordingsListScreen(
     val accessToken = remember { mutableStateOf<String?>(null) }
 
 
-    //val soundCardList: MutableList<MutableState<SoundCard>> = mutableListOf()
-
-// Launch a coroutine to fetch and populate the list
-    LaunchedEffect(Unit) {        // Switch to the IO dispatcher for database operations
+    LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            val soundRecordDatabaseList = audioViewModel.db.audioRecordDoa().getAll()
+            val soundRecordDatabaseList = audioViewModel.getAllAudioRecords()
 
-            // Map each record to a MutableState<SoundCard> and add it to the soundCardList
             soundRecordDatabaseList.forEach { record ->
                 val soundCard = SoundCard(
                     duration = record.duration,
@@ -92,9 +86,8 @@ fun RecordingsListScreen(
                     fileSize = record.fileSize,
                     date = record.date
                 )
-                Log.d("Created SoundCard", "${soundCard.fileName}") // Log each SoundCard
+                Log.d("Created SoundCard", "${soundCard.fileName}")
 
-                // Add to the list on the main thread
                 withContext(Dispatchers.Main) {
                     soundCardList.add(mutableStateOf(soundCard))
                 }
@@ -130,7 +123,7 @@ fun RecordingsListScreen(
                         audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
                     },
                     onDeleteClick = {
-                        audioViewModel.deleteSoundCard(item.value, soundCardList) // Handle long click
+                        audioViewModel.deleteSoundCard(item.value, soundCardList) 
                     },
                     setShowOAuthWebView = { showOAuthWebView = it },
                     accessToken = accessToken.value,
@@ -146,27 +139,6 @@ fun RecordingsListScreen(
 
 
 }
-
-
-//@Preview
-//@Composable
-//fun previewSoundRecordingCard(){
-//    val audioCapturesDirectory = null
-//
-//    val mockFunction: (String) -> Unit = { input ->
-//        println("Mock function received input: $input")}
-//    val tempFile = createTempFile("mockFile", ".txt")
-//
-//    SoundRecordingCard(
-//
-//        soundCard = SoundCard(10, "Noise Recording 1", 16.0, "16-08-2022"),
-//        audioCapturesDirectory = tempFile,
-//        onClick = { /*TODO*/ },
-//        onThreeDotsClicked = mockFunction
-//    )
-
-//}
-
 
 @Composable
 fun SoundRecordingCard(
@@ -188,12 +160,9 @@ fun SoundRecordingCard(
         FileNameEditDialog(
             soundCard = soundCard,
             onFileNameChange = { newFileName ->
-                audioViewModel.renameFileFromList(
-                    soundCard.fileName,
-                    newFileName)
+                audioViewModel.renameFileFromList(soundCard.fileName, newFileName)
                 onPencilClicked(newFileName)
                 showEditFileNameDialog = false
-
             }
         ) { showEditFileNameDialog = false }
     }
@@ -248,14 +217,17 @@ fun SoundRecordingCard(
                 Spacer(modifier = Modifier.width(4.dp))
                 Column {
                     IconButton(onClick = { showEditFileNameDialog = true }) {
-                        Icon(Icons.Default.Edit,
+                        Icon(
+                            Icons.Default.Edit,
                             contentDescription = "Edit Title",
                             modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
                     IconButton(onClick = { onDeleteClick() }) {
-                        Icon(Icons.Default.Delete,
+                        Icon(
+                            Icons.Default.Delete,
                             contentDescription = "Delete",
+                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                             modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
@@ -274,15 +246,18 @@ fun SoundRecordingCard(
                 }
             }
 
-            Text(text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}",
+            Text(
+                text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
-            Text(text = "File Size: ${ String.format("%.2f", soundCard.fileSize)} MB",
+            Text(
+                text = "File Size: ${String.format("%.2f", soundCard.fileSize)} MB",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
-            Text(text = "Date: ${soundCard.date}",
+            Text(
+                text = "Date: ${soundCard.date}",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
@@ -292,9 +267,8 @@ fun SoundRecordingCard(
 
 @Composable
 fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit, onDismiss: () -> Unit) {
-    // Initialize the text state without the '.wav' extension
     var text by remember { mutableStateOf(soundCard.fileName.dropLast(4)) }
-    var showMaxLengthWarning by remember { mutableStateOf(false)}
+    var showMaxLengthWarning by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -310,10 +284,8 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
                         } else {
                             showMaxLengthWarning = true
                         }
-
                     },
-                    label = { Text("New File Name")
-                    }
+                    label = { Text("New File Name") }
                 )
 
                 if (showMaxLengthWarning) {
@@ -323,10 +295,7 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-
             }
-
-
         },
         confirmButton = {
             Button(
