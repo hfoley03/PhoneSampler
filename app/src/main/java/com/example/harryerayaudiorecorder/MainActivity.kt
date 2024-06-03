@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.room.Room
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
+import com.example.harryerayaudiorecorder.data.AudioRepository
 import com.example.harryerayaudiorecorder.ui.theme.AppTheme
 import java.io.File
 
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
     }
 
     lateinit var audioViewModel: AudioViewModel
+    lateinit var audioRepository: AudioRepository
 
     lateinit var db : AudioRecordDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +46,13 @@ class MainActivity : ComponentActivity(), RecorderControl {
         ).fallbackToDestructiveMigration() // Add this line
             .build()
 
-        audioViewModel = AudioViewModel(AndroidMediaPlayerWrapper(), recorderControl = this, File(this.getExternalFilesDir(null), "/AudioCaptures"), db)
-
-
+        val audioCapturesDirectory = File(this.getExternalFilesDir(null), "/AudioCaptures")
+        audioRepository = AudioRepository(db, audioCapturesDirectory)
+        audioViewModel = AudioViewModel(
+            mediaPlayerWrapper = AndroidMediaPlayerWrapper(),
+            recorderControl = this,
+            audioRepository = audioRepository
+        )
 
         setContent {
             AppTheme {

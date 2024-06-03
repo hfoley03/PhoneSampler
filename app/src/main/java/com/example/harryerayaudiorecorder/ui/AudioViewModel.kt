@@ -1,4 +1,5 @@
 // Import necessary packages and libraries
+
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -6,20 +7,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.arthenica.ffmpegkit.FFmpegKit
 import com.example.harryerayaudiorecorder.RecorderControl
-import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
+import com.example.harryerayaudiorecorder.data.AudioRepository
 import com.example.harryerayaudiorecorder.data.SoundCard
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.concurrent.TimeUnit
 
 // Interface defining methods for MediaPlayer abstraction
@@ -153,8 +146,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 open class AudioViewModel(
     private val mediaPlayerWrapper: MediaPlayerWrapper,
     private val recorderControl: RecorderControl,
-    val audioCapturesDirectory: File,
-    val db : AudioRecordDatabase
+    private val audioRepository: AudioRepository
 ) : ViewModel() {
 
     val _recorderRunning = mutableStateOf(false)
@@ -197,13 +189,6 @@ open class AudioViewModel(
     // Get the current position of audio playback
     fun getCurrentPosition(): Int = mediaPlayerWrapper.getCurrentPosition()
 
-    // Get the duration of an audio file
-    fun getAudioDuration(file: File): Int {
-        mediaPlayerWrapper.setDataSource(file.absolutePath)
-        mediaPlayerWrapper.prepare()
-        return mediaPlayerWrapper.getDuration()
-    }
-
     // Set the looping state for audio playback
     fun setLooping(state: Boolean){
         mediaPlayerWrapper.setLooping(state)
@@ -245,53 +230,6 @@ open class AudioViewModel(
         _recorderRunning.value = true
     }
 
-    // Rename an audio file to a new name
-    fun renameFile(newName: String) {
-        val file = getLastCreatedFile(audioCapturesDirectory)
-
-        if (file != null) {
-            if (file.exists()) {
-                val newFile = File(audioCapturesDirectory, newName)
-                if (!newFile.exists()) {
-                    file.renameTo(newFile)
-                    _currentFileName.value = newName
-                } else {
-                    // Handle the case where a file with the new name already exists
-                }
-            } else {
-                Log.d("AudioViewModel", "no such file")
-            }
-        }
-    }
-
-    // Rename a file from a list of files
-    fun renameFileFromList(oldName: String, newName: String) {
-        val file = File(audioCapturesDirectory, oldName)
-        if (file.exists()) {
-            val newFile = File(audioCapturesDirectory, newName)
-            if (!newFile.exists()) {
-                file.renameTo(newFile)
-                _currentFileName.value = newName
-            } else {
-                // Handle the case where a file with the new name already exists
-            }
-        } else {
-            Log.d("AudioViewModel", "no such file")
-        }
-    }
-
-    // Set the playback speed for audio
-    fun setPlaybackSpeed(speed: Float) {
-        if (mediaPlayerWrapper.isPlaying()) {
-            mediaPlayerWrapper.setPlaybackSpeed(speed)
-        }
-    }
-
-    // Adjust the playback speed for audio
-    fun adjustPlaybackSpeed(speed: Float) {
-        mediaPlayerWrapper.setPlaybackSpeed(speed)
-    }
-
     // Start recording audio
     fun startRecording() {
         recorderControl.startRecorder()
@@ -310,114 +248,60 @@ open class AudioViewModel(
         _currentFileName.value = tempFileName
     }
 
-    // Get the last created file in a directory
-    fun getLastCreatedFile(directory: File): File? {
-        return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
-    }
-
-    // Trim an audio file between two time points
-//    fun trimAudio(file: File, startMillis: Int, endMillis: Int) {
-//        val outputTrimmedFile = File(audioCapturesDirectory, "trimmed_${file.name}")
-//        val startSeconds = startMillis / 1000
-//        val durationSeconds = (endMillis - startMillis) / 1000
-//        val command = "-i ${file.absolutePath} -ss $startSeconds -t $durationSeconds -c copy ${outputTrimmedFile.absolutePath}"
-//
-//        FFmpegKit.execute(command).apply {
-//            if (returnCode.isSuccess) {
-//                Log.d("AudioViewModel", "Trimming successful: ${outputTrimmedFile.absolutePath}")
-//            } else {
-//                Log.e("AudioViewModel", "Trimming failed")
-//            }
-//        }
-//    }
-
     // Save audio file details to the database
     fun save(name: String) {
-        val file = File(audioCapturesDirectory, name)
-        val dur = getAudioDuration(file)
-        val fSizeMB = file.length().toDouble() / (1024 * 1024)
-        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
-
-        val record = AudioRecordEntity(name, file.absolutePath, dur, fSizeMB, lastModDate)
-
-
-        GlobalScope.launch {
-            db.audioRecordDoa().insert(record)
-        }
+        audioRepository.save(name)
     }
 
     // Delete a sound card and its associated audio file from the database and filesystem
     fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val audioRecordEntity = db.audioRecordDoa().getAll()
-                .find { it.filename == soundCard.fileName } // Assuming filename is unique
-            audioRecordEntity?.let {
-                db.audioRecordDoa().delete(it)
-
-                val file = File(it.filePath)
-                if (file.exists()) {
-                    file.delete()
-                    Log.d("DELETE", "DELETED")
-                }
-
-                withContext(Dispatchers.Main) {
-                    soundCardList.removeIf { it.value.fileName == soundCard.fileName }
-                }
-            }
-        }
+        audioRepository.deleteSoundCard(soundCard, soundCardList)
     }
 
     // Rename a sound card in the database and update the UI
     fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val audioRecordEntity = db.audioRecordDoa().getAll()
-                .find { it.filename == soundCard.fileName } // Assuming filename is unique
-            audioRecordEntity?.let { entity ->
-                entity.filename = newFileName
-                db.audioRecordDoa().update(entity)
-
-                withContext(Dispatchers.Main) {
-                    val index = soundCardList.indexOfFirst { it.value.fileName == soundCard.fileName }
-                    if (index != -1) {
-                        soundCardList[index].value = soundCard.copy(fileName = newFileName)
-                    }
-                }
-            }
-        }
+        audioRepository.renameSoundCard(soundCard, newFileName, soundCardList)
     }
 
+    // Trim an audio file and save the result
     fun trimAudio(file: File, startMillis: Int, endMillis: Int, onTrimmed: (File) -> Unit) {
-        val outputTrimmedFile = File(audioCapturesDirectory, "trimmed_${file.name}")
-        val startSeconds = startMillis / 1000
-        val durationSeconds = (endMillis - startMillis) / 1000
-        val command = "-i ${file.absolutePath} -ss $startSeconds -t $durationSeconds -c copy ${outputTrimmedFile.absolutePath}"
+        audioRepository.trimAudio(file, startMillis, endMillis, onTrimmed)
+    }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            FFmpegKit.execute(command).apply {
-                if (returnCode.isSuccess) {
-                    Log.d("AudioViewModel", "Trimming successful: ${outputTrimmedFile.absolutePath}")
-                    withContext(Dispatchers.Main) {
-                        onTrimmed(outputTrimmedFile)
-                        saveTrimmed(outputTrimmedFile)
-                    }
-                } else {
-                    Log.e("AudioViewModel", "Trimming failed")
-                }
-            }
+    // Rename an audio file to a new name
+    fun renameFile(newName: String) {
+        audioRepository.renameFile(newName)
+    }
+
+    // Rename a file from a list of files
+    fun renameFileFromList(oldName: String, newName: String) {
+        audioRepository.renameFileFromList(oldName, newName)
+    }
+
+    // Get the duration of an audio file
+//    fun getAudioDuration(file: File): Int {
+//        mediaPlayerWrapper.setDataSource(file.absolutePath)
+//        mediaPlayerWrapper.prepare()
+//        return mediaPlayerWrapper.getDuration()
+//    }
+
+    fun getAudioDuration(file: File): Int {
+        return audioRepository.getAudioDuration(file)
+    }
+
+    // Set the playback speed for audio
+    fun setPlaybackSpeed(speed: Float) {
+        if (mediaPlayerWrapper.isPlaying()) {
+            mediaPlayerWrapper.setPlaybackSpeed(speed)
         }
     }
 
-    fun saveTrimmed(file: File){
-        val dur = getAudioDuration(file)
-        val fSizeMB = file.length().toDouble() / (1024 * 1024)
-        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
-        val name = file.name
-        val record = AudioRecordEntity(name, file.absolutePath, dur, fSizeMB, lastModDate)
-
-
-        GlobalScope.launch {
-            db.audioRecordDoa().insert(record)
-        }
+    // Adjust the playback speed for audio
+    fun adjustPlaybackSpeed(speed: Float) {
+        mediaPlayerWrapper.setPlaybackSpeed(speed)
     }
 
+    suspend fun getAllAudioRecords(): List<AudioRecordEntity> {
+        return audioRepository.getAllAudioRecords()
+    }
 }
