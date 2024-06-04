@@ -14,6 +14,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface FreesoundService {
     @FormUrlEncoded
@@ -29,14 +30,21 @@ interface FreesoundService {
     @GET("sounds/{sound_id}/download/")
     fun downloadSound(
         @Path("sound_id") soundId: String,
-        @Header("Authorization") authToken: String
+        @Header("Authorization") accessToken: String
     ): Call<ResponseBody>
 
+    @GET("search/text/")
+    fun searchSounds(
+        @Query("token") clientSecret: String,
+        @Query("query") query: String,
+        @Query("filter") filter: String = "type:wav",
+        @Query("fields") fields: String = "id,name,tags,description,created,license,channels,filesize,bitrate,bitdepth,duration,samplerate,username,download,previews,avg_rating",
 
+        ): Call<ResponseBody>
     @Multipart
     @POST("sounds/upload/")
     fun uploadSound(
-        @Header("Authorization") authToken: String,
+        @Header("Authorization") accessToken: String,
         @Part audiofile: MultipartBody.Part,
         @Part("name") name: RequestBody,
         @Part("tags") tags: RequestBody,

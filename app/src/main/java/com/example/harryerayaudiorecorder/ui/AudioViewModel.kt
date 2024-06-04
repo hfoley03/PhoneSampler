@@ -13,7 +13,11 @@ import com.example.harryerayaudiorecorder.RecorderControl
 import com.example.harryerayaudiorecorder.TokenResponse
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
 import com.example.harryerayaudiorecorder.data.AudioRepository
+import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
+import com.example.harryerayaudiorecorder.data.SearchResponse
 import com.example.harryerayaudiorecorder.data.SoundCard
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -380,7 +384,7 @@ open class AudioViewModel(
 
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         val call = freesoundService.uploadSound(
-            authToken = "Bearer $accessToken",
+            accessToken = "Bearer $accessToken",
             audiofile = body,
             name = name,
             tags = tags,
@@ -467,6 +471,40 @@ open class AudioViewModel(
     fun clearApiResponseMessage() {
         _apiResponse.value = null
     }
+
+
+    fun performSearch(clientSecret: String, query: String, setFreesoundSoundCards: (MutableList<FreesoundSoundCard>) -> Unit) {
+        val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
+        freesoundService.searchSounds(clientSecret = clientSecret, query = query).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { responseBody ->
+                        val gson = Gson()
+                        val responseBodyString = responseBody.string()
+                        val type = object : TypeToken<SearchResponse<FreesoundSoundCard>>() {}.type
+                        val searchResponse = gson.fromJson<SearchResponse<FreesoundSoundCard>>(
+                            responseBodyString,
+                            type
+                        )
+                        val soundCards: MutableList<FreesoundSoundCard> = searchResponse.results.toMutableList()
+                        Log.d("soundCards", soundCards.toString())
+                        setFreesoundSoundCards(soundCards)
+                        searchResponse.results.forEach {
+                            Log.d(
+                                "SearchResult",
+                                "Sound: ${it.name}, Tags: ${it.tags.joinToString()}, ID: ${it.id}"
+                            )
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("SearchFailure", "Network error: ${t.message}")
+            }
+        })
+    }
+
 
 
 

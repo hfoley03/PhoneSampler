@@ -4,7 +4,6 @@ import AudioViewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -37,7 +35,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,16 +53,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.ApiResponseDialog
-import com.example.harryerayaudiorecorder.OAuthWebViewScreen
 import com.example.harryerayaudiorecorder.R
-import com.example.harryerayaudiorecorder.TokenResponse
 import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,6 +66,7 @@ import java.io.File
 fun RecordingsListScreen(
     audioViewModel: AudioViewModel,
     onSongButtonClicked: (SoundCard) -> Unit,
+    onFreesoundSearchButtonClicked:() -> Unit,
     onThreeDotsClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 )  {
@@ -155,7 +148,10 @@ fun RecordingsListScreen(
                             modifier = Modifier.weight(1f)
                         )
 
-                        IconButton(onClick = { /* Implement internet search functionality */ },
+                        IconButton(
+                            onClick = {
+                                onFreesoundSearchButtonClicked()
+                            },
                             modifier = Modifier.padding(end = (fileNameFontSize).dp)
                             ) {
                             Icon(
