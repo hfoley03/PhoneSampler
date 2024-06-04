@@ -205,9 +205,9 @@ fun ControlButtonsRow(
         )
         if (isRecording) {
             ScalableIconButton(
-                onClick = { },
-                modifier = Modifier.size(32.dp),
-                iconResId = R.drawable.ic_record
+                onClick = { audioViewModel.stopWithoutSavingRecording()},
+                modifier = Modifier.size(iconSize),
+                iconResId = R.drawable.ic_delete
             )
         } else {
             ScalableIconButton(

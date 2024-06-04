@@ -1,5 +1,5 @@
 // Import necessary packages and libraries
-import android.content.ClipDescription
+import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -7,23 +7,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.arthenica.ffmpegkit.FFmpegKit
 import com.example.harryerayaudiorecorder.ApiService
 import com.example.harryerayaudiorecorder.FreesoundService
 import com.example.harryerayaudiorecorder.RecorderControl
+import com.example.harryerayaudiorecorder.TokenResponse
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
 import com.example.harryerayaudiorecorder.data.AudioRepository
 import com.example.harryerayaudiorecorder.data.SoundCard
-import android.content.Context
-import android.net.Uri
-import androidx.compose.ui.platform.LocalContext
-import com.example.harryerayaudiorecorder.R
-import com.example.harryerayaudiorecorder.TokenResponse
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -32,15 +22,8 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.concurrent.TimeUnit
 
 // Interface defining methods for MediaPlayer abstraction
@@ -49,6 +32,7 @@ interface MediaPlayerWrapper {
     fun prepare()
     fun start()
     fun stop()
+
     fun release()
     fun isPlaying(): Boolean
     fun getCurrentPosition(): Int
@@ -269,6 +253,11 @@ open class AudioViewModel(
         recorderControl.stopRecorder()
         _recorderRunning.value = false
         _currentFileName.value = "$defaultFileName.wav"
+    }
+
+    fun stopWithoutSavingRecording(){
+        recorderControl.stopRecorder()
+        _recorderRunning.value = false
     }
 
     // Set a temporary file name
