@@ -1,8 +1,10 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,16 +22,23 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -43,10 +52,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.ApiResponseDialog
 import com.example.harryerayaudiorecorder.OAuthWebViewScreen
+import com.example.harryerayaudiorecorder.R
 import com.example.harryerayaudiorecorder.TokenResponse
 import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.SoundCard
@@ -57,6 +68,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RecordingsListScreen(
     audioViewModel: AudioViewModel,
@@ -73,6 +86,7 @@ fun RecordingsListScreen(
     }
     var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
+    var searchText by remember { mutableStateOf("") }
 
 
     LaunchedEffect(Unit) {
@@ -97,44 +111,95 @@ fun RecordingsListScreen(
 
     }
 
-
-
-
-    if (showOAuthWebView) {
-        authenticate(
-            audioViewModel = audioViewModel,
-            setShowOAuthWebView = { showOAuthWebView = it },
-            context = context,
-            onAuthenticated = { token ->
-                accessToken.value = token
-                showOAuthWebView = false
-            }
+    IconButton(onClick = {  }) {
+        Icon(
+            Icons.Default.Search,
+            contentDescription = "Search",
+            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
         )
-    } else {
-        LazyColumn(modifier = modifier) {
-            items(soundCardList) { item ->
-                SoundRecordingCard(
-                    audioViewModel,
-                    soundCard = item.value,
-                    audioCapturesDirectory = audioCapturesDirectory,
-                    fileNameFontSize= fileNameFontSize,
-                    onClick = { onSongButtonClicked(item.value) },
-                    onPencilClicked = { newFileName ->
-                        audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
-                    },
-                    onDeleteClick = {
-                        audioViewModel.deleteSoundCard(item.value, soundCardList) 
-                    },
-                    setShowOAuthWebView = { showOAuthWebView = it },
-                    accessToken = accessToken.value,
-                    context = LocalContext.current
-
-                )
-            }
-        }
     }
 
-    ApiResponseDialog(audioViewModel)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        OutlinedTextField(
+                            value = searchText,
+                            onValueChange = { searchText = it },
+                            placeholder = { Text("Search Recordings") },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+
+                        )
+                        IconButton(onClick = { /* Implement local search functionality */ }) {
+                            Icon(
+                                Icons.Default.Search,
+                                modifier = Modifier.size((fileNameFontSize*1.5).dp),
+
+                                contentDescription = "Local Search"
+                            )
+                        }
+                        IconButton(onClick = { /* Implement internet search functionality */ },
+                            modifier = Modifier.padding(end = (fileNameFontSize).dp)
+                            ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.internet_browsing_icon),
+                                modifier = Modifier.size((fileNameFontSize*1.5).dp),
+                                contentDescription = "Search on Internet Icon",
+                            )
+
+                        }
+                    }
+                },
+                actions = {
+                    // Other actions can still be added here if needed
+                },
+            )
+        }
+    ){
+        if (showOAuthWebView) {
+            authenticate(
+                audioViewModel = audioViewModel,
+                setShowOAuthWebView = { showOAuthWebView = it },
+                context = context,
+                onAuthenticated = { token ->
+                    accessToken.value = token
+                    showOAuthWebView = false
+                }
+            )
+        } else {
+            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize*2).dp)) {
+                items(soundCardList) { item ->
+                    SoundRecordingCard(
+                        audioViewModel,
+                        soundCard = item.value,
+                        audioCapturesDirectory = audioCapturesDirectory,
+                        fileNameFontSize= fileNameFontSize,
+                        onClick = { onSongButtonClicked(item.value) },
+                        onPencilClicked = { newFileName ->
+                            audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
+                        },
+                        onDeleteClick = {
+                            audioViewModel.deleteSoundCard(item.value, soundCardList)
+                        },
+                        setShowOAuthWebView = { showOAuthWebView = it },
+                        accessToken = accessToken.value,
+                        context = LocalContext.current
+
+                    )
+                }
+            }
+        }
+
+        ApiResponseDialog(audioViewModel)
+    }
+
+
+
 
 
 
@@ -242,6 +307,7 @@ fun SoundRecordingCard(
                             modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
+
                 }
             }
 
