@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.R
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -111,9 +112,9 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(boxPadding/2, boxPadding/4, boxPadding/2, boxPadding/4)   //
+                    .padding(boxPadding / 2, boxPadding / 4, boxPadding / 2, boxPadding / 4)   //
 
-                    .clip(RoundedCornerShape(boxPadding/2))
+                    .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
                 MyBezierCanvas(Modifier.fillMaxHeight(), isRecording, isLandscape)
@@ -123,8 +124,8 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(boxPadding/2, boxPadding/4, boxPadding/2, boxPadding/4)   //
-                    .clip(RoundedCornerShape(boxPadding/2))
+                    .padding(boxPadding / 2, boxPadding / 4, boxPadding / 2, boxPadding / 4)   //
+                    .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -140,7 +141,7 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)
+                    .padding(boxPadding, boxPadding / 2, boxPadding, boxPadding / 2)
                     .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
@@ -151,7 +152,7 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)
+                    .padding(boxPadding, boxPadding / 2, boxPadding, boxPadding / 2)
                     .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
@@ -376,48 +377,71 @@ fun MyBezierCanvas(modifier: Modifier = Modifier, isRecording: Boolean, isLandsc
 
     // Only run the animation if recording is true
     val progress = if (isRecording) animationProgressSpeed1 else animationProgressSpeed2
+    Box(
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = modifier.fillMaxSize()) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
+            val halfHeight = canvasHeight / 2
+            val halfWidth = canvasWidth / 2
+            val d1 = if (isLandscape) canvasWidth / 5 else canvasHeight / 5
+            val d2 = if (isLandscape) canvasWidth / 4 else canvasHeight / 2
+            val alphaFloat = 0.2f
 
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        val halfHeight = canvasHeight / 2
-        val halfWidth = canvasWidth / 2
-        val d1 = if (isLandscape) canvasWidth / 5 else canvasHeight / 5
-        val d2 = if (isLandscape) canvasWidth / 4 else canvasHeight / 2
 
-
-        // Points p1 and p2 are located halfway down the canvas
-        val p0 = if (isLandscape) Offset(halfWidth - d1, halfHeight) else Offset(halfWidth, halfHeight - d1)
-        val p3 = if (isLandscape ) Offset(halfWidth + d1, halfHeight ) else Offset(halfWidth, halfHeight + d1)
-
-        // Calculate p0 and p3 positions based on sine and cosine functions
-        val angle = progress * 2 * Math.PI
-        val p1 = Offset(
-            x = p0.x -1 * direction * d2 * cos(angle).toFloat(),
-            y = p0.y + d2 * sin(angle).toFloat()
-        )
-        val p2 = Offset(
-            x = p3.x + direction * d2 * cos(angle).toFloat(),
-            y = p3.y + d2 * sin(angle).toFloat()
-        )
-
-        // Draw the Bézier curve using the control points p0, p1, p2, and p3
-        val path = Path().apply {
-            moveTo(p0.x, p0.y)
-            cubicTo(
-                p1.x, p1.y,
-                p2.x, p2.y,
-                p3.x, p3.y
+            // Points p1 and p2 are located halfway down the canvas
+            val p0 = if (isLandscape) Offset(halfWidth - d1, halfHeight) else Offset(
+                halfWidth,
+                halfHeight - d1
             )
-        }
+            val p3 = if (isLandscape) Offset(halfWidth + d1, halfHeight) else Offset(
+                halfWidth,
+                halfHeight + d1
+            )
 
-        drawPath(path, color = Color.White, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 20f))
+            // Calculate p0 and p3 positions based on sine and cosine functions
+            val angle = progress * 2 * Math.PI
+            val p1 = Offset(
+                x = p0.x - 1 * direction * d2 * cos(angle).toFloat(),
+                y = p0.y + d2 * sin(angle).toFloat()
+            )
+            val p2 = Offset(
+                x = p3.x + direction * d2 * cos(angle).toFloat(),
+                y = p3.y + d2 * sin(angle).toFloat()
+            )
 
-        // Optionally, draw the control points for visualization
-        drawCircle(Color.White, radius = 50f, center = p0)
+            // Draw the Bézier curve using the control points p0, p1, p2, and p3
+            val path = Path().apply {
+                moveTo(p0.x, p0.y)
+                cubicTo(
+                    p1.x, p1.y,
+                    p2.x, p2.y,
+                    p3.x, p3.y
+                )
+            }
+
+            drawPath(
+                path,
+                color = Color.White,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 20f),
+                alpha = alphaFloat
+            )
+
+            // Optionally, draw the control points for visualization
+            drawCircle(Color.White, radius = 50f, center = p0, alpha = alphaFloat)
 //        drawCircle(Color.Black, radius = 10f, center = p1)
 //        drawCircle(Color.Black, radius = 10f, center = p2)
-        drawCircle(Color.White, radius = 50f, center = p3)
+            drawCircle(Color.White, radius = 50f, center = p3, alpha = alphaFloat)
+        }
+        val msg = if (isRecording) "recording" else "ready"
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(text = msg, fontSize = 32.sp)
+            Text(text = "ti::me::er", fontSize = 32.sp)
+        }
     }
 }
 
