@@ -135,13 +135,13 @@ fun PlaybackScreen(
                         .fillMaxHeight()
                         .padding(
                             PaddingValues(
-                                start = 8.dp,
+                                start = 16.dp,
                                 top = 8.dp,
-                                end = 4.dp,
+                                end = 8.dp,
                                 bottom = 8.dp
                             )
                         )
-                        .clip(RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 ){
                     Column(
@@ -186,17 +186,17 @@ fun PlaybackScreen(
                 }
                 Box(
                     modifier = Modifier
-                        .weight(2.5f)
+                        .weight(3f)
                         .fillMaxHeight()
                         .padding(
                             PaddingValues(
-                                start = 4.dp,
+                                start = 8.dp,
                                 top = 8.dp,
-                                end = 8.dp,
+                                end = 16.dp,
                                 bottom = 8.dp
                             )
                         )
-                        .clip(RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 ){
                     Column(

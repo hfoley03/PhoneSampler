@@ -111,9 +111,9 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)   //             
+                    .padding(boxPadding/2, boxPadding/4, boxPadding/2, boxPadding/4)   //
 
-                    .clip(RoundedCornerShape(boxPadding))
+                    .clip(RoundedCornerShape(boxPadding/2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
                 MyBezierCanvas(Modifier.fillMaxHeight(), isRecording, isLandscape)
@@ -123,7 +123,8 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)                       .clip(RoundedCornerShape(boxPadding))
+                    .padding(boxPadding/2, boxPadding/4, boxPadding/2, boxPadding/4)   //
+                    .clip(RoundedCornerShape(boxPadding/2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -139,7 +140,8 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)                       .clip(RoundedCornerShape(boxPadding))
+                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)
+                    .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
@@ -149,7 +151,8 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)                       .clip(RoundedCornerShape(boxPadding))
+                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)
+                    .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){

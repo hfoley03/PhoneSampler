@@ -99,8 +99,15 @@ fun EditRecordingScreen(
                     modifier = Modifier
                         .weight(3f)
                         .fillMaxHeight()
-                        .padding(start = 8.dp,top = 8.dp, end = 4.dp, bottom = 8.dp)
-                        .clip(RoundedCornerShape(16.dp, 0.dp, 0.dp, 16.dp))
+                        .padding(
+                            PaddingValues(
+                                start = 16.dp,
+                                top = 8.dp,
+                                end = 8.dp,
+                                bottom = 8.dp
+                            )
+                        )
+                        .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 ) {
                     Column(
@@ -148,17 +155,17 @@ fun EditRecordingScreen(
                 }
                 Box(
                     modifier = Modifier
-                        .weight(2f)
+                        .weight(3f)
                         .fillMaxHeight()
-                        .padding(
+                            .padding(
                             PaddingValues(
-                                start = 4.dp,
+                                start = 8.dp,
                                 top = 8.dp,
-                                end = 8.dp,
+                                end = 16.dp,
                                 bottom = 8.dp
                             )
-                        )
-                        .clip(RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp))
+                            )
+                        .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 ) {
                     Column(
