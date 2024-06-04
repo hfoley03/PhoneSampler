@@ -67,9 +67,9 @@ fun RecordScreen(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val boxPadding = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 8.dp
-        WindowWidthSizeClass.Medium -> 12.dp
-        WindowWidthSizeClass.Expanded -> 16.dp
+        WindowWidthSizeClass.Compact -> 16.dp // harry increased this from 8 to 16 to match the other screens on my phone
+        WindowWidthSizeClass.Medium -> 24.dp    // i have doubled these from what you had to match, please check on tablet
+        WindowWidthSizeClass.Expanded -> 32.dp
         else -> 12.dp
     }
 
@@ -109,27 +109,28 @@ fun LayoutForOrientation(
         Row(modifier = Modifier.fillMaxWidth()) {
             Box(
                 modifier = Modifier
+                    .weight(3f)
+                    .fillMaxWidth()
+                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)   //             
+
+                    .clip(RoundedCornerShape(boxPadding))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+            ) {
+                MyBezierCanvas(Modifier.fillMaxHeight(), isRecording, isLandscape)
+            }
+
+            Box(
+                modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(all = boxPadding)
-                    .clip(RoundedCornerShape(boxPadding))
+                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)                       .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ) {
                 MyBoxContent(iconSize, isRecording, audioViewModel, onListButtonClicked, isLandscape=true, setShowBottomSheet, Modifier.fillMaxHeight())
             }
 
-            Box(
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxWidth()
-                    .padding(all = boxPadding)
-                    .clip(RoundedCornerShape(boxPadding))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
-            ) {
-                MyBezierCanvas(Modifier.fillMaxHeight(), isRecording, isLandscape)
 
-            }
 
         }
     } else {
@@ -138,8 +139,7 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(all = boxPadding)
-                    .clip(RoundedCornerShape(boxPadding))
+                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)                       .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
@@ -149,8 +149,7 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(all = boxPadding)
-                    .clip(RoundedCornerShape(boxPadding))
+                    .padding(boxPadding, boxPadding/2, boxPadding, boxPadding/2)                       .clip(RoundedCornerShape(boxPadding))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
