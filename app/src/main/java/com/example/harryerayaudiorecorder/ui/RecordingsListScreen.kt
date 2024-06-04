@@ -107,8 +107,18 @@ fun RecordingsListScreen(
                 }
             }
         }
+
+
         accessToken.value = audioViewModel.getAccessToken(context)
 
+    }
+
+    val filteredSoundCards = if (searchText.isBlank()) {
+        soundCardList
+    } else {
+        soundCardList.filter {
+            it.value.fileName.contains(searchText, ignoreCase = true)
+        }
     }
 
     IconButton(onClick = {  }) {
@@ -131,18 +141,20 @@ fun RecordingsListScreen(
                             value = searchText,
                             onValueChange = { searchText = it },
                             placeholder = { Text("Search Recordings") },
+                            trailingIcon =
+                            {
+                                IconButton(onClick = { /* Implemented from the callback */ }) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    modifier = Modifier.size((fileNameFontSize*1.5).dp),
+                                    contentDescription = "Local Search"
+                                )
+                                }
+                            },
                             singleLine = true,
-                            modifier = Modifier.weight(1f),
-
+                            modifier = Modifier.weight(1f)
                         )
-                        IconButton(onClick = { /* Implement local search functionality */ }) {
-                            Icon(
-                                Icons.Default.Search,
-                                modifier = Modifier.size((fileNameFontSize*1.5).dp),
 
-                                contentDescription = "Local Search"
-                            )
-                        }
                         IconButton(onClick = { /* Implement internet search functionality */ },
                             modifier = Modifier.padding(end = (fileNameFontSize).dp)
                             ) {
@@ -173,7 +185,7 @@ fun RecordingsListScreen(
             )
         } else {
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize*2).dp)) {
-                items(soundCardList) { item ->
+                items(filteredSoundCards) { item ->
                     SoundRecordingCard(
                         audioViewModel,
                         soundCard = item.value,
