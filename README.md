@@ -22,4 +22,6 @@ recording list -> would be nice to be able to multi select and then delete or sh
 
 record screen -> keep animation but make it more background and transparent. on top of it add a recording timer display, and the word ready (when not recording) / recording ( when recording)
 
-record screen -> when recording, the record button should turn into an X, if user presses X than recording is stopped, file deleted, no pop up to name and not added to database
+~~ record screen -> when recording, the record button should turn into an X, if user presses X than recording is stopped, file deleted, no pop up to name and not added to database ~~
+
+PCM files should be deleted after conversion to wav
