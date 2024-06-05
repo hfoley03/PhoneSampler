@@ -212,7 +212,7 @@ fun ControlButtonsRow(
                 .semantics { contentDescription = "Settings Icon" },
             iconResId = R.drawable.ic_settings
         )
-        if (isRecording) {
+        if (audioViewModel.timerRunning.value) {
             ScalableIconButton(
                 onClick = { audioViewModel.stopWithoutSavingRecording()},
                 modifier = Modifier.size(iconSize)
@@ -227,7 +227,7 @@ fun ControlButtonsRow(
                 iconResId = R.drawable.ic_record
             )
         }
-        if (isRecording) {
+        if (audioViewModel.timerRunning.value) {
             ScalableIconButton(
                 onClick = {
                     val timestamp = SimpleDateFormat(
