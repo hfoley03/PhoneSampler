@@ -29,12 +29,15 @@ fix bug -> when the app asks for permission to record audio before each recordin
 
 recording list -> we have 3 buttons on each card (delete, rename, upload) these should be replace by 1 three dot button, on pressing the 3 dot button the delete rename upload buttons should appear in a pop up, could add also add the share button into the three dot button
 
-recording list -> would be nice to be able to multi select and then delete or share etc
-
 <del>record screen -> TIMER </del>
 
 <del>record screen -> when recording, the record button should turn into an X, if user presses X than recording is stopped, file deleted, no pop up to name and not added to database</del>
 
 Edit screen - Eray - make buttons be right size 
 
+# not a priority
+
 PCM files should be deleted after conversion to wav
+
+recording list -> would be nice to be able to multi select and then delete or share etc
+
