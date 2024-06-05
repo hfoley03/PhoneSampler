@@ -400,7 +400,8 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
             Button(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
+        modifier = Modifier.testTag("FileNameEditDialog")
     )
 }
 
@@ -484,7 +485,8 @@ fun UploadSoundDialog(
             Button(onClick = onDismiss) {
                 Text("Cancel")
             }
-        }
+        },
+        modifier = Modifier.testTag("UploadDialog")
     )
 }
 

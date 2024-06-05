@@ -76,9 +76,4 @@ class RecordScreenTest {
         composeTestRule.onNodeWithContentDescription("Menu Icon").assertIsDisplayed()
     }
 
-//    @Test
-//    fun testMenuButton() {
-//        composeTestRule.onNodeWithText("Menu Icon").performClick()
-//        composeTestRule.onNodeWithText("Recordings List").assertIsDisplayed()
-//    }
 }
