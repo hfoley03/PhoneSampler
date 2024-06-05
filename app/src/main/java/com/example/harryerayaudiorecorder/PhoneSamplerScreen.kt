@@ -6,16 +6,21 @@ import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,30 +30,35 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.harryerayaudiorecorder.ui.EditRecordingScreen
-import com.example.harryerayaudiorecorder.ui.FreesoundSearchScreen
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
+import com.example.harryerayaudiorecorder.ui.SearchScreen
 
 enum class PhoneSamplerScreen(@StringRes val title: Int) {
     Record(title = R.string.record),
     RecordingsList(title = R.string.recordings_list),
     Playback(title = R.string.playback),
     EditRecord(title = R.string.edit_recording),
-    SearchInFreesound(title = R.string.search_in_freesound);
+    SearchSound(title = R.string.search_sound);
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,6 +113,12 @@ fun PhoneSamplerApp(
     val currentScreen = PhoneSamplerScreen.valueOf(
         backStackEntry?.destination?.route ?: PhoneSamplerScreen.Record.name
     )
+    val fileNameFontSize = when {
+        SamplerViewModel().isTablet() -> 32
+        else -> 22
+    }
+    var searchText by remember { mutableStateOf("") }
+
 
     Scaffold(
         topBar = {
@@ -110,7 +126,9 @@ fun PhoneSamplerApp(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
-                actionButton = if (currentScreen == PhoneSamplerScreen.Playback) {
+                actionButton =
+
+                if (currentScreen == PhoneSamplerScreen.Playback) {
                     {
                         IconButton(onClick = { navController.navigate(PhoneSamplerScreen.EditRecord.name) }) {
                             Icon(
@@ -120,7 +138,47 @@ fun PhoneSamplerApp(
                             )
                         }
                     }
-                } else null
+                }
+
+                else if (currentScreen == PhoneSamplerScreen.RecordingsList){
+                    {
+
+                        IconButton(onClick = { navController.navigate(PhoneSamplerScreen.SearchSound.name) }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = stringResource(R.string.search_sound),
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+
+                    }
+
+                }
+
+                else if (currentScreen == PhoneSamplerScreen.SearchSound){
+                    {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = searchText,
+                                onValueChange = {
+                                    searchText = it
+                                    audioViewModel.updateSearchText(it)
+                                },
+                                placeholder = { Text("Search Sounds") },
+                                singleLine = true,
+                                modifier = Modifier.padding(start = (fileNameFontSize*2).dp) .weight(1f),
+
+                                )
+                        }
+
+                    }
+
+                }
+
+                else null
             )
         }
     ) { innerPadding ->
@@ -161,7 +219,7 @@ fun PhoneSamplerApp(
                             navController.navigate(PhoneSamplerScreen.Playback.name)
                         },
                         onFreesoundSearchButtonClicked = {
-                            navController.navigate(PhoneSamplerScreen.SearchInFreesound.name)
+                            navController.navigate(PhoneSamplerScreen.SearchSound.name)
                         },
                         onThreeDotsClicked = {},
                         modifier = Modifier.fillMaxHeight()
@@ -188,8 +246,8 @@ fun PhoneSamplerApp(
                         windowSizeClass
                     )
                 }
-                composable(route = PhoneSamplerScreen.SearchInFreesound.name){
-                    FreesoundSearchScreen(
+                composable(route = PhoneSamplerScreen.SearchSound.name){
+                    SearchScreen(
                         audioViewModel,
                         windowSizeClass
                     )
