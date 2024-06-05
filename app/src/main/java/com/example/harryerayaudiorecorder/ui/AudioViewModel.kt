@@ -70,6 +70,17 @@ class MockMediaPlayerWrapper : MediaPlayerWrapper {
     override fun setPlaybackSpeed(speed: Float) {}
     override fun onCleared() {}
     override fun reset() {}
+    override fun setDataSourceFromUrl(url: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener) {
+        TODO("Not yet implemented")
+    }
 }
 
 
