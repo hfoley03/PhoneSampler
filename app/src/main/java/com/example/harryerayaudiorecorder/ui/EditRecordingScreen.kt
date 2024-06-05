@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.R
@@ -243,7 +244,8 @@ fun EditRecordingScreen(
                                     val endMillis = (endPosition.value * durationSample).toInt()
                                     audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
                                     }
-                                }) {
+                                },
+                                ) {
                                     Text("Trim")
                                 }
                             }
@@ -331,7 +333,7 @@ fun EditRecordingScreen(
                             }
                         },
                         valueRange = 0.0f..1.0f,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp).testTag("StartSlider")
                     )
                 }
             }
@@ -364,7 +366,7 @@ fun EditRecordingScreen(
                             }
                         },
                         valueRange = 0.0f..1.0f,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp).testTag("EndSlider")
                     )
                 }
             }

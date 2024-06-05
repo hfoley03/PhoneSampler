@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -416,7 +417,7 @@ fun PlaybackScreen(
                             audioViewModel.setPlaybackSpeed(it)
                         },
                         valueRange = 0.25f..4.0f,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp).testTag("SpeedSlider")
                     )
                 }
                 else {

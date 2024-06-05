@@ -2,7 +2,6 @@ package com.example.harryerayaudiorecorder
 
 import AudioViewModel
 import MockMediaPlayerWrapper
-import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -15,9 +14,6 @@ import com.example.harryerayaudiorecorder.data.MockAudioRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 
 class PhoneSamplerScreenTest {
 
@@ -138,21 +134,4 @@ class MockRecorderControl : RecorderControl {
 }
 
 
-fun copyFileFromTestResourcesToExternalFilesDir(context: Context, fileName: String, subDir: String) {
-    val inputStream: InputStream = context.resources.assets.open(fileName)
-    val outputDir = File(context.getExternalFilesDir(null), subDir)
-    if (!outputDir.exists()) {
-        outputDir.mkdirs()
-    }
-    val outputFile = File(outputDir, fileName)
-    FileOutputStream(outputFile).use { output ->
-        val buffer = ByteArray(1024)
-        var length: Int
-        while (inputStream.read(buffer).also { length = it } > 0) {
-            output.write(buffer, 0, length)
-        }
-        output.flush()
-    }
-    inputStream.close()
-}
 
