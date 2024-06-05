@@ -36,7 +36,7 @@ import androidx.compose.ui.res.painterResource
 import com.example.harryerayaudiorecorder.R
 
 @Composable
-fun FreesoundSearchScreen(audioViewModel: AudioViewModel,
+fun SearchScreen(audioViewModel: AudioViewModel,
                           windowSizeClass: WindowSizeClass) {
     var sounds = remember { mutableStateListOf<FreesoundSoundCard>() }
     val searchText = audioViewModel.searchText.value
