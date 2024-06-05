@@ -48,6 +48,10 @@ interface MediaPlayerWrapper {
     fun setPlaybackSpeed(speed: Float)
     fun onCleared()
     fun reset()
+    fun setDataSourceFromUrl(url: String)
+    fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener)
+    fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener)
+
 }
 
 // Real implementation of MediaPlayer using Android's MediaPlayer
@@ -156,6 +160,59 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         mediaPlayer = null
         Log.d("AndroidMediaPlayerWrapper", "onCleared() - MediaPlayer cleared")
     }
+
+    override fun setDataSourceFromUrl(url: String) {
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer()
+            setupMediaPlayerListeners()
+        } else {
+            mediaPlayer?.reset() // Reset the player to ensure it's in a clean state
+        }
+
+        mediaPlayer?.apply {
+            setDataSource(url)
+            prepareAsync() // Use prepareAsync for network sources
+            setOnPreparedListener {
+                it.start() // Start playback automatically once prepared
+            }
+            setOnErrorListener { mp, what, extra ->
+                Log.e("MediaPlayer Error", "What: $what, Extra: $extra")
+                true
+            }
+            setOnInfoListener { mediaPlayer, what, extra ->
+                Log.i("MediaPlayer Info", "Info: What $what, Extra $extra")
+                true
+            }
+        }
+        Log.d("AndroidMediaPlayerWrapper", "setDataSourceFromUrl() - url: $url")
+    }
+
+    private fun setupMediaPlayerListeners() {
+        mediaPlayer?.apply {
+            setOnPreparedListener {
+                Log.d("AndroidMediaPlayerWrapper", "MediaPlayer prepared")
+                start() // Optionally start playback immediately upon preparing
+            }
+            setOnCompletionListener {
+                Log.d("AndroidMediaPlayerScript", "Playback completed")
+                // Handle completion of playback
+            }
+            setOnErrorListener { _, what, extra ->
+                Log.e("AndroidMediaPlayer Error", "MediaPlayer error occurred: What $what, Extra $extra")
+                true
+            }
+        }
+    }
+    override fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener) {
+        mediaPlayer?.setOnCompletionListener(listener)
+    }
+
+    override fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener) {
+        mediaPlayer?.setOnPreparedListener(listener)
+    }
+
+
+
 }
 
 // ViewModel managing audio playback and recording using the media player wrapper
@@ -167,11 +224,11 @@ open class AudioViewModel(
 
     val _recorderRunning = mutableStateOf(false)
     val recorderRunning: State<Boolean> = _recorderRunning
-
     private val _currentFileName = mutableStateOf<String?>(null)
     val currentFileName: State<String?> = _currentFileName
-
     var currentPosition: Long = 0
+    private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
+    val searchText = mutableStateOf("")
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -503,6 +560,63 @@ open class AudioViewModel(
                 Log.e("SearchFailure", "Network error: ${t.message}")
             }
         })
+    }
+
+    fun playPreview(sound: FreesoundSoundCard) {
+        // Prioritize preview links in the order of preference
+        val url = sound.previews["preview-hq-mp3"]
+            ?: sound.previews["preview-lq-mp3"]
+            ?: sound.previews["preview-hq-ogg"]
+            ?: sound.previews["preview-lq-ogg"]
+            ?: ""
+
+        if (url.isNotEmpty()) {
+            try {
+                mediaPlayerWrapper.setDataSourceFromUrl(url)
+            } catch (e: IOException) {
+                Log.e("AudioViewModel", "Error playing preview: ${e.message}")
+                // Handle errors such as network issues or corrupted audio paths
+            }
+        } else {
+            Log.e("AudioViewModel", "No valid preview URL found")
+            // Notify user or handle the absence of a preview URL
+        }
+        mediaPlayerWrapper.setOnCompletionListener {
+            togglePlayPause(sound)
+        }
+
+    }
+
+    fun stopPreview() {
+        try {
+            if (mediaPlayerWrapper.isPlaying()) {
+                mediaPlayerWrapper.stop()
+                mediaPlayerWrapper.reset()
+                Log.d("AudioViewModel", "Preview stopped and reset")
+            }
+        } catch (e: Exception) {
+            Log.e("AudioViewModel", "Error stopping preview: ${e.message}")
+        }
+    }
+
+
+    fun getPlayingState(id: Int): MutableState<Boolean> {
+        return _playingStates.getOrPut(id) { mutableStateOf(false) }
+    }
+
+    fun togglePlayPause(sound: FreesoundSoundCard) {
+        val isPlaying = getPlayingState(sound.id)
+        if (isPlaying.value) {
+            stopPreview()
+        } else {
+            playPreview(sound)
+        }
+        isPlaying.value = !isPlaying.value
+    }
+
+
+    fun updateSearchText(newText: String) {
+        searchText.value = newText
     }
 
 

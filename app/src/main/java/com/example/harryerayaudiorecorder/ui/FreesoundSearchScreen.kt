@@ -1,6 +1,7 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +13,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,16 +32,18 @@ import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.painterResource
+import com.example.harryerayaudiorecorder.R
 
 @Composable
 fun FreesoundSearchScreen(audioViewModel: AudioViewModel,
                           windowSizeClass: WindowSizeClass) {
     var sounds = remember { mutableStateListOf<FreesoundSoundCard>() }
-
+    val searchText = audioViewModel.searchText.value
     // maybe put to bg?
     audioViewModel.performSearch(
         clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
-        "birds",
+        searchText,
         setFreesoundSoundCards = { newSounds ->
             sounds.clear()
             sounds.addAll(newSounds)
@@ -61,6 +68,7 @@ fun FreesoundSearchScreen(audioViewModel: AudioViewModel,
 
 @Composable
 fun FsSoundCard(sound: FreesoundSoundCard, fileNameFontSize:Int, audioViewModel: AudioViewModel) {
+    val isPlaying = audioViewModel.getPlayingState(sound.id)
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
         shape = RoundedCornerShape(16.dp),
@@ -82,10 +90,33 @@ fun FsSoundCard(sound: FreesoundSoundCard, fileNameFontSize:Int, audioViewModel:
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Column {
+
+                    IconButton(onClick = {
+                        audioViewModel.togglePlayPause(sound)
+                    }) {
+                        if (isPlaying.value) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_stop),
+                                contentDescription = "Stop",
+                                modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Play",
+                                modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)                            )
+                        }
+                    }
+                    IconButton(onClick = { }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.download_icon),
+                            contentDescription = "Download",
+                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
+                        )
+                    }
                     IconButton(onClick = { }) {
                         Icon(
                             Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Download",
+                            contentDescription = "Description",
                             modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }

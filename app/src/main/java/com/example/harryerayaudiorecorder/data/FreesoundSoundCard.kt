@@ -1,5 +1,8 @@
 package com.example.harryerayaudiorecorder.data
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+
 data class FreesoundSoundCard(
     val id: Int,
     val name: String,
@@ -16,5 +19,7 @@ data class FreesoundSoundCard(
     val username: String,
     val download: String,
     val previews: Map<String, String>,
-    val avgRating: Double
+    val avgRating: Double,
+    val isPlaying: MutableState<Boolean> = mutableStateOf(false)
+
 )

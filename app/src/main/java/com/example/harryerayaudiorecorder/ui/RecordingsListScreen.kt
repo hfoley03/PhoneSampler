@@ -132,7 +132,8 @@ fun RecordingsListScreen(
                     ) {
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = { searchText = it },
+                            onValueChange = { searchText = it
+                                audioViewModel.updateSearchText(it) },
                             placeholder = { Text("Search Recordings") },
                             trailingIcon =
                             {
