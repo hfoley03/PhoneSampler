@@ -205,19 +205,22 @@ fun ControlButtonsRow(
     ColumnOrRow(isLandscape = isLandscape) {
         ScalableIconButton(
             onClick = { },
-            modifier = Modifier.size(iconSize),
+            modifier = Modifier.size(iconSize)
+                .semantics { contentDescription = "Settings Icon" },
             iconResId = R.drawable.ic_settings
         )
         if (isRecording) {
             ScalableIconButton(
                 onClick = { audioViewModel.stopWithoutSavingRecording()},
-                modifier = Modifier.size(iconSize),
+                modifier = Modifier.size(iconSize)
+                    .semantics { contentDescription = "Delete Icon" },
                 iconResId = R.drawable.ic_delete
             )
         } else {
             ScalableIconButton(
                 onClick = { audioViewModel.startRecording() },
-                modifier = Modifier.size(iconSize),
+                modifier = Modifier.size(iconSize)
+                    .semantics { contentDescription = "Record Icon" },
                 iconResId = R.drawable.ic_record
             )
         }
@@ -232,7 +235,8 @@ fun ControlButtonsRow(
                     audioViewModel.stopRecording(defaultFileName)
                     setShowBottomSheet(true)
                 },
-                modifier = Modifier.size(iconSize),
+                modifier = Modifier.size(iconSize)
+                    .semantics { contentDescription = "Stop Icon" },
                 iconResId = R.drawable.ic_stop
             )
         } else {
