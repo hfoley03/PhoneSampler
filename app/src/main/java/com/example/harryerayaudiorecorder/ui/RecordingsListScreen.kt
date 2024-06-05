@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.ApiResponseDialog
@@ -77,8 +78,10 @@ fun RecordingsListScreen(
     val searchText = audioViewModel.searchText.value
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
     var fileOpacity by remember{mutableStateOf(0.75f)}
+    var downloadTrigger by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit,downloadTrigger) {
+        soundCardList.clear()
         withContext(Dispatchers.IO) {
             val soundRecordDatabaseList = audioViewModel.getAllAudioRecords()
 
@@ -120,10 +123,10 @@ fun RecordingsListScreen(
         }
     }
 
-    audioViewModel.performSearch(
-        clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
-        searchText,
-        setFreesoundSoundCards = { newSounds ->
+    audioViewModel.performSearchWithCoroutines(
+        clientSecret = stringResource(R.string.client_secret),
+        searchText = searchText,
+        updateUI = { newSounds ->
             fsSoundCards.clear()
             fsSoundCards.addAll(newSounds)
         }
@@ -146,7 +149,7 @@ fun RecordingsListScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = fileNameFontSize.dp/3f),
+                        .padding(horizontal = fileNameFontSize.dp / 3f),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -155,10 +158,11 @@ fun RecordingsListScreen(
                             .clickable(onClick = {
                                 fileOpacity = 0.75f
                             })
-                            .padding((fileNameFontSize/4).dp)
+                            .padding((fileNameFontSize / 4).dp)
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = fileOpacity),
-                                shape = RoundedCornerShape((fileNameFontSize/2).dp))            ) {
+                                shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                            )            ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "My Files",
@@ -182,10 +186,11 @@ fun RecordingsListScreen(
                             .clickable(onClick = {
                                 fileOpacity = 0.25f
                             })
-                            .padding((fileNameFontSize/4).dp)
+                            .padding((fileNameFontSize / 4).dp)
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - fileOpacity),
-                                shape = RoundedCornerShape((fileNameFontSize/2).dp))
+                                shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                            )
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
@@ -210,6 +215,8 @@ fun RecordingsListScreen(
                                 audioViewModel,
                                 accessToken.value,
                                 audioCapturesDirectory,
+                                downloadTrigger = downloadTrigger,
+                                setDownloadTrigger = {downloadTrigger = it},
                                 setShowOAuthWebView = { showOAuthWebView = it },)
                         }
                     }

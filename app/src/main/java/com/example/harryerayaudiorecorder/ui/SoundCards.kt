@@ -49,6 +49,8 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                 audioViewModel: AudioViewModel,
                 accessToken: String?,
                 audioCapturesDirectory: File,
+                downloadTrigger: Boolean,
+                setDownloadTrigger: (Boolean) -> Unit,
                 setShowOAuthWebView: (Boolean) -> Unit) {
     val context = LocalContext.current
     val isPlaying = audioViewModel.getPlayingState(sound.id)
@@ -98,6 +100,8 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                                 accessToken,
                                 sound.name,
                                 audioCapturesDirectory,
+                                downloadTrigger,
+                                setDownloadTrigger,
                                 context
                             )
                         }

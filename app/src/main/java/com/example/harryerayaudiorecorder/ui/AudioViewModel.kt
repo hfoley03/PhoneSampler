@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.harryerayaudiorecorder.ApiService
 import com.example.harryerayaudiorecorder.FreesoundService
 import com.example.harryerayaudiorecorder.RecorderControl
@@ -20,6 +21,7 @@ import com.example.harryerayaudiorecorder.data.SearchResponse
 import com.example.harryerayaudiorecorder.data.SoundCard
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -422,7 +424,7 @@ open class AudioViewModel(
     suspend fun getAllAudioRecords(): List<AudioRecordEntity> {
         return audioRepository.getAllAudioRecords()
     }
-    fun downloadSound(soundId: String, accessToken: String, fileName:String, audioCapturesDirectory: File, context: Context) {
+    fun downloadSound(soundId: String, accessToken: String, fileName:String, audioCapturesDirectory: File, downloadTrigger:Boolean ,setDownloadTrigger: (Boolean) -> Unit,context: Context) {
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         val call = freesoundService.downloadSound(soundId, "Bearer $accessToken")
 
@@ -433,6 +435,9 @@ open class AudioViewModel(
                     response.body()?.let { responseBody ->
                         // Save the file or process it as needed
                         saveSoundToFile(responseBody,fileName,audioCapturesDirectory,context)
+
+                        //trigger the fetch db
+                        setDownloadTrigger(!downloadTrigger)
                     }
                 } else {
 
@@ -671,6 +676,18 @@ open class AudioViewModel(
 
     fun updateSearchText(newText: String) {
         searchText.value = newText
+    }
+
+    fun performSearchWithCoroutines(clientSecret: String, searchText: String, updateUI: (MutableList<FreesoundSoundCard>) -> Unit) {
+        viewModelScope.launch {
+            performSearch(
+                clientSecret = clientSecret,
+                query = searchText,
+                setFreesoundSoundCards = { newSounds ->
+                    updateUI(newSounds)
+                }
+            )
+        }
     }
 
 
