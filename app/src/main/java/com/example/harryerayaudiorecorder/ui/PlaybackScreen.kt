@@ -176,7 +176,7 @@ fun PlaybackScreen(
                                     waveformProgress = newProgress
                                     val newPosition =
                                         (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
-                                    audioViewModel.seekTo(newPosition)
+                                    audioViewModel.playAudio(audioFile, newPosition)
                                     audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
                                     Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
                                     isPlaying.value = true
@@ -280,7 +280,7 @@ fun PlaybackScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Button(onClick = {
-                                audioViewModel.fastRewind(3000)
+                                audioViewModel.fastRewind((durationSample * 0.1f).toInt())
                                 audioViewModel.setPlaybackSpeed(playbackSpeed.value)
                                 isPlaying.value = true
                             })
@@ -321,7 +321,7 @@ fun PlaybackScreen(
                             }
 
                             Button(onClick = {
-                                audioViewModel.fastForward(3000)
+                                audioViewModel.fastForward((durationSample * 0.1f).toInt())
                                 audioViewModel.setPlaybackSpeed(playbackSpeed.value)
                                 isPlaying.value = true
                             }) {
@@ -387,7 +387,8 @@ fun PlaybackScreen(
                                 waveformProgress = newProgress
                                 val newPosition =
                                     (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
-                                audioViewModel.seekTo(newPosition)
+//                                audioViewModel.seekTo(newPosition)
+                                audioViewModel.playAudio(audioFile, newPosition)
                                 audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
                                 Log.d(
                                     "playbackscreen",
@@ -500,7 +501,7 @@ fun PlaybackScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(onClick = {
-                            audioViewModel.fastRewind(3000)
+                            audioViewModel.fastRewind((durationSample * 0.1f).toInt())
                             audioViewModel.setPlaybackSpeed(playbackSpeed.value)
                             isPlaying.value = true
                         })
@@ -541,7 +542,7 @@ fun PlaybackScreen(
                         }
 
                         Button(onClick = {
-                            audioViewModel.fastForward(3000)
+                            audioViewModel.fastForward((durationSample * 0.1f).toInt())
                             audioViewModel.setPlaybackSpeed(playbackSpeed.value)
                             isPlaying.value = true
                         }) {
