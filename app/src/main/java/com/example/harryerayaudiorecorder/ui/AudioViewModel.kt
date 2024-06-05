@@ -250,7 +250,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 open class AudioViewModel(
     private val mediaPlayerWrapper: MediaPlayerWrapper,
     private val recorderControl: RecorderControl,
-    private val audioRepository: AudioRepository
+    private val audioRepository: AudioRepository,
 ) : ViewModel() {
 
     val _recorderRunning = mutableStateOf(false)

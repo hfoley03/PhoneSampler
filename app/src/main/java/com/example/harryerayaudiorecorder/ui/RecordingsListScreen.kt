@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,6 +102,16 @@ fun RecordingsListScreen(
             }
         }
 
+        // Add a dummy sound card
+        val dummySoundCard = SoundCard(
+            duration = 2000,
+            fileName = "dummy_sound.wav",
+            fileSize = 1.0,
+            date = "2024-01-01"
+        )
+        withContext(Dispatchers.Main) {
+            soundCardList.add(mutableStateOf(dummySoundCard))
+        }
 
         accessToken.value = audioViewModel.getAccessToken(context)
 
@@ -184,6 +195,7 @@ fun RecordingsListScreen(
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize*2).dp)) {
                 items(filteredSoundCards) { item ->
                     SoundRecordingCard(
+
                         audioViewModel,
                         soundCard = item.value,
                         audioCapturesDirectory = audioCapturesDirectory,
@@ -270,7 +282,8 @@ fun SoundRecordingCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 8.dp, 16.dp, 8.dp)
-            .pointerInput(Unit) {
+        .testTag("SoundCard") // Adding test tag here
+        .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = { }, // Handle long press
                     onTap = { onClick() } // Handle single tap
