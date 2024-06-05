@@ -1,6 +1,7 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -19,6 +20,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
@@ -44,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.R
 import com.linc.audiowaveform.AudioWaveform
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import linc.com.amplituda.Amplituda
 import linc.com.amplituda.AmplitudaResult
 import linc.com.amplituda.exceptions.AmplitudaException
@@ -51,6 +56,7 @@ import linc.com.amplituda.exceptions.io.AmplitudaIOException
 import java.io.File
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EditRecordingScreen(
     audioViewModel: AudioViewModel,
@@ -75,7 +81,8 @@ fun EditRecordingScreen(
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     val amplituda = Amplituda(context)
     var boxWidth by remember { mutableStateOf(0f) }
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     // Process audio and handle result
     amplituda.processAudio(audioFile.path)[
@@ -104,27 +111,202 @@ fun EditRecordingScreen(
             delay(20)
         }
     }
-    if(isLandscape){
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Row(
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) {
+        if (isLandscape) {
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(3f)
+                            .fillMaxHeight()
+                            .padding(
+                                PaddingValues(
+                                    start = 16.dp,
+                                    top = 8.dp,
+                                    end = 8.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                EvenlySpacedText2(text = formatTime(currentPosition))
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxSize()
+                                    .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                                        boxWidth = coordinates.size.width.toFloat()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AudioWaveform(
+                                    amplitudes = amplitudesData,
+                                    progress = waveformProgress,
+                                    progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                                    waveformBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                                    onProgressChange = { newProgress ->
+                                        waveformProgress = newProgress
+                                        val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
+                                        val minPosition = (startPosition.value * durationSample).toLong()
+                                        val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
+                                        //audioViewModel.seekTo(newPosition.coerceIn(minPosition, maxPosition))
+                                        audioViewModel.playAudio(audioFile, newPosition.coerceIn(minPosition, maxPosition))
+                                        Log.d(
+                                            "playbackscreen",
+                                            audioViewModel.getCurrentPosition().toString()
+                                        )
+                                        isPlaying.value = true
+                                    }
+                                )
+                                DrawVerticalLines(
+                                    modifier = Modifier.fillMaxSize(),
+                                    startPos = startPosition,
+                                    endPos = endPosition,
+                                    boxWidth = boxWidth
+                                )
+                            }
+                        }
+
+                    }
+                    Box(
+                        modifier = Modifier
+                            .weight(3f)
+                            .fillMaxHeight()
+                            .padding(
+                                PaddingValues(
+                                    start = 8.dp,
+                                    top = 8.dp,
+                                    end = 16.dp,
+                                    bottom = 8.dp
+                                )
+                            )
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Set Trim Points",
+                                    //modifier = Modifier.padding(8.dp)
+                                )
+                                RangeSlider(
+                                    value = sliderPosition,
+                                    onValueChange = { range -> sliderPosition = range
+                                        startPosition.value = sliderPosition.start
+                                        endPosition.value = sliderPosition.endInclusive
+                                    },
+                                    valueRange = 0.0f..1.0f,
+                                    onValueChangeFinished = {
+
+                                    },
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(4.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    Button(onClick = {
+                                        if (isPlaying.value) {
+                                            audioViewModel.pauseAudio()
+                                            isPlaying.value = false
+                                        } else {
+                                            if (audioFile.exists()) {
+
+                                                if(audioViewModel.getCurrentPosition() < startPosition.value * durationSample)
+                                                {
+                                                    val newCurrent = startPosition.value * durationSample
+                                                    audioViewModel.playAudio(
+                                                        audioFile,
+                                                        newCurrent.toLong()
+                                                    )
+                                                }
+                                                else {
+                                                    audioViewModel.playAudio(
+                                                        audioFile,
+                                                        audioViewModel.getCurrentPosition().toLong()
+                                                    )
+                                                }
+                                                isPlaying.value = true
+                                            }
+                                        }
+                                    }) {
+                                        Icon(
+                                            painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(24.dp),
+                                            contentDescription = if (isPlaying.value) "Pause" else "Play",
+                                        )
+                                    }
+
+                                    Button(onClick = {
+                                        val startMillis = (startPosition.value * durationSample).toInt()
+                                        val endMillis = (endPosition.value * durationSample).toInt()
+                                        audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
+                                            // Handle the trimmed file, e.g., play it, save it, etc.
+                                            coroutineScope.launch {
+                                                snackbarHostState.showSnackbar(trimmedFile.name)
+                                            }
+
+                                        }
+                                    },
+                                    ) {
+                                        Text("Trim")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Box(
                     modifier = Modifier
                         .weight(3f)
-                        .fillMaxHeight()
-                        .padding(
-                            PaddingValues(
-                                start = 16.dp,
-                                top = 8.dp,
-                                end = 8.dp,
-                                bottom = 8.dp
-                            )
-                        )
+                        .fillMaxWidth()
+                        .padding(16.dp, 8.dp, 16.dp, 8.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 ) {
@@ -132,22 +314,17 @@ fun EditRecordingScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.Center,
+                        verticalArrangement = Arrangement.SpaceEvenly,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-
                         Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxSize(),
+                            modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
                             EvenlySpacedText2(text = formatTime(currentPosition))
                         }
                         Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxSize()
+                            modifier = Modifier.weight(1f)
                                 .onGloballyPositioned { coordinates: LayoutCoordinates ->
                                     boxWidth = coordinates.size.width.toFloat()
                                 },
@@ -165,10 +342,6 @@ fun EditRecordingScreen(
                                     val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
                                     //audioViewModel.seekTo(newPosition.coerceIn(minPosition, maxPosition))
                                     audioViewModel.playAudio(audioFile, newPosition.coerceIn(minPosition, maxPosition))
-                                    Log.d(
-                                        "playbackscreen",
-                                        audioViewModel.getCurrentPosition().toString()
-                                    )
                                     isPlaying.value = true
                                 }
                             )
@@ -180,22 +353,16 @@ fun EditRecordingScreen(
                             )
                         }
                     }
-
                 }
+
                 Box(
                     modifier = Modifier
-                        .weight(3f)
-                        .fillMaxHeight()
-                        .padding(
-                            PaddingValues(
-                                start = 8.dp,
-                                top = 8.dp,
-                                end = 16.dp,
-                                bottom = 8.dp
-                            )
-                        )
+                        .weight(2f)
+                        .fillMaxWidth()
+                        .padding(16.dp, 8.dp, 16.dp, 8.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
                 ) {
                     Column(
                         modifier = Modifier
@@ -204,76 +371,68 @@ fun EditRecordingScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
+                        Text(text = "Set Trim Points", modifier = Modifier.padding(8.dp))
+                        RangeSlider(
+                            value = sliderPosition,
+                            onValueChange = { range -> sliderPosition = range
+                                startPosition.value = sliderPosition.start
+                                endPosition.value = sliderPosition.endInclusive
+                            },
+                            valueRange = 0.0f..1.0f,
+                            onValueChangeFinished = {
+                            },
+                        )
+                        Row(
                             modifier = Modifier
-                                .fillMaxHeight()
+                                .fillMaxWidth()
                                 .padding(16.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Text(
-                                text = "Set Trim Points",
-                                //modifier = Modifier.padding(8.dp)
-                            )
-                            RangeSlider(
-                                value = sliderPosition,
-                                onValueChange = { range -> sliderPosition = range
-                                    startPosition.value = sliderPosition.start
-                                    endPosition.value = sliderPosition.endInclusive
-                                },
-                                valueRange = 0.0f..1.0f,
-                                onValueChangeFinished = {
+                            Button(onClick = {
+                                if (isPlaying.value) {
+                                    audioViewModel.pauseAudio()
+                                    isPlaying.value = false
+                                } else {
+                                    if (audioFile.exists()) {
 
-                                },
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(4.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                Button(onClick = {
-                                    if (isPlaying.value) {
-                                        audioViewModel.pauseAudio()
-                                        isPlaying.value = false
-                                    } else {
-                                        if (audioFile.exists()) {
-
-                                            if(audioViewModel.getCurrentPosition() < startPosition.value * durationSample)
-                                            {
-                                                val newCurrent = startPosition.value * durationSample
-                                                audioViewModel.playAudio(
-                                                    audioFile,
-                                                    newCurrent.toLong()
-                                                )
-                                            }
-                                            else {
-                                                audioViewModel.playAudio(
-                                                    audioFile,
-                                                    audioViewModel.getCurrentPosition().toLong()
-                                                )
-                                            }
-                                            isPlaying.value = true
+                                        if(audioViewModel.getCurrentPosition() < startPosition.value * durationSample)
+                                        {
+                                            val newCurrent = startPosition.value * durationSample
+                                            audioViewModel.playAudio(
+                                                audioFile,
+                                                newCurrent.toLong()
+                                            )
                                         }
+                                        else {
+                                            audioViewModel.playAudio(
+                                                audioFile,
+                                                audioViewModel.getCurrentPosition().toLong()
+                                            )
+                                        }
+                                        isPlaying.value = true
                                     }
-                                }) {
-                                    Icon(
-                                        painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(24.dp),
-                                        contentDescription = if (isPlaying.value) "Pause" else "Play",
-                                    )
                                 }
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(24.dp),
+                                    contentDescription = if (isPlaying.value) "Pause" else "Play",
+                                )
+                            }
 
-                                Button(onClick = {
-                                    val startMillis = (startPosition.value * durationSample).toInt()
-                                    val endMillis = (endPosition.value * durationSample).toInt()
-                                    audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
+                            Button(onClick = {
+                                val startMillis = (startPosition.value * durationSample).toInt()
+                                val endMillis = (endPosition.value * durationSample).toInt()
+                                audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
+                                    // Handle the trimmed file, e.g., play it, save it, etc.
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(trimmedFile.name)
                                     }
-                                },
-                                ) {
-                                    Text("Trim")
+
                                 }
+                            }) {
+                                Text("Trim")
                             }
                         }
                     }
@@ -281,161 +440,8 @@ fun EditRecordingScreen(
             }
         }
     }
-
-    else
-    {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxWidth()
-                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        EvenlySpacedText2(text = formatTime(currentPosition))
-                    }
-                    Box(
-                        modifier = Modifier.weight(1f)
-                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                            boxWidth = coordinates.size.width.toFloat()
-                        },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AudioWaveform(
-                            amplitudes = amplitudesData,
-                            progress = waveformProgress,
-                            progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
-                            waveformBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                            onProgressChange = { newProgress ->
-                                waveformProgress = newProgress
-                                val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
-                                val minPosition = (startPosition.value * durationSample).toLong()
-                                val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
-                                //audioViewModel.seekTo(newPosition.coerceIn(minPosition, maxPosition))
-                                audioViewModel.playAudio(audioFile, newPosition.coerceIn(minPosition, maxPosition))
-                                isPlaying.value = true
-                            }
-                        )
-                        DrawVerticalLines(
-                            modifier = Modifier.fillMaxSize(),
-                            startPos = startPosition,
-                            endPos = endPosition,
-                            boxWidth = boxWidth
-                        )
-                    }
-                }
-            }
-            
-            Box(
-                modifier = Modifier
-                    .weight(2f)
-                    .fillMaxWidth()
-                    .padding(16.dp, 8.dp, 16.dp, 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = "Set Trim Points", modifier = Modifier.padding(8.dp))
-//                    Text(
-//                        text = "Start Position: ${formatTime((startPosition.value * durationSample).toInt())}",
-//                        modifier = Modifier.padding(8.dp)
-//                    )
-//                    Text(
-//                        text = "End Position: ${formatTime((endPosition.value * durationSample).toInt())}",
-//                        modifier = Modifier.padding(8.dp)
-//                    )
-                    RangeSlider(
-                        value = sliderPosition,
-                        onValueChange = { range -> sliderPosition = range
-                                        startPosition.value = sliderPosition.start
-                                        endPosition.value = sliderPosition.endInclusive
-                        },
-                        valueRange = 0.0f..1.0f,
-                        onValueChangeFinished = {
-                            //startPosition = sliderPosition.start
-                            //endPosition = sliderPosition.endInclusive
-                            // launch some business logic update with the state you hold
-                            // viewModel.updateSelectedSliderValue(sliderPosition)
-                        },
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(onClick = {
-                            if (isPlaying.value) {
-                                audioViewModel.pauseAudio()
-                                isPlaying.value = false
-                            } else {
-                                if (audioFile.exists()) {
-
-                                    if(audioViewModel.getCurrentPosition() < startPosition.value * durationSample)
-                                    {
-                                        val newCurrent = startPosition.value * durationSample
-                                        audioViewModel.playAudio(
-                                            audioFile,
-                                            newCurrent.toLong()
-                                        )
-                                    }
-                                    else {
-                                        audioViewModel.playAudio(
-                                            audioFile,
-                                            audioViewModel.getCurrentPosition().toLong()
-                                        )
-                                    }
-                                    isPlaying.value = true
-                                }
-                            }
-                        }) {
-                            Icon(
-                                painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(24.dp),
-                                contentDescription = if (isPlaying.value) "Pause" else "Play",
-                            )
-                        }
-
-                        Button(onClick = {
-                            val startMillis = (startPosition.value * durationSample).toInt()
-                            val endMillis = (endPosition.value * durationSample).toInt()
-                            audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
-                                // Handle the trimmed file, e.g., play it, save it, etc.
-                            }
-                        }) {
-                            Text("Trim")
-                        }
-                    }
-                }
-                }
-            }
-        }
-
 }
+
 
 @Composable
 fun DrawVerticalLines(
