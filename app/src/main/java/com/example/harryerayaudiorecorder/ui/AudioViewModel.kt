@@ -13,7 +13,11 @@ import com.example.harryerayaudiorecorder.RecorderControl
 import com.example.harryerayaudiorecorder.TokenResponse
 import com.example.harryerayaudiorecorder.data.AudioRecordEntity
 import com.example.harryerayaudiorecorder.data.AudioRepository
+import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
+import com.example.harryerayaudiorecorder.data.SearchResponse
 import com.example.harryerayaudiorecorder.data.SoundCard
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -44,6 +48,10 @@ interface MediaPlayerWrapper {
     fun setPlaybackSpeed(speed: Float)
     fun onCleared()
     fun reset()
+    fun setDataSourceFromUrl(url: String)
+    fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener)
+    fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener)
+
 }
 
 class MockMediaPlayerWrapper : MediaPlayerWrapper {
@@ -172,6 +180,59 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         mediaPlayer = null
         Log.d("AndroidMediaPlayerWrapper", "onCleared() - MediaPlayer cleared")
     }
+
+    override fun setDataSourceFromUrl(url: String) {
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer()
+            setupMediaPlayerListeners()
+        } else {
+            mediaPlayer?.reset() // Reset the player to ensure it's in a clean state
+        }
+
+        mediaPlayer?.apply {
+            setDataSource(url)
+            prepareAsync() // Use prepareAsync for network sources
+            setOnPreparedListener {
+                it.start() // Start playback automatically once prepared
+            }
+            setOnErrorListener { mp, what, extra ->
+                Log.e("MediaPlayer Error", "What: $what, Extra: $extra")
+                true
+            }
+            setOnInfoListener { mediaPlayer, what, extra ->
+                Log.i("MediaPlayer Info", "Info: What $what, Extra $extra")
+                true
+            }
+        }
+        Log.d("AndroidMediaPlayerWrapper", "setDataSourceFromUrl() - url: $url")
+    }
+
+    private fun setupMediaPlayerListeners() {
+        mediaPlayer?.apply {
+            setOnPreparedListener {
+                Log.d("AndroidMediaPlayerWrapper", "MediaPlayer prepared")
+                start() // Optionally start playback immediately upon preparing
+            }
+            setOnCompletionListener {
+                Log.d("AndroidMediaPlayerScript", "Playback completed")
+                // Handle completion of playback
+            }
+            setOnErrorListener { _, what, extra ->
+                Log.e("AndroidMediaPlayer Error", "MediaPlayer error occurred: What $what, Extra $extra")
+                true
+            }
+        }
+    }
+    override fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener) {
+        mediaPlayer?.setOnCompletionListener(listener)
+    }
+
+    override fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener) {
+        mediaPlayer?.setOnPreparedListener(listener)
+    }
+
+
+
 }
 
 // ViewModel managing audio playback and recording using the media player wrapper
@@ -183,11 +244,11 @@ open class AudioViewModel(
 
     val _recorderRunning = mutableStateOf(false)
     val recorderRunning: State<Boolean> = _recorderRunning
-
     private val _currentFileName = mutableStateOf<String?>(null)
     val currentFileName: State<String?> = _currentFileName
-
     var currentPosition: Long = 0
+    private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
+    val searchText = mutableStateOf("")
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -400,7 +461,7 @@ open class AudioViewModel(
 
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         val call = freesoundService.uploadSound(
-            authToken = "Bearer $accessToken",
+            accessToken = "Bearer $accessToken",
             audiofile = body,
             name = name,
             tags = tags,
@@ -487,6 +548,97 @@ open class AudioViewModel(
     fun clearApiResponseMessage() {
         _apiResponse.value = null
     }
+
+
+    fun performSearch(clientSecret: String, query: String, setFreesoundSoundCards: (MutableList<FreesoundSoundCard>) -> Unit) {
+        val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
+        freesoundService.searchSounds(clientSecret = clientSecret, query = query).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { responseBody ->
+                        val gson = Gson()
+                        val responseBodyString = responseBody.string()
+                        val type = object : TypeToken<SearchResponse<FreesoundSoundCard>>() {}.type
+                        val searchResponse = gson.fromJson<SearchResponse<FreesoundSoundCard>>(
+                            responseBodyString,
+                            type
+                        )
+                        val soundCards: MutableList<FreesoundSoundCard> = searchResponse.results.toMutableList()
+                        Log.d("soundCards", soundCards.toString())
+                        setFreesoundSoundCards(soundCards)
+                        searchResponse.results.forEach {
+                            Log.d(
+                                "SearchResult",
+                                "Sound: ${it.name}, Tags: ${it.tags.joinToString()}, ID: ${it.id}"
+                            )
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("SearchFailure", "Network error: ${t.message}")
+            }
+        })
+    }
+
+    fun playPreview(sound: FreesoundSoundCard) {
+        // Prioritize preview links in the order of preference
+        val url = sound.previews["preview-hq-mp3"]
+            ?: sound.previews["preview-lq-mp3"]
+            ?: sound.previews["preview-hq-ogg"]
+            ?: sound.previews["preview-lq-ogg"]
+            ?: ""
+
+        if (url.isNotEmpty()) {
+            try {
+                mediaPlayerWrapper.setDataSourceFromUrl(url)
+            } catch (e: IOException) {
+                Log.e("AudioViewModel", "Error playing preview: ${e.message}")
+                // Handle errors such as network issues or corrupted audio paths
+            }
+        } else {
+            Log.e("AudioViewModel", "No valid preview URL found")
+            // Notify user or handle the absence of a preview URL
+        }
+        mediaPlayerWrapper.setOnCompletionListener {
+            togglePlayPause(sound)
+        }
+
+    }
+
+    fun stopPreview() {
+        try {
+            if (mediaPlayerWrapper.isPlaying()) {
+                mediaPlayerWrapper.stop()
+                mediaPlayerWrapper.reset()
+                Log.d("AudioViewModel", "Preview stopped and reset")
+            }
+        } catch (e: Exception) {
+            Log.e("AudioViewModel", "Error stopping preview: ${e.message}")
+        }
+    }
+
+
+    fun getPlayingState(id: Int): MutableState<Boolean> {
+        return _playingStates.getOrPut(id) { mutableStateOf(false) }
+    }
+
+    fun togglePlayPause(sound: FreesoundSoundCard) {
+        val isPlaying = getPlayingState(sound.id)
+        if (isPlaying.value) {
+            stopPreview()
+        } else {
+            playPreview(sound)
+        }
+        isPlaying.value = !isPlaying.value
+    }
+
+
+    fun updateSearchText(newText: String) {
+        searchText.value = newText
+    }
+
 
 
 

@@ -37,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.harryerayaudiorecorder.ui.EditRecordingScreen
+import com.example.harryerayaudiorecorder.ui.FreesoundSearchScreen
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
@@ -46,7 +47,8 @@ enum class PhoneSamplerScreen(@StringRes val title: Int) {
     Record(title = R.string.record),
     RecordingsList(title = R.string.recordings_list),
     Playback(title = R.string.playback),
-    EditRecord(title = R.string.edit_recording);
+    EditRecord(title = R.string.edit_recording),
+    SearchInFreesound(title = R.string.search_in_freesound);
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,6 +160,9 @@ fun PhoneSamplerApp(
                             viewModel.setSoundCard(it)
                             navController.navigate(PhoneSamplerScreen.Playback.name)
                         },
+                        onFreesoundSearchButtonClicked = {
+                            navController.navigate(PhoneSamplerScreen.SearchInFreesound.name)
+                        },
                         onThreeDotsClicked = {},
                         modifier = Modifier.fillMaxHeight()
                     )
@@ -180,6 +185,12 @@ fun PhoneSamplerApp(
                         durationSample = uiState.duration,
                         fileName = uiState.fileName,
                         fileSize = uiState.fileSize,
+                        windowSizeClass
+                    )
+                }
+                composable(route = PhoneSamplerScreen.SearchInFreesound.name){
+                    FreesoundSearchScreen(
+                        audioViewModel,
                         windowSizeClass
                     )
                 }

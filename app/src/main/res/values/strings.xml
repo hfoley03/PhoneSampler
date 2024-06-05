@@ -13,4 +13,5 @@
     <string name="cancel">cancel</string>
     <string name="ok">ok</string>
     <string name="attribution">Attribution</string>
+    <string name="search_in_freesound">Search in Freesound</string>
 </resources>
