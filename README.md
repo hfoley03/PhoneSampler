@@ -2,6 +2,17 @@
 
 ## To Do:
 
+Priority: Eray - Search Screen
+                    - the ui for this in recording list screen 
+                    - save freesound to database function
+                    - millis second time format 
+                - login correct behaviour, shows upload dialog if correct or error if incorrect
+                
+                
+Harry - Record Screen Bugs
+                - Edit Screen UI/sliders
+
+
 Settings page ->  opened from setting sbutton on record page, should allow user to change some settings, 
                   example seetings: turning on/off the automatic trimming,
                       setting the automatic naming prefix, 
@@ -20,10 +31,10 @@ recording list -> we have 3 buttons on each card (delete, rename, upload) these 
 
 recording list -> would be nice to be able to multi select and then delete or share etc
 
-record screen -> keep animation but make it more background and transparent. on top of it add a recording timer display, and the word ready (when not recording) / recording ( when recording)
+record screen -> TIMER 
 
 <del>record screen -> when recording, the record button should turn into an X, if user presses X than recording is stopped, file deleted, no pop up to name and not added to database</del>
 
-
+Edit screen - Eray - make buttons be right size 
 
 PCM files should be deleted after conversion to wav
