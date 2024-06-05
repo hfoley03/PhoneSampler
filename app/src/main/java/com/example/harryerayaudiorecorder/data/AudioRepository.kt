@@ -1,6 +1,5 @@
 package com.example.harryerayaudiorecorder.data
 
-// Import necessary packages and libraries
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.compose.runtime.MutableState
@@ -34,7 +33,6 @@ class MyAudioRepository(
     private val db: AudioRecordDatabase,
     val audioCapturesDirectory: File
 ) : AudioRepository {
-    // Save audio file details to the database
     override fun save(name: String) {
         //val file = File(audioCapturesDirectory, name)
         val file = getLastCreatedFile(audioCapturesDirectory)
@@ -73,7 +71,6 @@ class MyAudioRepository(
     }
 
 
-    // Delete a sound card and its associated audio file from the database and filesystem
     override fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         GlobalScope.launch(Dispatchers.IO) {
             val audioRecordEntity = db.audioRecordDoa().getAll()
@@ -94,7 +91,6 @@ class MyAudioRepository(
         }
     }
 
-    // Rename a sound card in the database and update the UI
     override fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         GlobalScope.launch(Dispatchers.IO) {
             val audioRecordEntity = db.audioRecordDoa().getAll()
@@ -113,7 +109,6 @@ class MyAudioRepository(
         }
     }
 
-    // Trim an audio file and save the result
     override fun trimAudio(file: File, startMillis: Int, endMillis: Int, onTrimmed: (File) -> Unit) {
         val outputTrimmedFile = File(audioCapturesDirectory, "trimmed_${file.name}")
         if (outputTrimmedFile.exists()) {
@@ -150,12 +145,10 @@ class MyAudioRepository(
         }
     }
 
-    // Get the last created file in a directory
     override fun getLastCreatedFile(directory: File): File? {
         return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
     }
 
-    // Rename an audio file to a new name
     override fun renameFile(newName: String) {
         val file = getLastCreatedFile(audioCapturesDirectory)
 
@@ -165,7 +158,6 @@ class MyAudioRepository(
                 if (!newFile.exists()) {
                     file.renameTo(newFile)
                 } else {
-                    // Handle the case where a file with the new name already exists
                 }
             } else {
                 Log.d("AudioRepository", "no such file")
@@ -173,7 +165,6 @@ class MyAudioRepository(
         }
     }
 
-    // Rename a file from a list of files
     override fun renameFileFromList(oldName: String, newName: String) {
         val file = File(audioCapturesDirectory, oldName)
         if (file.exists()) {
@@ -181,7 +172,6 @@ class MyAudioRepository(
             if (!newFile.exists()) {
                 file.renameTo(newFile)
             } else {
-                // Handle the case where a file with the new name already exists
             }
         } else {
             Log.d("AudioRepository", "no such file")
@@ -205,7 +195,6 @@ class MockAudioRepository : AudioRepository {
     private val mockData = mutableListOf<AudioRecordEntity>()
 
     override fun save(name: String) {
-        // Mock implementation
         val file = File(name)
         val dur = getAudioDuration(file)
         val fSizeMB = file.length().toDouble() / (1024 * 1024)
@@ -224,7 +213,6 @@ class MockAudioRepository : AudioRepository {
     }
 
     override fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
-        // Mock implementation
         val iterator = mockData.iterator()
         while (iterator.hasNext()) {
             val record = iterator.next()
@@ -237,7 +225,6 @@ class MockAudioRepository : AudioRepository {
     }
 
     override fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
-        // Mock implementation
         val record = mockData.find { it.filename == soundCard.fileName }
         record?.filename = newFileName
         val index = soundCardList.indexOfFirst { it.value.fileName == soundCard.fileName }
@@ -247,7 +234,6 @@ class MockAudioRepository : AudioRepository {
     }
 
     override fun trimAudio(file: File, startMillis: Int, endMillis: Int, onTrimmed: (File) -> Unit) {
-        // Mock implementation
         val outputTrimmedFile = File("trimmed_${file.name}")
         onTrimmed(outputTrimmedFile)
         saveTrimmed(outputTrimmedFile)
@@ -258,7 +244,6 @@ class MockAudioRepository : AudioRepository {
     }
 
     override fun saveTrimmed(file: File) {
-        // Mock implementation
         val dur = getAudioDuration(file)
         val fSizeMB = file.length().toDouble() / (1024 * 1024)
         val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date())
@@ -268,24 +253,20 @@ class MockAudioRepository : AudioRepository {
     }
 
     override fun getLastCreatedFile(directory: File): File? {
-        // Mock implementation
         return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
     }
 
     override fun renameFile(newName: String) {
-        // Mock implementation
         val file = getLastCreatedFile(File("."))
         file?.renameTo(File(newName))
     }
 
     override fun renameFileFromList(oldName: String, newName: String) {
-        // Mock implementation
         val file = File(oldName)
         file.renameTo(File(newName))
     }
 
     override fun getAudioDuration(file: File): Int {
-        // Mock implementation
-        return 100 // return a mock duration value
+        return 100
     }
 }

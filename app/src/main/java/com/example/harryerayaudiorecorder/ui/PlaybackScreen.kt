@@ -96,16 +96,9 @@ fun PlaybackScreen(
 
     val amplituda = Amplituda(context)
 
-    /* Step 2: process audio and handle result */
     amplituda.processAudio(audioFile.path)[
         { result: AmplitudaResult<String?> ->
             amplitudesData = result.amplitudesAsList()
-            //Log.d("amplitudesData", audioFile.path)
-            val amplitudesForFirstSecond =
-                result.amplitudesForSecond(1)
-            val duration = result.getAudioDuration(AmplitudaResult.DurationUnit.SECONDS)
-            val source = result.audioSource
-            val sourceType = result.inputAudioType
         }, { exception: AmplitudaException? ->
             if (exception is AmplitudaIOException) {
                 println("IO Exception!")
@@ -115,8 +108,7 @@ fun PlaybackScreen(
 
     LaunchedEffect(isPlaying.value) {
         while (isPlaying.value) {
-            currentPosition = audioViewModel.getCurrentPosition() // Convert milliseconds to seconds
-            //waveformProgress = (audioViewModel.getCurrentPosition().toFloat() / audioViewModel.getAudioDuration(audioFile).toFloat())
+            currentPosition = audioViewModel.getCurrentPosition()
             waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
             delay(20) // Update every second
         }
@@ -306,7 +298,7 @@ fun PlaybackScreen(
                                             isPlaying.value = true
 
                                         } else {
-                                            // Handle the case where the file does not exist
+                                            // file does not exist
                                         }
                                     }
                                 },
@@ -563,7 +555,6 @@ fun PlaybackScreen(
 @Composable
 fun isTablet(): Boolean {
     val configuration = LocalConfiguration.current
-    // Tablets typically have a smallest width of 600dp or more.
     return configuration.smallestScreenWidthDp >= 600
 }
 

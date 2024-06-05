@@ -84,7 +84,7 @@ fun EditRecordingScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Process audio and handle result
+    // process audio for waveform
     amplituda.processAudio(audioFile.path)[
         { result: AmplitudaResult<String?> ->
             amplitudesData = result.amplitudesAsList()
@@ -94,6 +94,7 @@ fun EditRecordingScreen(
             }
         }
     ]
+
 
     LaunchedEffect(isPlaying.value) {
         while (isPlaying.value) {
@@ -129,7 +130,7 @@ fun EditRecordingScreen(
                             .weight(3f)
                             .fillMaxHeight()
                             .padding(
-                                PaddingValues(
+                            PaddingValues(
                                     start = 16.dp,
                                     top = 8.dp,
                                     end = 8.dp,
@@ -280,7 +281,6 @@ fun EditRecordingScreen(
                                         val startMillis = (startPosition.value * durationSample).toInt()
                                         val endMillis = (endPosition.value * durationSample).toInt()
                                         audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
-                                            // Handle the trimmed file, e.g., play it, save it, etc.
                                             coroutineScope.launch {
                                                 snackbarHostState.showSnackbar(trimmedFile.name)
                                             }
@@ -425,7 +425,6 @@ fun EditRecordingScreen(
                                 val startMillis = (startPosition.value * durationSample).toInt()
                                 val endMillis = (endPosition.value * durationSample).toInt()
                                 audioViewModel.trimAudio(audioFile, startMillis, endMillis) { trimmedFile ->
-                                    // Handle the trimmed file, e.g., play it, save it, etc.
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar(trimmedFile.name)
                                     }
