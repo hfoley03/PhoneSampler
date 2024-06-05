@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.room.Room
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.data.AudioRepository
+import com.example.harryerayaudiorecorder.data.MyAudioRepository
 import com.example.harryerayaudiorecorder.ui.theme.AppTheme
 import java.io.File
 
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
             .build()
 
         val audioCapturesDirectory = File(this.getExternalFilesDir(null), "/AudioCaptures")
-        audioRepository = AudioRepository(db, audioCapturesDirectory)
+        audioRepository = MyAudioRepository(db, audioCapturesDirectory)
         audioViewModel = AudioViewModel(
             mediaPlayerWrapper = AndroidMediaPlayerWrapper(),
             recorderControl = this,
@@ -57,7 +58,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
         setContent {
             AppTheme {
                 Surface(tonalElevation = 25.dp) {
-                    PhoneSamplerApp(audioViewModel = audioViewModel, db = db)
+                    PhoneSamplerApp(audioViewModel = audioViewModel)
                 }
 
             }

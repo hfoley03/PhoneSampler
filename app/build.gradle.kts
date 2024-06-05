@@ -89,26 +89,27 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")  // Add this line
 
     androidTestImplementation("org.mockito:mockito-core:4.0.0")
-    androidTestImplementation("androidx.navigation:navigation-testing:2.7.4")
     androidTestImplementation("io.mockk:mockk-android:1.12.0")
 
     androidTestImplementation("io.mockk:mockk-android:1.12.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
-    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-accessibility:3.5.1")
     androidTestImplementation("androidx.test.espresso:espresso-web:3.5.1")
     androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     androidTestImplementation("org.mockito:mockito-android:4.0.0")
 
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.4")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+
 
     androidTestImplementation("androidx.room:room-testing:2.4.0")
-    androidTestImplementation("org.robolectric:robolectric:4.8")
+    //androidTestImplementation("org.robolectric:robolectric:4.8")
 
 
     debugImplementation("androidx.compose.ui:ui-tooling")

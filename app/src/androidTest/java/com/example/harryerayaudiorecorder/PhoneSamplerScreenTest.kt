@@ -1,68 +1,91 @@
 package com.example.harryerayaudiorecorder
 
 import AudioViewModel
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import MockMediaPlayerWrapper
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.navigation.compose.rememberNavController
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
-import com.example.harryerayaudiorecorder.ui.SamplerViewModel
-import com.example.harryerayaudiorecorder.ui.theme.AppTheme
+import androidx.navigation.compose.ComposeNavigator
+import androidx.navigation.testing.TestNavHostController
+import com.example.harryerayaudiorecorder.data.MockAudioRepository
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class PhoneSamplerScreenTest {
 
+
     @get:Rule
-    val composeTestRule = createComposeRule()
-    private lateinit var viewModel: SamplerViewModel
-    private  lateinit var db : AudioRecordDatabase
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
     private lateinit var audioViewModel: AudioViewModel
+    private lateinit var navController: TestNavHostController
 
-    @Test
-    fun testRecordScreenDisplayed() {
+    @Before
+    fun setUp() {
+        val mockAudioRepository = MockAudioRepository()
+        val mockMediaPlayerWrapper = MockMediaPlayerWrapper()
+        val mockRecorderControl = MockRecorderControl()
+
+        audioViewModel = AudioViewModel(
+            mediaPlayerWrapper = mockMediaPlayerWrapper,
+            recorderControl = mockRecorderControl,
+            audioRepository = mockAudioRepository
+        )
+
         composeTestRule.setContent {
-            AppTheme {
-                val navController = rememberNavController()
-                PhoneSamplerApp(navController = navController, db = db, audioViewModel = audioViewModel)
+            navController = TestNavHostController(LocalContext.current).apply {
+                navigatorProvider.addNavigator(ComposeNavigator())
             }
+            PhoneSamplerApp(navController = navController, audioViewModel = audioViewModel)
         }
-        // Verify that the RecordScreen is displayed
-        composeTestRule.onNodeWithText("Record").assertIsDisplayed()
     }
 
     @Test
-    fun testNavigateToRecordingsListScreen() {
-        composeTestRule.setContent {
-            AppTheme {
-                val navController = rememberNavController()
-                PhoneSamplerApp(navController = navController, db = db, audioViewModel = audioViewModel)
-            }
-        }
-        // Navigate to RecordingsListScreen
-        composeTestRule.onNodeWithText("Recordings List").performClick()
-        // Verify that the RecordingsListScreen is displayed
-        composeTestRule.onNodeWithText("Recordings List").assertIsDisplayed()
+    fun verifyStartDestination() {
+        navController.assertCurrentRouteName("Record")
     }
 
     @Test
-    fun testNavigateToPlaybackScreen() {
-        composeTestRule.setContent {
-            AppTheme {
-                val navController = rememberNavController()
-                PhoneSamplerApp(navController = navController, db = db, audioViewModel = audioViewModel)
-            }
-        }
-        // Navigate to RecordingsListScreen
-        composeTestRule.onNodeWithText("Recordings List").performClick()
-        // Navigate to PlaybackScreen
-        composeTestRule.onNodeWithText("Playback").performClick()
-        // Verify that the PlaybackScreen is displayed
-        composeTestRule.onNodeWithText("Playback").assertIsDisplayed()
+    fun verifyBackNavigationNotShownOnStartOrderScreen() {
+        val backText = composeTestRule.activity.getString(R.string.back_button)
+        composeTestRule.onNodeWithContentDescription(backText).assertDoesNotExist()
+    }
+
+    @Test
+    fun clickList_navigatesToSelectRecordingList() {
+        composeTestRule.onNodeWithContentDescription("Menu Icon")
+            .performClick()
+        navController.assertCurrentRouteName(PhoneSamplerScreen.RecordingsList.name)
+    }
+
+    @Test
+    fun clickBackOnRecordingListScreen_goesToRecordScreen() {
+        navigateToRecordingListScreen()
+        performNavigateUp()
+        navController.assertCurrentRouteName("Record")
+    }
+
+    fun navigateToRecordingListScreen(){
+        composeTestRule.onNodeWithContentDescription("Menu Icon")
+            .performClick()
+    }
+    private fun performNavigateUp() {
+        val backText = composeTestRule.activity.getString(R.string.back_button)
+        composeTestRule.onNodeWithContentDescription(backText).performClick()
     }
 }
+
+
+
+
+class MockRecorderControl : RecorderControl {
+    override fun startRecorder() {}
+    override fun stopRecorder() {}
+}
+
+
+
 

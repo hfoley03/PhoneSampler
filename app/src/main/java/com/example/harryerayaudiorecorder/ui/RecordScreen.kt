@@ -43,6 +43,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -236,8 +238,10 @@ fun ControlButtonsRow(
         } else {
             ScalableIconButton(
                 onClick = onListButtonClicked,
-                modifier = Modifier.size(iconSize),
-                iconResId = R.drawable.ic_menu
+                modifier = Modifier.size(iconSize)
+                    .semantics { contentDescription = "Menu Icon" },
+                iconResId = R.drawable.ic_menu,
+
             )
         }
     }

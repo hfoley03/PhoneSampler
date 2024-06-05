@@ -36,7 +36,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
 import com.example.harryerayaudiorecorder.ui.EditRecordingScreen
 import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
@@ -93,7 +92,6 @@ fun PhoneSamplerApp(
     viewModel: SamplerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavHostController = rememberNavController(),
     audioViewModel: AudioViewModel,
-    db: AudioRecordDatabase
 ) {
     val localContext = LocalContext.current
     val activity = localContext as? Activity ?: throw IllegalStateException("Context is not Activity!!")

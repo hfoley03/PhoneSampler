@@ -46,6 +46,26 @@ interface MediaPlayerWrapper {
     fun reset()
 }
 
+class MockMediaPlayerWrapper : MediaPlayerWrapper {
+    override fun setDataSource(path: String) {}
+    override fun prepare() {}
+    override fun start() {}
+    override fun stop() {}
+    override fun release() {}
+    override fun isPlaying(): Boolean = false
+    override fun getCurrentPosition(): Int = 0
+    override fun getDuration(): Int = 0
+    override fun seekTo(position: Long, mode: Int) {}
+    override fun pause() {}
+    override fun isMediaPlayer(): Any = this
+    override fun setLooping(state: Boolean) {}
+    override fun setPlaybackSpeed(speed: Float) {}
+    override fun onCleared() {}
+    override fun reset() {}
+}
+
+
+
 // Real implementation of MediaPlayer using Android's MediaPlayer
 class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
     private var mediaPlayer: MediaPlayer? = null
