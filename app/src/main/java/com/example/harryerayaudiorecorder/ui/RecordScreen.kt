@@ -30,6 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.R
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -70,7 +72,7 @@ fun RecordScreen(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val boxPadding = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 16.dp // harry increased this from 8 to 16 to match the other screens on my phone
+        WindowWidthSizeClass.Compact -> 16.dp   // harry increased this from 8 to 16 to match the other screens on my phone
         WindowWidthSizeClass.Medium -> 24.dp    // i have doubled these from what you had to match, please check on tablet
         WindowWidthSizeClass.Expanded -> 32.dp
         else -> 12.dp
@@ -119,7 +121,8 @@ fun LayoutForOrientation(
                     .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
-                MyBezierCanvas(Modifier.fillMaxHeight(), isRecording, isLandscape)
+                MyBezierCanvas(Modifier.fillMaxHeight(), isLandscape, timerRunning = audioViewModel.timerRunning.value
+                )
             }
 
             Box(
@@ -148,7 +151,7 @@ fun LayoutForOrientation(
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
-                MyBezierCanvas(Modifier.fillMaxWidth(), isRecording, isLandscape)
+                MyBezierCanvas(Modifier.fillMaxWidth(), isLandscape ,timerRunning = audioViewModel.timerRunning.value)
             }
             Box(
                 modifier = Modifier
@@ -362,14 +365,13 @@ fun ColumnOrRow(
 
 @Composable
 fun MyBezierCanvas(modifier: Modifier = Modifier,
-                   isRecording: Boolean,
                    isLandscape: Boolean,
                    lineColor: Color = MaterialTheme.colorScheme.onPrimary,
-
+                   timerRunning: Boolean,
                    ) {
     // State to control the animation progress
     val infiniteTransition = rememberInfiniteTransition()
-    val direction = if (isRecording) -1 else +1
+    val direction = if (timerRunning) -1 else +1
     val animationProgressSpeed1 by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -388,8 +390,22 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
         )
     )
 
+    // Timer state
+    var elapsedTime by remember { mutableStateOf(0) }
+
+    LaunchedEffect(timerRunning) {
+        if (!timerRunning) {
+            elapsedTime = 0 // Reset timer when timerRunning is false
+        } else {
+            while (timerRunning) {
+                elapsedTime += 10
+                delay(10L)
+            }
+        }
+    }
+
     // Only run the animation if recording is true
-    val progress = if (isRecording) animationProgressSpeed1 else animationProgressSpeed2
+    val progress = if (timerRunning) animationProgressSpeed1 else animationProgressSpeed2
     Box(
         contentAlignment = Alignment.Center
     ) {
@@ -447,13 +463,13 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
 //        drawCircle(Color.Black, radius = 10f, center = p2)
             drawCircle(lineColor, radius = 50f, center = p3, alpha = alphaFloat)
         }
-        val msg = if (isRecording) "recording" else "ready"
+        val msg = if (timerRunning) "recording" else "ready"
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = msg, fontSize = 32.sp)
-            Text(text = "ti::me::er", fontSize = 32.sp)
+            Text(text = formatTime(elapsedTime), fontSize = 32.sp)
         }
     }
 }

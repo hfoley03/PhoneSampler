@@ -260,6 +260,7 @@ open class AudioViewModel(
     var currentPosition: Long = 0
     private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
     val searchText = mutableStateOf("")
+    val timerRunning: MutableState<Boolean> = mutableStateOf(false)
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -334,6 +335,9 @@ open class AudioViewModel(
         _recorderRunning.value = true
     }
 
+    fun setRecorderRunningBool(valu : Boolean){
+        _recorderRunning.value = valu
+    }
     // Start recording audio
     fun startRecording() {
         recorderControl.startRecorder()
