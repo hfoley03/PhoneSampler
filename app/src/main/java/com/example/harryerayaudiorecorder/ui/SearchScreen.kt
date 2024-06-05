@@ -1,7 +1,10 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
-import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,11 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,11 +56,79 @@ fun SearchScreen(audioViewModel: AudioViewModel,
         else -> 22
     }
 
-    LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize*2).dp)) {
-        items(sounds) { item ->
-            FsSoundCard(item, fileNameFontSize, audioViewModel)
+
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = fileNameFontSize.dp/3f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .clickable(onClick = {
+
+
+                    })
+                    .padding((fileNameFontSize/2).dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
+                        shape = RoundedCornerShape((fileNameFontSize/2).dp))            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "My Files",
+                        fontSize = fileNameFontSize.sp,
+                        modifier = Modifier.padding(horizontal = fileNameFontSize.dp, vertical = fileNameFontSize.dp)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Local Search",
+                        modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
+                    )
+                }
+            }
+
+            // Spacer for visual separation
+            Spacer(modifier = Modifier.width(fileNameFontSize.dp))
+
+            // Box for "Web" with text first and icon second
+            Box(
+                modifier = Modifier
+                    .clickable(onClick = {
+
+
+
+                    })
+                    .padding((fileNameFontSize/2).dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                        shape = RoundedCornerShape((fileNameFontSize/2).dp))
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Web",
+                        fontSize = fileNameFontSize.sp,
+                        modifier = Modifier.padding(horizontal = fileNameFontSize.dp, vertical = fileNameFontSize.dp)
+                    )
+                    Icon(
+                        painter = painterResource(id = R.drawable.internet_browsing_icon),
+                        contentDescription = "Search on Internet",
+                        modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
+                    )
+                }
+            }
+        }
+
+
+
+        LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize).dp)) {
+            items(sounds) { item ->
+                FsSoundCard(item, fileNameFontSize, audioViewModel)
+            }
         }
     }
+
 
 }
 
