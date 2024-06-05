@@ -4,7 +4,9 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import com.example.harryerayaudiorecorder.ApiService
@@ -260,6 +262,7 @@ open class AudioViewModel(
     var currentPosition: Long = 0
     private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
     val searchText = mutableStateOf("")
+    var filteredSoundCardList = listOf<MutableState<SoundCard>>()
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -650,9 +653,9 @@ open class AudioViewModel(
         searchText.value = newText
     }
 
-
-
-
+    fun updateFilteredSCardList(filteredSCList: List<MutableState<SoundCard>>){
+        filteredSoundCardList = filteredSCList
+    }
 
 
 }

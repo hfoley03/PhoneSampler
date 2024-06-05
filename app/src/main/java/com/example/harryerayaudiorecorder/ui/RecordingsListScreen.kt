@@ -80,7 +80,7 @@ fun RecordingsListScreen(
     }
     var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
-    var searchText by remember { mutableStateOf("") }
+    val searchText = audioViewModel.searchText.value
 
 
     LaunchedEffect(Unit) {
@@ -124,6 +124,7 @@ fun RecordingsListScreen(
             it.value.fileName.contains(searchText, ignoreCase = true)
         }
     }
+    audioViewModel.updateFilteredSCardList(filteredSoundCards)
 
     IconButton(onClick = {  }) {
         Icon(
@@ -143,7 +144,8 @@ fun RecordingsListScreen(
                     ) {
                         OutlinedTextField(
                             value = searchText,
-                            onValueChange = { searchText = it
+                            onValueChange = {
+//                                searchText = it
                                 audioViewModel.updateSearchText(it) },
                             placeholder = { Text("Search Recordings") },
                             trailingIcon =
@@ -193,7 +195,7 @@ fun RecordingsListScreen(
             )
         } else {
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize*2).dp)) {
-                items(filteredSoundCards) { item ->
+                items(soundCardList) { item ->
                     SoundRecordingCard(
 
                         audioViewModel,
