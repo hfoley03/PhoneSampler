@@ -68,6 +68,7 @@ fun PhoneSamplerAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
+    fileNameFontSize: Int,
     actionButton: @Composable (() -> Unit)? = null
 ) {
     TopAppBar(
@@ -94,7 +95,8 @@ fun PhoneSamplerAppBar(
         },
         actions = {
             actionButton?.invoke()
-        }
+        },
+        expandedHeight = fileNameFontSize.dp * 3
     )
 }
 
@@ -126,6 +128,7 @@ fun PhoneSamplerApp(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
+                fileNameFontSize = fileNameFontSize,
                 actionButton =
 
                 if (currentScreen == PhoneSamplerScreen.Playback) {
@@ -147,6 +150,7 @@ fun PhoneSamplerApp(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = stringResource(R.string.search_sound),
+                                modifier = Modifier.size((fileNameFontSize*1.5).dp),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -169,7 +173,9 @@ fun PhoneSamplerApp(
                                 },
                                 placeholder = { Text("Search Sounds") },
                                 singleLine = true,
-                                modifier = Modifier.padding(start = (fileNameFontSize*2).dp) .weight(1f),
+                                modifier = Modifier
+                                    .padding(start = (fileNameFontSize*2).dp)
+                                    .weight(1f)
 
                                 )
                         }
@@ -180,7 +186,8 @@ fun PhoneSamplerApp(
 
                 else null
             )
-        }
+        },
+
     ) { innerPadding ->
         val uiState by viewModel.uiState.collectAsState()
 
