@@ -17,6 +17,7 @@ import java.util.Date
 
 interface AudioRepository {
     fun save(name: String)
+    fun saveFromFile(file:File)
     fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>)
     fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>)
     fun trimAudio(file: File, startMillis: Int, endMillis: Int, onTrimmed: (File) -> Unit)
@@ -37,6 +38,24 @@ class MyAudioRepository(
     override fun save(name: String) {
         //val file = File(audioCapturesDirectory, name)
         val file = getLastCreatedFile(audioCapturesDirectory)
+
+        if(file != null){
+            Log.d("saving", file.absolutePath);
+            Log.d("saving", file.name);
+            val dur = getAudioDuration(file)
+            val fSizeMB = file.length().toDouble() / (1024 * 1024)
+            val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
+
+            val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+
+            GlobalScope.launch {
+                db.audioRecordDoa().insert(record)
+            }
+        }
+    }
+
+    override fun saveFromFile(file:File) {
+        //val file = File(audioCapturesDirectory, name)
 
         if(file != null){
             Log.d("saving", file.absolutePath);
@@ -188,6 +207,15 @@ class MockAudioRepository : AudioRepository {
     override fun save(name: String) {
         // Mock implementation
         val file = File(name)
+        val dur = getAudioDuration(file)
+        val fSizeMB = file.length().toDouble() / (1024 * 1024)
+        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date())
+        val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+        mockData.add(record)
+    }
+
+    override fun saveFromFile(file: File) {
+        // Mock implementation
         val dur = getAudioDuration(file)
         val fSizeMB = file.length().toDouble() / (1024 * 1024)
         val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date())

@@ -263,7 +263,6 @@ open class AudioViewModel(
     private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
     val searchText = mutableStateOf("")
     val timerRunning: MutableState<Boolean> = mutableStateOf(false)
-    var filteredSoundCardList = listOf<MutableState<SoundCard>>()
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -369,6 +368,10 @@ open class AudioViewModel(
         audioRepository.save(name)
     }
 
+    fun saveFromFile(file: File) {
+        audioRepository.saveFromFile(file)
+    }
+
     // Delete a sound card and its associated audio file from the database and filesystem
     fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         audioRepository.deleteSoundCard(soundCard, soundCardList)
@@ -419,7 +422,7 @@ open class AudioViewModel(
     suspend fun getAllAudioRecords(): List<AudioRecordEntity> {
         return audioRepository.getAllAudioRecords()
     }
-    fun downloadSound(soundId: String, accessToken: String, context: Context) {
+    fun downloadSound(soundId: String, accessToken: String, fileName:String, audioCapturesDirectory: File, context: Context) {
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         val call = freesoundService.downloadSound(soundId, "Bearer $accessToken")
 
@@ -429,7 +432,7 @@ open class AudioViewModel(
                     // Handle the binary data of the sound file
                     response.body()?.let { responseBody ->
                         // Save the file or process it as needed
-                        saveSoundToFile(responseBody,context)
+                        saveSoundToFile(responseBody,fileName,audioCapturesDirectory,context)
                     }
                 } else {
 
@@ -447,13 +450,26 @@ open class AudioViewModel(
         })
     }
 
-    private fun saveSoundToFile(body: ResponseBody,context: Context) {
+    private fun saveSoundToFile(body: ResponseBody,fileName:String, audioCapturesDirectory:File, context: Context) {
 
-        val soundFile = File(context.filesDir, "downloaded_sound.mp3")
-        soundFile.outputStream().use {
-            it.write(body.bytes())
+        if (!audioCapturesDirectory.exists()) {
+            if (!audioCapturesDirectory.mkdirs()) {
+                Log.e("Directory Creation", "Failed to create directory: ${audioCapturesDirectory.absolutePath}")
+                return
+            }
         }
-        Log.d("Freesound file saved",soundFile.path)
+        try{
+            val soundFile = File(audioCapturesDirectory.absolutePath + "/" + "$fileName.wav")
+            soundFile.outputStream().use {
+                it.write(body.bytes())
+            }
+            // save to db here
+            saveFromFile(soundFile)
+            Log.d("Freesound file saved",soundFile.path)
+        }catch (e: IOException) {
+            Log.e("File Writing Error", "Error saving sound file: ${e.message}")
+        }
+
     }
 
     fun exchangeCode(clientId: String, clientSecret: String, code: String, redirectUri: String, callback: Callback<TokenResponse>) {
