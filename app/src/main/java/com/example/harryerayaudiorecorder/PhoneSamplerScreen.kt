@@ -210,10 +210,7 @@ fun PhoneSamplerApp(
                             viewModel.setSoundCard(it)
                             navController.navigate(PhoneSamplerScreen.Playback.name)
                         },
-                        onFreesoundSearchButtonClicked = {
-//                            navController.navigate(PhoneSamplerScreen.SearchSound.name)
-                        },
-                        onThreeDotsClicked = {},
+
                         modifier = Modifier.fillMaxHeight()
                     )
                 }

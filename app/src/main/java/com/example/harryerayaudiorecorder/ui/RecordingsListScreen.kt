@@ -62,8 +62,6 @@ import java.io.File
 fun RecordingsListScreen(
     audioViewModel: AudioViewModel,
     onSongButtonClicked: (SoundCard) -> Unit,
-    onFreesoundSearchButtonClicked:() -> Unit,
-    onThreeDotsClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 )  {
     val context = LocalContext.current
