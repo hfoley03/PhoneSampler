@@ -75,11 +75,13 @@ class MainActivity : ComponentActivity(), RecorderControl {
         Log.d(TAG, "stopRecorder")
         val intent = Intent(this, AudioRecordService::class.java)
         stopService(intent)
+        audioViewModel.timerRunning.value = false
     }
 
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             Log.d(TAG, "Media projection permission granted")
+            audioViewModel.timerRunning.value = true
             AudioRecordService.start(this.applicationContext, it, "dummt")
         }
 
@@ -91,6 +93,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
                 arrayOf(Manifest.permission.RECORD_AUDIO),
                 RECORD_AUDIO_REQUEST_CODE
             )
+            //audioViewModel.setRecorderRunningBool(true)
         }
     }
 }

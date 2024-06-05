@@ -9,8 +9,8 @@ Priority: Eray - Search Screen
                 - login correct behaviour, shows upload dialog if correct or error if incorrect
                 
                 
-Harry - Record Screen Bugs
-                - Edit Screen UI/sliders
+<del>Harry - Record Screen Bugs
+                - Edit Screen UI/sliders </del>
 
 
 Settings page ->  opened from setting sbutton on record page, should allow user to change some settings, 
@@ -31,7 +31,7 @@ recording list -> we have 3 buttons on each card (delete, rename, upload) these 
 
 recording list -> would be nice to be able to multi select and then delete or share etc
 
-record screen -> TIMER 
+<del>record screen -> TIMER </del>
 
 <del>record screen -> when recording, the record button should turn into an X, if user presses X than recording is stopped, file deleted, no pop up to name and not added to database</del>
 
