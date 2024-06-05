@@ -4,7 +4,10 @@ import AudioViewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.ApiResponseDialog
 import com.example.harryerayaudiorecorder.R
 import com.example.harryerayaudiorecorder.authenticate
+import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -81,7 +85,8 @@ fun RecordingsListScreen(
     var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
     val searchText = audioViewModel.searchText.value
-
+    var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
+    var fileOpacity by remember{mutableStateOf(0.75f)}
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -124,65 +129,17 @@ fun RecordingsListScreen(
             it.value.fileName.contains(searchText, ignoreCase = true)
         }
     }
-    audioViewModel.updateFilteredSCardList(filteredSoundCards)
 
-    IconButton(onClick = {  }) {
-        Icon(
-            Icons.Default.Search,
-            contentDescription = "Search",
-            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-        )
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        OutlinedTextField(
-                            value = searchText,
-                            onValueChange = {
-//                                searchText = it
-                                audioViewModel.updateSearchText(it) },
-                            placeholder = { Text("Search Recordings") },
-                            trailingIcon =
-                            {
-                                IconButton(onClick = { /* Implemented from the callback */ }) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    modifier = Modifier.size((fileNameFontSize*1.5).dp),
-                                    contentDescription = "Local Search"
-                                )
-                                }
-                            },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        IconButton(
-                            onClick = {
-                                onFreesoundSearchButtonClicked()
-                            },
-                            modifier = Modifier.padding(end = (fileNameFontSize).dp)
-                            ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.internet_browsing_icon),
-                                modifier = Modifier.size((fileNameFontSize*1.5).dp),
-                                contentDescription = "Search on Internet Icon",
-                            )
-
-                        }
-                    }
-                },
-                actions = {
-                    // Other actions can still be added here if needed
-                },
-            )
+    audioViewModel.performSearch(
+        clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
+        searchText,
+        setFreesoundSoundCards = { newSounds ->
+            fsSoundCards.clear()
+            fsSoundCards.addAll(newSounds)
         }
-    ){
+    )
+
+
         if (showOAuthWebView) {
             authenticate(
                 audioViewModel = audioViewModel,
@@ -194,32 +151,110 @@ fun RecordingsListScreen(
                 }
             )
         } else {
-            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize*2).dp)) {
-                items(soundCardList) { item ->
-                    SoundRecordingCard(
 
-                        audioViewModel,
-                        soundCard = item.value,
-                        audioCapturesDirectory = audioCapturesDirectory,
-                        fileNameFontSize= fileNameFontSize,
-                        onClick = { onSongButtonClicked(item.value) },
-                        onPencilClicked = { newFileName ->
-                            audioViewModel.renameSoundCard(item.value, newFileName, soundCardList)
-                        },
-                        onDeleteClick = {
-                            audioViewModel.deleteSoundCard(item.value, soundCardList)
-                        },
-                        setShowOAuthWebView = { showOAuthWebView = it },
-                        accessToken = accessToken.value,
-                        context = LocalContext.current
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = fileNameFontSize.dp/3f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                fileOpacity = 0.75f
+                            })
+                            .padding((fileNameFontSize/4).dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = fileOpacity),
+                                shape = RoundedCornerShape((fileNameFontSize/2).dp))            ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "My Files",
+                                fontSize = fileNameFontSize.sp,
+                                modifier = Modifier.padding(fileNameFontSize.dp/2)
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Local Search",
+                                modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
+                            )
+                        }
+                    }
 
-                    )
+                    // Spacer for visual separation
+                    Spacer(modifier = Modifier.width(fileNameFontSize.dp))
+
+                    // Box for "Web" with text first and icon second
+                    Box(
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                fileOpacity = 0.25f
+                            })
+                            .padding((fileNameFontSize/4).dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - fileOpacity),
+                                shape = RoundedCornerShape((fileNameFontSize/2).dp))
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Web",
+                                fontSize = fileNameFontSize.sp,
+                                modifier = Modifier.padding(fileNameFontSize.dp/2)
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.internet_browsing_icon),
+                                contentDescription = "Search on Internet",
+                                modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
+                            )
+                        }
+                    }
+                }
+                // means web button selected
+                if (fileOpacity == 0.25f) {
+                    LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
+                        items(fsSoundCards) { item ->
+                            FsSoundCard(item, fileNameFontSize, audioViewModel)
+                        }
+                    }
+                }
+                else if(fileOpacity == 0.75f) {
+                    LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
+                        items(filteredSoundCards) { item ->
+                            SoundRecordingCard(
+
+                                audioViewModel,
+                                soundCard = item.value,
+                                audioCapturesDirectory = audioCapturesDirectory,
+                                fileNameFontSize = fileNameFontSize,
+                                onClick = { onSongButtonClicked(item.value) },
+                                onPencilClicked = { newFileName ->
+                                    audioViewModel.renameSoundCard(
+                                        item.value,
+                                        newFileName,
+                                        soundCardList
+                                    )
+                                },
+                                onDeleteClick = {
+                                    audioViewModel.deleteSoundCard(item.value, soundCardList)
+                                },
+                                setShowOAuthWebView = { showOAuthWebView = it },
+                                accessToken = accessToken.value,
+                                context = LocalContext.current
+
+                            )
+                        }
+                    }
                 }
             }
+
+
+
         }
 
         ApiResponseDialog(audioViewModel)
-    }
+//    }
 
 
 
@@ -228,131 +263,7 @@ fun RecordingsListScreen(
 
 }
 
-@Composable
-fun SoundRecordingCard(
-    audioViewModel: AudioViewModel,
-    soundCard: SoundCard,
-    audioCapturesDirectory: File,
-    fileNameFontSize: Int,
-    onClick: () -> Unit,
-    onPencilClicked: (String) -> Unit,
-    onDeleteClick: () -> Unit,
-    setShowOAuthWebView: (Boolean) -> Unit,
-    accessToken: String?,
-    context: Context
-) {
-    var showEditFileNameDialog by remember { mutableStateOf(false) }
-    var showUploadDialog by remember { mutableStateOf(false) }
 
-    if (showEditFileNameDialog) {
-        FileNameEditDialog(
-            soundCard = soundCard,
-            onFileNameChange = { newFileName ->
-                audioViewModel.renameFileFromList(soundCard.fileName, newFileName)
-                onPencilClicked(newFileName)
-                showEditFileNameDialog = false
-            }
-        ) { showEditFileNameDialog = false }
-    }
-
-    if (showUploadDialog) {
-        UploadSoundDialog(
-            onDismiss = { showUploadDialog = false },
-            onConfirm = { tags, description, license, pack, geotag ->
-                if (accessToken != null) {
-                    Log.d("filenamexd", audioCapturesDirectory.absolutePath + "/" + soundCard.fileName)
-                    Log.d("accessToken", accessToken)
-                    Log.d("License Info", "License: $license")
-                    audioViewModel.uploadSound(
-                        accessToken,
-                        File(audioCapturesDirectory.absolutePath + "/" + soundCard.fileName),
-                        name = soundCard.fileName,
-                        tags = tags,
-                        description = description,
-                        license = license,
-                        pack = pack,
-                        geotag = geotag
-                    )
-                }
-            }
-        )
-    }
-
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp, 8.dp, 16.dp, 8.dp)
-        .testTag("SoundCard") // Adding test tag here
-        .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = { }, // Handle long press
-                    onTap = { onClick() } // Handle single tap
-                )
-            }
-    ) {
-        Column(
-            modifier = Modifier.padding((fileNameFontSize / 2.0).toInt().dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = soundCard.fileName,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontSize = fileNameFontSize.sp,
-                    lineHeight = fileNameFontSize.sp
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Column {
-                    IconButton(onClick = { showEditFileNameDialog = true }) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Edit Title",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
-                    IconButton(onClick = { onDeleteClick() }) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
-                    IconButton(onClick = {
-                        if (accessToken == null) {
-                            setShowOAuthWebView(true)
-                        } else {
-                            showUploadDialog = true
-                        }
-                    }) {
-                        Icon(Icons.Default.AddCircle,
-                            contentDescription = "Upload",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
-
-                }
-            }
-
-            Text(
-                text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp
-            )
-            Text(
-                text = "File Size: ${String.format("%.2f", soundCard.fileSize)} MB",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp
-            )
-            Text(
-                text = "Date: ${soundCard.date}",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp
-            )
-        }
-    }
-}
 
 @Composable
 fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit, onDismiss: () -> Unit) {
