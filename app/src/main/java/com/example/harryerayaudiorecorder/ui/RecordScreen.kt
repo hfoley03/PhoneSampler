@@ -361,7 +361,12 @@ fun ColumnOrRow(
 
 
 @Composable
-fun MyBezierCanvas(modifier: Modifier = Modifier, isRecording: Boolean, isLandscape: Boolean ) {
+fun MyBezierCanvas(modifier: Modifier = Modifier,
+                   isRecording: Boolean,
+                   isLandscape: Boolean,
+                   lineColor: Color = MaterialTheme.colorScheme.onPrimary,
+
+                   ) {
     // State to control the animation progress
     val infiniteTransition = rememberInfiniteTransition()
     val direction = if (isRecording) -1 else +1
@@ -431,16 +436,16 @@ fun MyBezierCanvas(modifier: Modifier = Modifier, isRecording: Boolean, isLandsc
 
             drawPath(
                 path,
-                color = Color.White,
+                color = lineColor,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 20f),
                 alpha = alphaFloat
             )
 
             // Optionally, draw the control points for visualization
-            drawCircle(Color.White, radius = 50f, center = p0, alpha = alphaFloat)
+            drawCircle(lineColor, radius = 50f, center = p0, alpha = alphaFloat)
 //        drawCircle(Color.Black, radius = 10f, center = p1)
 //        drawCircle(Color.Black, radius = 10f, center = p2)
-            drawCircle(Color.White, radius = 50f, center = p3, alpha = alphaFloat)
+            drawCircle(lineColor, radius = 50f, center = p3, alpha = alphaFloat)
         }
         val msg = if (isRecording) "recording" else "ready"
         Column(
