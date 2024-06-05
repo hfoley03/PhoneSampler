@@ -653,9 +653,6 @@ open class AudioViewModel(
         searchText.value = newText
     }
 
-    fun updateFilteredSCardList(filteredSCList: List<MutableState<SoundCard>>){
-        filteredSoundCardList = filteredSCList
-    }
 
 
 }

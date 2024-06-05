@@ -3,6 +3,7 @@ package com.example.harryerayaudiorecorder
 //import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import AudioViewModel
 import android.app.Activity
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -51,14 +52,12 @@ import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
-import com.example.harryerayaudiorecorder.ui.SearchScreen
 
 enum class PhoneSamplerScreen(@StringRes val title: Int) {
     Record(title = R.string.record),
     RecordingsList(title = R.string.recordings_list),
     Playback(title = R.string.playback),
-    EditRecord(title = R.string.edit_recording),
-    SearchSound(title = R.string.search_sound);
+    EditRecord(title = R.string.edit_recording);
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,24 +145,10 @@ fun PhoneSamplerApp(
                 else if (currentScreen == PhoneSamplerScreen.RecordingsList){
                     {
 
-                        IconButton(onClick = { navController.navigate(PhoneSamplerScreen.SearchSound.name) }) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.search_sound),
-                                modifier = Modifier.size((fileNameFontSize*1.5).dp),
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
 
-                    }
-
-                }
-
-                else if (currentScreen == PhoneSamplerScreen.SearchSound){
-                    {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             OutlinedTextField(
                                 value = searchText,
@@ -173,17 +158,17 @@ fun PhoneSamplerApp(
                                 },
                                 placeholder = { Text("Search Sounds") },
                                 singleLine = true,
+
                                 modifier = Modifier
                                     .padding(start = (fileNameFontSize*2).dp)
                                     .weight(1f)
 
-                                )
+                            )
                         }
 
                     }
 
                 }
-
                 else null
             )
         },
@@ -226,7 +211,7 @@ fun PhoneSamplerApp(
                             navController.navigate(PhoneSamplerScreen.Playback.name)
                         },
                         onFreesoundSearchButtonClicked = {
-                            navController.navigate(PhoneSamplerScreen.SearchSound.name)
+//                            navController.navigate(PhoneSamplerScreen.SearchSound.name)
                         },
                         onThreeDotsClicked = {},
                         modifier = Modifier.fillMaxHeight()
@@ -253,12 +238,7 @@ fun PhoneSamplerApp(
                         windowSizeClass
                     )
                 }
-                composable(route = PhoneSamplerScreen.SearchSound.name){
-                    SearchScreen(
-                        audioViewModel,
-                        windowSizeClass
-                    )
-                }
+
             }
         }
     }
