@@ -125,7 +125,7 @@ fun FsSoundCard(sound: FreesoundSoundCard,
             }
 
             Text(
-                text = "Duration: ${audioViewModel.formatDuration((sound.duration*1000).toLong())} ",
+                text = "Duration: ${audioViewModel.formatDurationCantiSec((sound.duration*1000).toInt())} ",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
@@ -248,7 +248,7 @@ fun SoundRecordingCard(
             }
 
             Text(
-                text = "Duration: ${audioViewModel.formatDuration(soundCard.duration.toLong())}",
+                text = "Duration: ${audioViewModel.formatDurationCantiSec(soundCard.duration.toInt())}",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )

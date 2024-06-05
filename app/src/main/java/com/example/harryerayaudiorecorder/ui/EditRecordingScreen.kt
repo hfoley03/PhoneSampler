@@ -154,7 +154,7 @@ fun EditRecordingScreen(
                                     .fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                EvenlySpacedText2(text = formatTime(currentPosition))
+                                EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
                             }
                             Box(
                                 modifier = Modifier
@@ -321,7 +321,7 @@ fun EditRecordingScreen(
                             modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            EvenlySpacedText2(text = formatTime(currentPosition))
+                            EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
                         }
                         Box(
                             modifier = Modifier.weight(1f)

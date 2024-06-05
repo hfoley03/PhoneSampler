@@ -121,8 +121,7 @@ fun LayoutForOrientation(
                     .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
-                MyBezierCanvas(Modifier.fillMaxHeight(), isLandscape, timerRunning = audioViewModel.timerRunning.value
-                )
+                MyBezierCanvas(Modifier.fillMaxHeight(), isLandscape, timerRunning = audioViewModel.timerRunning.value, audioViewModel = audioViewModel)
             }
 
             Box(
@@ -151,7 +150,7 @@ fun LayoutForOrientation(
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
-                MyBezierCanvas(Modifier.fillMaxWidth(), isLandscape ,timerRunning = audioViewModel.timerRunning.value)
+                MyBezierCanvas(Modifier.fillMaxWidth(), isLandscape ,timerRunning = audioViewModel.timerRunning.value, audioViewModel = audioViewModel)
             }
             Box(
                 modifier = Modifier
@@ -368,6 +367,7 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
                    isLandscape: Boolean,
                    lineColor: Color = MaterialTheme.colorScheme.onPrimary,
                    timerRunning: Boolean,
+                   audioViewModel: AudioViewModel
                    ) {
     // State to control the animation progress
     val infiniteTransition = rememberInfiniteTransition()
@@ -464,7 +464,7 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = msg, fontSize = 32.sp)
-            Text(text = formatTime(elapsedTime), fontSize = 32.sp)
+            Text(text = audioViewModel.formatDurationCantiSec(elapsedTime), fontSize = 32.sp)
         }
     }
 }

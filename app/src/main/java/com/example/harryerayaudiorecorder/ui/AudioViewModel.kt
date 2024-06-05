@@ -302,7 +302,13 @@ open class AudioViewModel(
     fun setLooping(state: Boolean){
         mediaPlayerWrapper.setLooping(state)
     }
-
+    // Format mm:ss:cs
+    fun formatDurationCantiSec(milliseconds: Int): String {
+        val minutes = (milliseconds / 1000) / 60
+        val seconds = (milliseconds / 1000) % 60
+        val centiseconds = (milliseconds / 10) % 100
+        return String.format("%02d:%02d:%02d", minutes, seconds, centiseconds)
+    }
     // Format a duration in milliseconds to a string in HH:mm:ss format
     fun formatDuration(millis: Long): String {
         return String.format("%02d:%02d:%02d",

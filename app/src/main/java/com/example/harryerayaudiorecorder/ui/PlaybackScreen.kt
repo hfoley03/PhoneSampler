@@ -151,7 +151,7 @@ fun PlaybackScreen(
                                 .fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                        EvenlySpacedText2(text = formatTime(currentPosition))
+                        EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
                         }
                         Box(
                             modifier = Modifier
@@ -363,7 +363,7 @@ fun PlaybackScreen(
                         .weight(1f),
                         contentAlignment = Alignment.Center
                     ){
-                        EvenlySpacedText2(text = formatTime(currentPosition))
+                        EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
                     }
                     Box(
                         modifier = Modifier
@@ -598,12 +598,7 @@ fun getIconAndTextSize(windowSizeClass: WindowSizeClass, isLandscape: Boolean): 
 }
 
 
-fun formatTime(milliseconds: Int): String {
-    val minutes = (milliseconds / 1000) / 60
-    val seconds = (milliseconds / 1000) % 60
-    val centiseconds = (milliseconds / 10) % 100
-    return String.format("%02d:%02d:%02d", minutes, seconds, centiseconds)
-}
+
 
 @Composable
 fun EvenlySpacedText2(text: String, modifier: Modifier = Modifier) {
