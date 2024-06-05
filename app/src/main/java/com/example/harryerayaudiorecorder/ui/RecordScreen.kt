@@ -395,7 +395,7 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
 
     LaunchedEffect(timerRunning) {
         if (!timerRunning) {
-            elapsedTime = 0 // Reset timer when timerRunning is false
+            elapsedTime = 0
         } else {
             while (timerRunning) {
                 elapsedTime += 10
@@ -404,7 +404,6 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
         }
     }
 
-    // Only run the animation if recording is true
     val progress = if (timerRunning) animationProgressSpeed1 else animationProgressSpeed2
     Box(
         contentAlignment = Alignment.Center
@@ -419,7 +418,6 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
             val alphaFloat = 0.2f
 
 
-            // Points p1 and p2 are located halfway down the canvas
             val p0 = if (isLandscape) Offset(halfWidth - d1, halfHeight) else Offset(
                 halfWidth,
                 halfHeight - d1
@@ -429,7 +427,6 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
                 halfHeight + d1
             )
 
-            // Calculate p0 and p3 positions based on sine and cosine functions
             val angle = progress * 2 * Math.PI
             val p1 = Offset(
                 x = p0.x - 1 * direction * d2 * cos(angle).toFloat(),
@@ -440,7 +437,6 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
                 y = p3.y + d2 * sin(angle).toFloat()
             )
 
-            // Draw the Bézier curve using the control points p0, p1, p2, and p3
             val path = Path().apply {
                 moveTo(p0.x, p0.y)
                 cubicTo(
@@ -457,7 +453,6 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
                 alpha = alphaFloat
             )
 
-            // Optionally, draw the control points for visualization
             drawCircle(lineColor, radius = 50f, center = p0, alpha = alphaFloat)
 //        drawCircle(Color.Black, radius = 10f, center = p1)
 //        drawCircle(Color.Black, radius = 10f, center = p2)
