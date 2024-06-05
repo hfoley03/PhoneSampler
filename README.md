@@ -25,7 +25,7 @@ fix UI issues - should have same look and feel on each page
 
 fix bug -> when the app asks for permission to record audio before each recording, if you press cancel the app crashes
 
-edit recording screen -> add a pop up confiriming that a sample has been trimmed after pressing trim
+<del>edit recording screen -> add a pop up confiriming that a sample has been trimmed after pressing trim</del>
 
 recording list -> we have 3 buttons on each card (delete, rename, upload) these should be replace by 1 three dot button, on pressing the 3 dot button the delete rename upload buttons should appear in a pop up, could add also add the share button into the three dot button
 
