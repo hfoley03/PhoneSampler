@@ -55,6 +55,8 @@ class MainActivity : ComponentActivity(), RecorderControl {
             audioRepository = audioRepository
         )
 
+        audioViewModel.syncFiles()
+
         setContent {
             AppTheme {
                 Surface(tonalElevation = 25.dp) {

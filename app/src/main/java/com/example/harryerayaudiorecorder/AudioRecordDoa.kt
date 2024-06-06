@@ -23,4 +23,7 @@ interface AudioRecordDoa {
 
     @Update
     fun update(audioRecordEntity: AudioRecordEntity)
+
+    @Query("DELETE FROM audioRecords")
+    fun deleteAll()
 }

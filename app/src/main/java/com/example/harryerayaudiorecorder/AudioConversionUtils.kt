@@ -31,6 +31,7 @@ object AudioConversionUtils {
             output.write(fullyReadFileToBytes(rawFile))
         } finally {
             output?.close()
+            rawFile.delete()
             Log.d("AudioConversionUtil","file written")
         }
     }

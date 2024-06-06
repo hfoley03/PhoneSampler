@@ -27,6 +27,10 @@ interface AudioRepository {
     fun getAudioDuration(file: File) : Int
 
     fun getLastCreatedFile(directory: File): File?
+
+    fun deleteAllRecords()
+
+    suspend fun syncFolderandDatabase()
 }
 
 class MyAudioRepository(
@@ -51,6 +55,7 @@ class MyAudioRepository(
             }
         }
     }
+
 
     override fun saveFromFile(file:File) {
         //val file = File(audioCapturesDirectory, name)
@@ -147,6 +152,36 @@ class MyAudioRepository(
 
     override fun getLastCreatedFile(directory: File): File? {
         return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
+    }
+
+    override fun deleteAllRecords() {
+
+    }
+
+    override suspend fun syncFolderandDatabase() {
+
+        GlobalScope.launch {
+        val dbEntries = db.audioRecordDoa().getAll()
+        val dbFilePaths = dbEntries.map {it.filePath}.toSet()
+
+        val filesiInFolder = audioCapturesDirectory.listFiles()
+        Log.d("AudioRepo", "syncing files")
+
+        filesiInFolder?.forEach { file ->
+            if (file.isFile && !dbFilePaths.contains(file.absolutePath)){
+                Log.d("AudioRepo", "found file not in db")
+                val dur = getAudioDuration(file)
+                val fSizeMB = file.length().toDouble() / (1024 * 1024)
+                val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
+                val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+
+
+                    db.audioRecordDoa().insert(record)
+
+
+            }
+        }
+        }
     }
 
     override fun renameFile(newName: String) {
@@ -254,6 +289,14 @@ class MockAudioRepository : AudioRepository {
 
     override fun getLastCreatedFile(directory: File): File? {
         return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
+    }
+
+    override fun deleteAllRecords() {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun syncFolderandDatabase() {
+        TODO("Not yet implemented")
     }
 
     override fun renameFile(newName: String) {
