@@ -309,7 +309,7 @@ open class AudioViewModel(
         val minutes = (milliseconds / 1000) / 60
         val seconds = (milliseconds / 1000) % 60
         val centiseconds = (milliseconds / 10) % 100
-        return String.format("%02d:%02d.%03d", minutes, seconds, centiseconds)
+        return String.format("%02d:%02d.%02d", minutes, seconds, centiseconds)
     }
     // Format a duration in milliseconds to a string in HH:mm:ss format
     fun formatDuration(millis: Long): String {
