@@ -123,7 +123,8 @@ fun RecordingsListScreen(
 
 
     LaunchedEffect(searchText, fileOpacity) {
-        if (fileOpacity == 0.25f) {
+        // this (.25f) is the web search mode
+        if (fileOpacity == 0.25f && searchText.isNotEmpty()) {
             audioViewModel.performSearchWithCoroutines(
                 clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
                 searchText = searchText,

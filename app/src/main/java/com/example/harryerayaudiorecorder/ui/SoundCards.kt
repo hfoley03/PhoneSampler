@@ -17,7 +17,10 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -181,6 +184,7 @@ fun SoundRecordingCard(
     var showUploadDialog by remember { mutableStateOf(false) }
     var showOAuthWebView by remember { mutableStateOf(false) }
     var accessToken = audioViewModel.getAccessToken(context)
+    var showMenu by remember { mutableStateOf(false) }
 
     if (showEditFileNameDialog) {
         FileNameEditDialog(
@@ -258,50 +262,61 @@ fun SoundRecordingCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Column {
-                    IconButton(onClick = { showEditFileNameDialog = true }) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Edit Title",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
-                    IconButton(onClick = { onDeleteClick() }) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
-                    IconButton(onClick = {
-                        if (accessToken == null) {
-                            showOAuthWebView = true
-                        } else {
-                            showUploadDialog = true
-                        }
-                    }) {
-                        Icon(Icons.Default.AddCircle,
-                            contentDescription = "Upload",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
 
+                    IconButton(onClick = { showMenu = !showMenu }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert, // This is the three dots vertical icon
+                            contentDescription = "More Options",
+                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            onClick = {
+                                showMenu = false
+                                showEditFileNameDialog = true
+                            },
+                            text = { Text("Edit Title") }
+                        )
+                        DropdownMenuItem(
+                            onClick = {
+                                showMenu = false
+                                onDeleteClick()
+                            },
+                            text = { Text("Delete") }
+                        )
+                        DropdownMenuItem(
+                            onClick = {
+                                showMenu = false
+                                 if (accessToken == null) {
+                                     showOAuthWebView = true
+                                 } else {
+                                     showUploadDialog = true
+                                 }
+                            },
+                            text = { Text("Upload to Freesound") }
+                        )
+                    }
                 }
             }
 
             Text(
-                text = "Duration: ${audioViewModel.formatDurationCantiSec(soundCard.duration.toInt())}",
+                text = "${audioViewModel.formatDurationCantiSec(soundCard.duration.toInt())}",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp
+                fontSize = (fileNameFontSize / 1.3).toInt().sp
             )
             Text(
-                text = "File Size: ${String.format("%.2f", soundCard.fileSize)} MB",
+                text = "${String.format("%.2f", soundCard.fileSize)} MB",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp
+                fontSize = (fileNameFontSize / 1.3).toInt().sp
             )
             Text(
-                text = "Date: ${soundCard.date}",
+                text = "${soundCard.date}",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = fileNameFontSize.sp
+                fontSize = (fileNameFontSize / 1.3).toInt().sp
             )
         }
     }
