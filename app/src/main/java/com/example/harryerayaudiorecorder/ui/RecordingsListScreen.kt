@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +63,7 @@ import java.io.File
 fun RecordingsListScreen(
     audioViewModel: AudioViewModel,
     onSongButtonClicked: (SoundCard) -> Unit,
+    searchText: String,
     modifier: Modifier = Modifier
 )  {
     val context = LocalContext.current
@@ -71,11 +73,9 @@ fun RecordingsListScreen(
         SamplerViewModel().isTablet() -> 32
         else -> 22
     }
-//    var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
-    val searchText = audioViewModel.searchText.value
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
-    var fileOpacity by remember{mutableStateOf(0.75f)}
+    var fileOpacity by rememberSaveable { mutableStateOf(0.75f) }
     var downloadTrigger by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit,downloadTrigger) {
@@ -121,14 +121,19 @@ fun RecordingsListScreen(
         }
     }
 
-    audioViewModel.performSearchWithCoroutines(
-        clientSecret = stringResource(R.string.client_secret),
-        searchText = searchText,
-        updateUI = { newSounds ->
-            fsSoundCards.clear()
-            fsSoundCards.addAll(newSounds)
+
+    LaunchedEffect(searchText, fileOpacity) {
+        if (fileOpacity == 0.25f) {
+            audioViewModel.performSearchWithCoroutines(
+                clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
+                searchText = searchText,
+                updateUI = { newSounds ->
+                    fsSoundCards.clear()
+                    fsSoundCards.addAll(newSounds)
+                }
+            )
         }
-    )
+    }
     Column {
         Row(
             modifier = Modifier
