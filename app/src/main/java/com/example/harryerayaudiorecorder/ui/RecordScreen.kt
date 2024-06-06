@@ -72,8 +72,8 @@ fun RecordScreen(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val boxPadding = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 16.dp   // harry increased this from 8 to 16 to match the other screens on my phone
-        WindowWidthSizeClass.Medium -> 24.dp    // i have doubled these from what you had to match, please check on tablet
+        WindowWidthSizeClass.Compact -> 16.dp
+        WindowWidthSizeClass.Medium -> 24.dp
         WindowWidthSizeClass.Expanded -> 32.dp
         else -> 12.dp
     }
@@ -116,7 +116,7 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxWidth()
-                    .padding(boxPadding / 2, boxPadding / 4, boxPadding / 2, boxPadding / 4)   //
+                    .padding(boxPadding / 2, boxPadding / 4, boxPadding / 4, boxPadding / 4)
 
                     .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
@@ -128,7 +128,7 @@ fun LayoutForOrientation(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(boxPadding / 2, boxPadding / 4, boxPadding / 2, boxPadding / 4)   //
+                    .padding(boxPadding / 4, boxPadding / 4, boxPadding / 2, boxPadding / 4)
                     .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
@@ -198,19 +198,18 @@ fun ControlButtonsRow(
     isLandscape: Boolean,
     setShowBottomSheet: (Boolean) -> Unit
 ) {
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(vertical = 1.dp),
-//        horizontalArrangement = Arrangement.SpaceEvenly
-//    )
+
     ColumnOrRow(isLandscape = isLandscape) {
+
+
         ScalableIconButton(
-            onClick = { },
-            modifier = Modifier.size(iconSize)
-                .semantics { contentDescription = "Settings Icon" },
-            iconResId = R.drawable.ic_settings
-        )
+                onClick = { },
+                modifier = Modifier.size(iconSize)
+                    .semantics { contentDescription = "Settings Icon" },
+                iconResId = R.drawable.ic_settings
+            )
+
+
         if (audioViewModel.timerRunning.value) {
             ScalableIconButton(
                 onClick = { audioViewModel.stopWithoutSavingRecording()},
@@ -226,6 +225,8 @@ fun ControlButtonsRow(
                 iconResId = R.drawable.ic_record
             )
         }
+
+
         if (audioViewModel.timerRunning.value) {
             ScalableIconButton(
                 onClick = {
@@ -259,6 +260,7 @@ fun ScalableIconButton(
     modifier: Modifier,
     iconResId: Int
 ) {
+
     IconButton(
         onClick = onClick,
         modifier = modifier,
@@ -267,7 +269,7 @@ fun ScalableIconButton(
             imageVector = ImageVector.vectorResource(id = iconResId),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimaryContainer,
-            modifier = Modifier.fillMaxSize()
+            //modifier = Modifier.fillMaxSize()
         )
     }
 }

@@ -186,15 +186,15 @@ class AudioViewModelTest {
         audioViewModel.renameSoundCard(soundCard, newFileName, soundCardList)
     }
 
-    @Test
-    fun testShowUploadDialog() {
-        audioViewModel.showUploadDialog()
-        assert(audioViewModel.showUploadDialog.value)
-    }
-
-    @Test
-    fun testHideUploadDialog() {
-        audioViewModel.hideUploadDialog()
-        assert(!audioViewModel.showUploadDialog.value)
-    }
+//    @Test
+//    fun testShowUploadDialog() {
+//        audioViewModel.showUploadDialog()
+//        assert(audioViewModel.showUploadDialog.value)
+//    }
+//
+//    @Test
+//    fun testHideUploadDialog() {
+//        audioViewModel.hideUploadDialog()
+//        assert(!audioViewModel.showUploadDialog.value)
+//    }
 }

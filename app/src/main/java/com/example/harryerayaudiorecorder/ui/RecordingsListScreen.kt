@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -44,13 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.ApiResponseDialog
-import com.example.harryerayaudiorecorder.R
-import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +65,7 @@ fun RecordingsListScreen(
     val soundCardList = remember { mutableStateListOf<MutableState<SoundCard>>() }
     val fileNameFontSize = when {
         SamplerViewModel().isTablet() -> 32
-        else -> 22
+        else -> 16
     }
     val accessToken = remember { mutableStateOf<String?>(null) }
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
@@ -148,21 +142,20 @@ fun RecordingsListScreen(
                     .clickable(onClick = {
                         fileOpacity = 0.75f
                     })
+                    .weight(1f)
                     .padding((fileNameFontSize / 4).dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = fileOpacity),
                         shape = RoundedCornerShape((fileNameFontSize / 2).dp)
-                    )            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                    )   ,
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
                         text = "My Files",
                         fontSize = fileNameFontSize.sp,
                         modifier = Modifier.padding(fileNameFontSize.dp/2)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Local Search",
-                        modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
                     )
                 }
             }
@@ -176,22 +169,19 @@ fun RecordingsListScreen(
                     .clickable(onClick = {
                         fileOpacity = 0.25f
                     })
+                    .weight(1f)
                     .padding((fileNameFontSize / 4).dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - fileOpacity),
                         shape = RoundedCornerShape((fileNameFontSize / 2).dp)
-                    )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "Web",
                         fontSize = fileNameFontSize.sp,
                         modifier = Modifier.padding(fileNameFontSize.dp/2)
-                    )
-                    Icon(
-                        painter = painterResource(id = R.drawable.internet_browsing_icon),
-                        contentDescription = "Search on Internet",
-                        modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
                     )
                 }
             }
