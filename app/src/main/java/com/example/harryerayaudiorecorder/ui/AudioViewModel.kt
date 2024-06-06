@@ -258,7 +258,7 @@ open class AudioViewModel(
     val _recorderRunning = mutableStateOf(false)
     val recorderRunning: State<Boolean> = _recorderRunning
     private val _currentFileName = mutableStateOf<String?>(null)
-    val currentFileName: State<String?> = _currentFileName
+    var currentFileName: State<String?> = _currentFileName
     var currentPosition: Long = 0
     private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
     val searchText = mutableStateOf("")
@@ -395,6 +395,7 @@ open class AudioViewModel(
     // Rename an audio file to a new name
     fun renameFile(newName: String) {
         audioRepository.renameFile(newName)
+        _currentFileName.value = newName
     }
 
     // Rename a file from a list of files

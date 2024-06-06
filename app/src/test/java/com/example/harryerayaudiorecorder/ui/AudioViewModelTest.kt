@@ -4,10 +4,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.harryerayaudiorecorder.RecorderControl
 import com.example.harryerayaudiorecorder.data.AudioRecordDatabase
+import com.example.harryerayaudiorecorder.data.MyAudioRepository
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -26,27 +27,34 @@ class AudioViewModelTest {
     private lateinit var mediaPlayerWrapper: MediaPlayerWrapper
 
     @Mock
-    private lateinit var recorderControl: RecorderControl  // Mock for the RecorderControl interface
+    private lateinit var recorderControl: RecorderControl
 
     @Mock
     private lateinit var db: AudioRecordDatabase
 
     private lateinit var audioViewModel: AudioViewModel
-    private val testDispatcher = TestCoroutineDispatcher()
+    private val testDispatcher = StandardTestDispatcher()
 
     private val audioCapturesDirectory = File("/harryerayaudiorecorder/resources/")
 
+    @Mock
+    private lateinit var audioRepository : MyAudioRepository
+
+    private lateinit var closeable: AutoCloseable
+
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        closeable = MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        audioViewModel = AudioViewModel(mediaPlayerWrapper, recorderControl, audioCapturesDirectory, db)
+        audioRepository = MyAudioRepository(db, audioCapturesDirectory)
+        audioViewModel = AudioViewModel(mediaPlayerWrapper, recorderControl, audioRepository)
     }
 
     @After
     fun tearDown() {
+        closeable.close()
         Dispatchers.resetMain()
-        testDispatcher.cleanupTestCoroutines()
+       // testDispatcher.cleanupTestCoroutines()
     }
 
     @Test
@@ -64,21 +72,36 @@ class AudioViewModelTest {
         audioViewModel.stopAudio()
         verify(mediaPlayerWrapper).stop()
         verify(mediaPlayerWrapper).onCleared()
+        assert(!audioViewModel.recorderRunning.value)
     }
 
     @Test
     fun testStartRecording() {
         audioViewModel.startRecording()
-        verify(recorderControl).startRecorder()  // Verify that startRecorder was called on the mocked RecorderControl
+        verify(recorderControl).startRecorder()
+        assert(audioViewModel.recorderRunning.value)
     }
 
     @Test
     fun testStopRecording() {
-        val defaultFileName = "testFile"
+        val defaultFileName = "rooster"
         audioViewModel.stopRecording(defaultFileName)
-        verify(recorderControl).stopRecorder()  // Verify that stopRecorder was called on the mocked RecorderControl
+        verify(recorderControl).stopRecorder()
+        assert(!audioViewModel.recorderRunning.value)
     }
 
+    @Test
+    fun testStopWithoutSavingRecording() {
+        audioViewModel.startRecording()
+        audioViewModel.stopWithoutSavingRecording()
+        verify(recorderControl).stopRecorder()
+        assert(!audioViewModel.recorderRunning.value)
+    }
+    @Test
+    fun testSetTemporaryFileName() {
+        audioViewModel.setTemporaryFileName("temp")
+        assert(audioViewModel.currentFileName.value == "temp")
+    }
     @Test
     fun testGetCurrentPosition() {
         `when`(mediaPlayerWrapper.getCurrentPosition()).thenReturn(100)
@@ -142,18 +165,10 @@ class AudioViewModelTest {
         assert(audioViewModel.currentFileName.value == newName)
     }
 
-//    @Test
-//    fun testTrimAudio() {
-//        val testFile = File("/harryerayaudiorecorder/resources/rooster.mp3")
-//        audioViewModel.trimAudio(testFile, 0, 5000)
-//        // Verify the FFmpeg command or expected behavior
-//    }
-
     @Test
     fun testSave() {
         val testFileName = "testSave.wav"
         audioViewModel.save(testFileName)
-        // Verify database interactions or expected behavior
     }
 
     @Test
@@ -161,7 +176,6 @@ class AudioViewModelTest {
         val soundCard = SoundCard(100, "Test Title")
         val soundCardList = SnapshotStateList<MutableState<SoundCard>>()
         audioViewModel.deleteSoundCard(soundCard, soundCardList)
-        // Verify database and file system interactions or expected behavior
     }
 
     @Test
@@ -170,6 +184,17 @@ class AudioViewModelTest {
         val newFileName = "newFile.wav"
         val soundCardList = SnapshotStateList<MutableState<SoundCard>>()
         audioViewModel.renameSoundCard(soundCard, newFileName, soundCardList)
-        // Verify database and list interactions or expected behavior
+    }
+
+    @Test
+    fun testShowUploadDialog() {
+        audioViewModel.showUploadDialog()
+        assert(audioViewModel.showUploadDialog.value)
+    }
+
+    @Test
+    fun testHideUploadDialog() {
+        audioViewModel.hideUploadDialog()
+        assert(!audioViewModel.showUploadDialog.value)
     }
 }

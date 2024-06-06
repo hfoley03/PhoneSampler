@@ -36,7 +36,8 @@ class PhoneSamplerAppBarTest {
             PhoneSamplerAppBar(
                 currentScreen = PhoneSamplerScreen.Record,
                 canNavigateBack = true,
-                navigateUp = mockNavigateUp
+                navigateUp = mockNavigateUp,
+                fileNameFontSize = 22
             )
         }
 
@@ -51,7 +52,8 @@ class PhoneSamplerAppBarTest {
             PhoneSamplerAppBar(
                 currentScreen = PhoneSamplerScreen.Record,
                 canNavigateBack = false,
-                navigateUp = mockNavigateUp
+                navigateUp = mockNavigateUp,
+                fileNameFontSize = 22
             )
         }
 
