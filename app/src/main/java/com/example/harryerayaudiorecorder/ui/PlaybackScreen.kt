@@ -359,8 +359,6 @@ fun PlaybackScreen(
                     .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
-
-
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -369,8 +367,7 @@ fun PlaybackScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
-                        modifier = Modifier
-                        .weight(1f),
+                        modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center
                     ){
                         EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
@@ -429,7 +426,7 @@ fun PlaybackScreen(
                         fontSize = textSize.value.sp,
                         lineHeight = lineHeight.value.sp,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }
@@ -595,8 +592,8 @@ fun getIconAndTextSize(windowSizeClass: WindowSizeClass, isLandscape: Boolean): 
     val textSize = when {
         tablet && isLandscape -> 42.dp
         tablet && !isLandscape -> 46.dp
-        !tablet && isLandscape -> 30.dp
-        !tablet && !isLandscape -> 32.dp
+        !tablet && isLandscape -> 24.dp
+        !tablet && !isLandscape -> 24.dp
         windowSizeClass.widthSizeClass == WindowWidthSizeClass.Medium -> 34.dp  // for medium devices
         windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded -> 36.dp  // for Slightly larger for larger screens
         else -> 32.dp
