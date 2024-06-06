@@ -33,11 +33,13 @@ recording list -> we have 3 buttons on each card (delete, rename, upload) these 
 
 <del>record screen -> when recording, the record button should turn into an X, if user presses X than recording is stopped, file deleted, no pop up to name and not added to database</del>
 
+<del> database - function to sync to check if any files in folder are not in database and create the db entry if not </del>
+
 Edit screen - Eray - make buttons be right size 
 
 # not a priority
 
-PCM files should be deleted after conversion to wav
+<del> PCM files should be deleted after conversion to wav </del>
 
 recording list -> would be nice to be able to multi select and then delete or share etc
 
