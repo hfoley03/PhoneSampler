@@ -1,6 +1,9 @@
 package com.example.harryerayaudiorecorder.ui
 
 import AudioViewModel
+import android.app.Activity
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,16 +72,18 @@ fun PlaybackScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isPlaying = remember { mutableStateOf(false) }
-    val isRepeatOn = remember { mutableStateOf(false) }
+//    val isPlaying = remember { mutableStateOf(false) }
+//    val isRepeatOn = remember { mutableStateOf(false) }
+    var isPlaying by rememberSaveable { mutableStateOf(false) }
+    var isRepeatOn by rememberSaveable { mutableStateOf(false) }
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
     val audioFile = File(audioCapturesDirectory.absolutePath, fileName)
-    val scope = rememberCoroutineScope()
-    var waveformProgress by remember { mutableStateOf(0F) }
+//    val scope = rememberCoroutineScope()
+    var waveformProgress by rememberSaveable { mutableStateOf(0F) }
     var amplitudesData: List<Int> = listOf()
-    var currentPosition by remember { mutableStateOf(0) }
-    val showSpeedSlider = remember { mutableStateOf(false) }
-    val playbackSpeed = remember { mutableStateOf(1.0f) }
+    var currentPosition by rememberSaveable { mutableStateOf(0) }
+    val showSpeedSlider = rememberSaveable { mutableStateOf(false) }
+    val playbackSpeed = rememberSaveable { mutableStateOf(1.0f) }
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
@@ -88,7 +94,7 @@ fun PlaybackScreen(
         else -> 12.dp
     }
 
-    Log.d("PADDING", boxPadding.toString())
+
 
     val (iconSize, textSize, lineHeight) = getIconAndTextSize(windowSizeClass = windowSizeClass, isLandscape = isLandscape)
     val displayedTextLengthLandscape = when {
@@ -99,8 +105,6 @@ fun PlaybackScreen(
         isTablet() -> 53
         else -> 35
     }
-    Log.d("iconSizeplay", iconSize.toString())
-    Log.d("textSizeplay", textSize.toString())
 
     val amplituda = Amplituda(context)
 
@@ -114,11 +118,11 @@ fun PlaybackScreen(
         }
     ]
 
-    LaunchedEffect(isPlaying.value) {
-        while (isPlaying.value) {
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
             currentPosition = audioViewModel.getCurrentPosition()
             waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
-            delay(20) // Update every second
+            delay(20)
         }
     }
     if(isLandscape){
@@ -178,8 +182,7 @@ fun PlaybackScreen(
                                         (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
                                     audioViewModel.playAudio(audioFile, newPosition)
                                     audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
-                                    Log.d("playbackscreen", audioViewModel.getCurrentPosition().toString())
-                                    isPlaying.value = true
+                                    isPlaying = true
                                 }
                             )
                         }
@@ -236,11 +239,11 @@ fun PlaybackScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Button(onClick = {
-                                isRepeatOn.value = !isRepeatOn.value
-                                audioViewModel.setLooping(isRepeatOn.value)
+                                isRepeatOn = !isRepeatOn
+                                audioViewModel.setLooping(isRepeatOn)
                             }) {
                                 Icon(
-                                    painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
+                                    painter = painterResource(id = if (isRepeatOn) R.drawable.repeat_on else R.drawable.repeat),
                                     contentDescription = "Repeat",
                                     modifier = Modifier.size(iconSize),
                                     tint = MaterialTheme.colorScheme.onPrimary
@@ -281,7 +284,7 @@ fun PlaybackScreen(
                             Button(onClick = {
                                 audioViewModel.fastRewind((durationSample * 0.1f).toInt())
                                 audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                                isPlaying.value = true
+                                isPlaying = true
                             })
                             {
                                 Icon(
@@ -294,18 +297,17 @@ fun PlaybackScreen(
 
                             Button(
                                 onClick = {
-                                    if (isPlaying.value) {
-                                        Log.d("play", "pause")
+                                    if (isPlaying) {
                                         audioViewModel.pauseAudio()
-                                        isPlaying.value = false
+                                        isPlaying = false
                                     } else {
 //                                        if (audioFile.exists()) {
                                         if (true) {
-                                            Log.d("play", "playclick")
-                                            val startPosition = audioViewModel.getCurrentPosition().toLong()
+                                            val startPosition = currentPosition.toLong()
+
                                             audioViewModel.playAudio(audioFile, startPosition)
                                             audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                                            isPlaying.value = true
+                                            isPlaying = true
 
                                         } else {
                                             // file does not exist
@@ -315,17 +317,17 @@ fun PlaybackScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             ) {
                                 Icon(
-                                    painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
+                                    painter = painterResource(id = if (isPlaying) R.drawable.ic_pause2 else R.drawable.round_play_circle),
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(iconSize),
-                                    contentDescription = if (isPlaying.value) "Stop" else "Play",
+                                    contentDescription = if (isPlaying) "Stop" else "Play",
                                 )
                             }
 
                             Button(onClick = {
                                 audioViewModel.fastForward((durationSample * 0.1f).toInt())
                                 audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                                isPlaying.value = true
+                                isPlaying = true
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.round_fast_forward_24),
@@ -389,11 +391,7 @@ fun PlaybackScreen(
 //                                audioViewModel.seekTo(newPosition)
                                 audioViewModel.playAudio(audioFile, newPosition)
                                 audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
-                                Log.d(
-                                    "playbackscreen",
-                                    audioViewModel.getCurrentPosition().toString()
-                                )
-                                isPlaying.value = true
+                                isPlaying = true
                             }
                         )
                     }
@@ -456,11 +454,11 @@ fun PlaybackScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(onClick = {
-                            isRepeatOn.value = !isRepeatOn.value
-                            audioViewModel.setLooping(isRepeatOn.value)
+                            isRepeatOn = !isRepeatOn
+                            audioViewModel.setLooping(isRepeatOn)
                         }) {
                             Icon(
-                                painter = painterResource(id = if (isRepeatOn.value) R.drawable.repeat_on else R.drawable.repeat),
+                                painter = painterResource(id = if (isRepeatOn) R.drawable.repeat_on else R.drawable.repeat),
                                 contentDescription = "Repeat",
                                 modifier = Modifier.size(iconSize),
                                 tint = MaterialTheme.colorScheme.onPrimary
@@ -502,7 +500,7 @@ fun PlaybackScreen(
                         Button(onClick = {
                             audioViewModel.fastRewind((durationSample * 0.1f).toInt())
                             audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                            isPlaying.value = true
+                            isPlaying = true
                         })
                         {
                             Icon(
@@ -515,19 +513,22 @@ fun PlaybackScreen(
 
                         Button(
                             onClick = {
-                                if (isPlaying.value) {
-                                    Log.d("play", "pauseclick")
+                                if (isPlaying) {
+
 
                                     audioViewModel.pauseAudio()
-                                    isPlaying.value = false
+                                    isPlaying = false
+                                    context.unlockOrientation()
+
                                 } else {
                                     if (true) {
-                                        Log.d("play", "playclick")
-                                        val startPosition =
-                                            audioViewModel.getCurrentPosition().toLong()
+
+                                        val startPosition = currentPosition.toLong()
                                         audioViewModel.playAudio(audioFile, startPosition)
                                         audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                                        isPlaying.value = true
+                                        isPlaying = true
+                                        context.lockOrientation()
+
 
                                     } else {
                                         // Handle the case where the file does not exist
@@ -536,17 +537,17 @@ fun PlaybackScreen(
                             },
                         ) {
                             Icon(
-                                painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
+                                painter = painterResource(id = if (isPlaying) R.drawable.ic_pause2 else R.drawable.round_play_circle),
                                 tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(iconSize),
-                                contentDescription = if (isPlaying.value) "Stop" else "Play",
+                                contentDescription = if (isPlaying) "Stop" else "Play",
                             )
                         }
 
                         Button(onClick = {
                             audioViewModel.fastForward((durationSample * 0.1f).toInt())
                             audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                            isPlaying.value = true
+                            isPlaying = true
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.round_fast_forward_24),
@@ -631,14 +632,13 @@ fun EvenlySpacedText2(text: String, modifier: Modifier = Modifier) {
     }
 }
 
-
-
-@Composable
-fun landscapeScreen(){
-
+fun Context.lockOrientation() {
+    (this as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
 }
 
-
+fun Context.unlockOrientation() {
+    (this as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+}
 
 
 
