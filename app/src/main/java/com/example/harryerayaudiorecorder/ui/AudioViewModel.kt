@@ -464,6 +464,7 @@ open class AudioViewModel(
     }
 
     private fun saveSoundToFile(body: ResponseBody,fileName:String, audioCapturesDirectory:File, context: Context) {
+        var fileNameWav = fileName
 
         if (!audioCapturesDirectory.exists()) {
             if (!audioCapturesDirectory.mkdirs()) {
@@ -472,7 +473,10 @@ open class AudioViewModel(
             }
         }
         try{
-            val soundFile = File(audioCapturesDirectory.absolutePath + "/" + "$fileName.wav")
+            if (!fileName.endsWith(".wav", ignoreCase = true)) {
+                fileNameWav = "$fileName.wav"
+            }
+            val soundFile = File(audioCapturesDirectory.absolutePath + "/" + "$fileNameWav")
             soundFile.outputStream().use {
                 it.write(body.bytes())
             }
