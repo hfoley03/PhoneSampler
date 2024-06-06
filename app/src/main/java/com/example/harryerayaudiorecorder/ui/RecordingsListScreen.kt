@@ -98,16 +98,6 @@ fun RecordingsListScreen(
             }
         }
 
-        // Add a dummy sound card
-        val dummySoundCard = SoundCard(
-            duration = 2000,
-            fileName = "dummy_sound.wav",
-            fileSize = 1.0,
-            date = "2024-01-01"
-        )
-        withContext(Dispatchers.Main) {
-            soundCardList.add(mutableStateOf(dummySoundCard))
-        }
 
         accessToken.value = audioViewModel.getAccessToken(context)
 

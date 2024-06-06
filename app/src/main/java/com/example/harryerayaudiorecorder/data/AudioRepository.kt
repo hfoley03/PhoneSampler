@@ -155,32 +155,39 @@ class MyAudioRepository(
     }
 
     override fun deleteAllRecords() {
-
     }
 
     override suspend fun syncFolderandDatabase() {
 
         GlobalScope.launch {
-        val dbEntries = db.audioRecordDoa().getAll()
-        val dbFilePaths = dbEntries.map {it.filePath}.toSet()
-
-        val filesiInFolder = audioCapturesDirectory.listFiles()
-        Log.d("AudioRepo", "syncing files")
-
-        filesiInFolder?.forEach { file ->
-            if (file.isFile && !dbFilePaths.contains(file.absolutePath)){
-                Log.d("AudioRepo", "found file not in db")
-                val dur = getAudioDuration(file)
-                val fSizeMB = file.length().toDouble() / (1024 * 1024)
-                val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
-                val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+            val dbEntries = db.audioRecordDoa().getAll()
+            val dbFilePaths = dbEntries.map {it.filePath}.toSet()
 
 
-                    db.audioRecordDoa().insert(record)
+            val filesiInFolder = audioCapturesDirectory.listFiles()
+            Log.d("AudioRep", audioCapturesDirectory.name)
 
+            if (filesiInFolder == null || filesiInFolder.isEmpty()) {
+                Log.d("AudioRep", "No files found in directory: ${audioCapturesDirectory.absolutePath}")
+
+            } else {
+                Log.d("AudioRep", audioCapturesDirectory.listFiles().toString())
 
             }
-        }
+
+            Log.d("AudioRepo", "syncing files")
+
+            filesiInFolder?.forEach { file ->
+                Log.d("AudioRecordRepository", "Found file: ${file.absolutePath}")
+                if (file.isFile && !dbFilePaths.contains(file.absolutePath)){
+                    Log.d("AudioRepo", "found file not in db")
+                    val dur = getAudioDuration(file)
+                    val fSizeMB = file.length().toDouble() / (1024 * 1024)
+                    val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
+                    val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+                    db.audioRecordDoa().insert(record)
+                }
+            }
         }
     }
 
@@ -296,7 +303,19 @@ class MockAudioRepository : AudioRepository {
     }
 
     override suspend fun syncFolderandDatabase() {
-        TODO("Not yet implemented")
+        val file = File("/storage/emulated/0/Music/testSong/trimmed_tomatoes.wav")
+        val dur = getAudioDuration(file)
+        val fSizeMB = file.length().toDouble() / (1024 * 1024)
+        val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date())
+        Log.d("testfile", file.name)
+        Log.d("testfile", file.absolutePath)
+        Log.d("testfile", dur.toString())
+        Log.d("testfile",fSizeMB.toString())
+        Log.d("testfile", lastModDate)
+
+
+        val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+        mockData.add(record)
     }
 
     override fun renameFile(newName: String) {
@@ -310,6 +329,9 @@ class MockAudioRepository : AudioRepository {
     }
 
     override fun getAudioDuration(file: File): Int {
-        return 100
+        return 20
     }
+
+
+
 }

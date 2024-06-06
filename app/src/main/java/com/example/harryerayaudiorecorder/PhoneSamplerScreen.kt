@@ -3,7 +3,6 @@ package com.example.harryerayaudiorecorder
 //import com.example.harryerayaudiorecorder.ui.AndroidAudioPlayer
 import AudioViewModel
 import android.app.Activity
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -12,11 +11,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,6 +103,7 @@ fun PhoneSamplerApp(
     navController: NavHostController = rememberNavController(),
     audioViewModel: AudioViewModel,
 ) {
+    audioViewModel.syncFiles()
     val localContext = LocalContext.current
     val activity = localContext as? Activity ?: throw IllegalStateException("Context is not Activity!!")
     val windowSizeClass = calculateWindowSizeClass(activity)
