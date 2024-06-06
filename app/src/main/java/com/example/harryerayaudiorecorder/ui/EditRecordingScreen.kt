@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -125,6 +126,12 @@ fun EditRecordingScreen(
             currentPosition.value = audioViewModel.getCurrentPosition()
             waveformProgress.value = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
             delay(20)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            audioViewModel.stopAudio()
         }
     }
 

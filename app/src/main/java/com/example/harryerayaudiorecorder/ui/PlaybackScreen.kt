@@ -4,7 +4,6 @@ import AudioViewModel
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,11 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -125,6 +123,13 @@ fun PlaybackScreen(
             delay(20)
         }
     }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            audioViewModel.stopAudio()
+        }
+    }
+
     if(isLandscape){
         Box(
             modifier = Modifier
