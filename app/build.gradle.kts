@@ -113,7 +113,7 @@ dependencies {
 
 
     androidTestImplementation("androidx.room:room-testing:2.4.0")
-    //androidTestImplementation("org.robolectric:robolectric:4.8")
+    androidTestImplementation("org.robolectric:robolectric:4.8")
 
 
     debugImplementation("androidx.compose.ui:ui-tooling")

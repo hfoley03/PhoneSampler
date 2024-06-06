@@ -25,7 +25,7 @@ class AudioRecordService : Service() {
         const val NOTIFICATION_CHANNEL_ID = "com.HarryErayAudioRecorder"
         const val NOTIFICATION_CHANNEL_NAME = "com.HarryErayAudioRecorder"
 
-        fun start(context: Context, mediaProjectionActivityResult: ActivityResult, fileName: String) {
+        fun start(context: Context, mediaProjectionActivityResult: ActivityResult) {
             activityResult = mediaProjectionActivityResult
             val intent = Intent(context, AudioRecordService::class.java)
 

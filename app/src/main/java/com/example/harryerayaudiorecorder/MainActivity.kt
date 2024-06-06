@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
     override fun startRecorder(){
         Log.d(TAG, "startRecorder")
         val mediaProjectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent()) //prompt to be approved by user to allow capture
+        resultLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
     }
 
     override fun stopRecorder() {
@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             Log.d(TAG, "Media projection permission granted")
             audioViewModel.timerRunning.value = true
-            AudioRecordService.start(this.applicationContext, it, "dummt")
+            AudioRecordService.start(this.applicationContext, it)
         }
 
     fun requestAudioPermissions() {
@@ -95,7 +95,6 @@ class MainActivity : ComponentActivity(), RecorderControl {
                 arrayOf(Manifest.permission.RECORD_AUDIO),
                 RECORD_AUDIO_REQUEST_CODE
             )
-            //audioViewModel.setRecorderRunningBool(true)
         }
     }
 }
