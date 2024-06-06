@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -133,7 +131,7 @@ fun RecordingsListScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = fileNameFontSize.dp / 3f),
+                .padding(horizontal = fileNameFontSize.dp / 2f),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -143,10 +141,10 @@ fun RecordingsListScreen(
                         fileOpacity = 0.75f
                     })
                     .weight(1f)
-                    .padding((fileNameFontSize / 4).dp)
+                    .padding((fileNameFontSize / 2).dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = fileOpacity),
-                        shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                        shape = RoundedCornerShape((fileNameFontSize).dp)
                     )   ,
                 contentAlignment = Alignment.Center
             ) {
@@ -161,7 +159,7 @@ fun RecordingsListScreen(
             }
 
             // Spacer for visual separation
-            Spacer(modifier = Modifier.width(fileNameFontSize.dp))
+//            Spacer(modifier = Modifier.width(fileNameFontSize.dp))
 
             // Box for "Web" with text first and icon second
             Box(
@@ -170,10 +168,10 @@ fun RecordingsListScreen(
                         fileOpacity = 0.25f
                     })
                     .weight(1f)
-                    .padding((fileNameFontSize / 4).dp)
+                    .padding((fileNameFontSize / 2).dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - fileOpacity),
-                        shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                        shape = RoundedCornerShape((fileNameFontSize).dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -188,7 +186,7 @@ fun RecordingsListScreen(
         }
         // means web button selected
         if (fileOpacity == 0.25f) {
-            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
+            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/4).dp)) {
                 items(fsSoundCards) { item ->
                     FsSoundCard(item,
                         fileNameFontSize,
@@ -200,7 +198,7 @@ fun RecordingsListScreen(
             }
         }
         else if(fileOpacity == 0.75f) {
-            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
+            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/4).dp)) {
                 items(filteredSoundCards) { item ->
                     SoundRecordingCard(
 

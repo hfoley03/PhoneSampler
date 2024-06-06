@@ -32,7 +32,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -165,9 +164,9 @@ fun PhoneSamplerApp(
                                 },
                                 placeholder = { Text("Search Sounds") },
                                 singleLine = true,
-
+                                shape = RoundedCornerShape((fileNameFontSize / 2).dp),
                                 modifier = Modifier
-                                    .padding(start = (fileNameFontSize*2).dp)
+                                    .padding(start = (fileNameFontSize*2).dp, end = (fileNameFontSize).dp)
                                     .weight(1f)
 
                             )
