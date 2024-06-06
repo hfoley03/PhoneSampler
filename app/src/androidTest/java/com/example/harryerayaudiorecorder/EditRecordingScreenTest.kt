@@ -4,17 +4,19 @@ import AudioViewModel
 import MockMediaPlayerWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.action.ViewActions.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.harryerayaudiorecorder.data.MockAudioRepository
 import org.junit.Before
@@ -61,15 +63,14 @@ class EditRecordingScreenTest {
     @Test
     fun testPlayButton() {
         composeTestRule.onNodeWithContentDescription("Play").assertExists()
-        //composeTestRule.onNodeWithContentDescription("Play").performClick()
-        //composeTestRule.onNodeWithContentDescription("Pause").assertExists()
+        composeTestRule.onNodeWithContentDescription("Play").performClick()
+        composeTestRule.onNodeWithContentDescription("Pause").assertExists()
     }
 
     @Test
     fun testTrimButton() {
         composeTestRule.onNodeWithText("Trim").assertExists()
 //        composeTestRule.onNodeWithText("Start Position: 00:00:00").performTouchInput { swipeRight() }
-//        composeTestRule.onNodeWithText("End Position: 00:01:00").performTouchInput { swipeLeft() }
 //
 //        composeTestRule.onNodeWithText("Trim").performClick()
 
@@ -77,20 +78,17 @@ class EditRecordingScreenTest {
     }
 
     @Test
-    fun testStartSliderPosition(){
-        composeTestRule.onAllNodesWithTag("StartSlider")[0].performSemanticsAction(SemanticsActions.SetProgress) { it(0.5f) }
-        composeTestRule.onNodeWithText("Start Position: 00:01:00").assertExists()
-    }
-    @Test
-    fun testEndSliderPosition(){
-        composeTestRule.onAllNodesWithTag("EndSlider")[0].performSemanticsAction(SemanticsActions.SetProgress) { it(0.5f) }
-        composeTestRule.onNodeWithText("End Position: 00:01:00").assertExists()
+    fun testDoubleSlider(){
+        val initRange = ProgressBarRangeInfo(0.0f, 0.0f..1.0f)
+        composeTestRule.onNodeWithTag("doubleSlider").assertExists()
+        composeTestRule.onNodeWithTag("doubleSlider").assertRangeInfoEquals(initRange)
+        composeTestRule.onNodeWithTag("doubleSlider").performTouchInput { swipeRight()  }
     }
     fun navigateToEditScreen(){
         composeTestRule.onNodeWithContentDescription("Menu Icon")
             .performClick()
-        composeTestRule.onNodeWithTag("SoundCard")
-            .performClick()
+        composeTestRule.onAllNodesWithTag("SoundCard")[0].performClick()
+
         val editText = composeTestRule.activity.getString(R.string.edit_recording)
         composeTestRule.onNodeWithContentDescription(editText).performClick()
     }

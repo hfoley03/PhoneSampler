@@ -43,7 +43,11 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.example.harryerayaudiorecorder.R
 import com.linc.audiowaveform.AudioWaveform
@@ -372,6 +376,7 @@ fun EditRecordingScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(text = "Set Trim Points", modifier = Modifier.padding(8.dp))
+                        Log.d("slider", sliderPosition.toString())
                         RangeSlider(
                             value = sliderPosition,
                             onValueChange = { range -> sliderPosition = range
@@ -381,7 +386,20 @@ fun EditRecordingScreen(
                             valueRange = 0.0f..1.0f,
                             onValueChangeFinished = {
                             },
+                            modifier =  Modifier.
+                                testTag("doubleSlider")
+                                .semantics {
+                                    progressBarRangeInfo = ProgressBarRangeInfo(
+                                        current = (startPosition.value),
+                                        range = 0.0f..1.0f,
+                                        steps = 0
+                                    )
+                                }
                         )
+                        Log.d("slider", sliderPosition.toString())
+                        Log.d("slider", sliderPosition.start.toString())
+                        Log.d("slider", startPosition.toString())
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -410,6 +428,8 @@ fun EditRecordingScreen(
                                             )
                                         }
                                         isPlaying.value = true
+                                    } else { // file not found
+                                        isPlaying.value = true
                                     }
                                 }
                             }) {
@@ -428,7 +448,6 @@ fun EditRecordingScreen(
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar(trimmedFile.name)
                                     }
-
                                 }
                             }) {
                                 Text("Trim")

@@ -6,6 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -59,29 +62,45 @@ class RecordingListScreenTest {
 
     @Test
     fun testSoundCardDisplayed() {
-        composeTestRule.onNodeWithTag("SoundCard").assertExists()
+        //composeTestRule.onNodeWithTag("SoundCard").assertExists()
+        composeTestRule.onAllNodesWithTag("SoundCard")[0].assertExists()
+    }
+
+
+
+    @Test
+    fun testClickingPencilIconShowsRenameDialog() {
+//        composeTestRule.onNodeWithContentDescription("Edit Title").performClick()
+//        composeTestRule.onNodeWithTag("FileNameEditDialog").assertExists()
+
+        composeTestRule.onAllNodesWithContentDescription("Edit Title")[0].performClick()
+        composeTestRule.onNodeWithTag("FileNameEditDialog").assertExists()
+
+    }
+
+    @Test
+    fun testClickingUploadIconShowsUploadDialog() {
+//        composeTestRule.onNodeWithContentDescription("Upload").performClick()
+//        composeTestRule.onNodeWithTag("UploadDialog").assertExists()
+
+        composeTestRule.onAllNodesWithContentDescription("Upload")[0].performClick()
+        composeTestRule.onNodeWithTag("UploadDialog").assertExists()
+
+
     }
 
     @Test
     fun testSearchFunctionality() {
         // Set the search text
-        composeTestRule.onNodeWithText("Search Recordings").performTextInput("dummy_sound")
+        composeTestRule.onNodeWithText("Local Search").performTextInput("trim")
 
         // Verify the search result
-        composeTestRule.onNodeWithTag("SoundCard").assertExists()
-        composeTestRule.onNodeWithText("dummy_sound.wav").assertIsDisplayed()
-    }
+//        composeTestRule.onNodeWithTag("SoundCard").assertExists()
+//        composeTestRule.onNodeWithText("trimmed_tomatoes.wav").assertIsDisplayed()
 
-    @Test
-    fun testClickingPencilIconShowsRenameDialog() {
-        composeTestRule.onNodeWithContentDescription("Edit Title").performClick()
-        composeTestRule.onNodeWithTag("FileNameEditDialog").assertExists()
-    }
+        composeTestRule.onAllNodesWithTag("SoundCard")[0].assertExists()
+        composeTestRule.onAllNodesWithText("trimmed_tomatoes.wav")[0].assertIsDisplayed()
 
-    @Test
-    fun testClickingUploadIconShowsUploadDialog() {
-        composeTestRule.onNodeWithContentDescription("Upload").performClick()
-        composeTestRule.onNodeWithTag("UploadDialog").assertExists()
     }
 
 //    @Test

@@ -365,12 +365,10 @@ open class AudioViewModel(
         _recorderRunning.value = false
     }
 
-    // Set a temporary file name
     fun setTemporaryFileName(tempFileName: String) {
         _currentFileName.value = tempFileName
     }
 
-    // Save audio file details to the database
     fun save(name: String) {
         audioRepository.save(name)
     }
@@ -379,12 +377,10 @@ open class AudioViewModel(
         audioRepository.saveFromFile(file)
     }
 
-    // Delete a sound card and its associated audio file from the database and filesystem
     fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         audioRepository.deleteSoundCard(soundCard, soundCardList)
     }
 
-    // Rename a sound card in the database and update the UI
     fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         audioRepository.renameSoundCard(soundCard, newFileName, soundCardList)
     }
@@ -608,14 +604,14 @@ open class AudioViewModel(
                             type
                         )
                         val soundCards: MutableList<FreesoundSoundCard> = searchResponse.results.toMutableList()
-                        Log.d("soundCards", soundCards.toString())
+//                        Log.d("soundCards", soundCards.toString())
                         setFreesoundSoundCards(soundCards)
-                        searchResponse.results.forEach {
-                            Log.d(
-                                "SearchResult",
-                                "Sound: ${it.name}, Tags: ${it.tags.joinToString()}, ID: ${it.id}"
-                            )
-                        }
+//                        searchResponse.results.forEach {
+//                            Log.d(
+//                                "SearchResult",
+//                                "Sound: ${it.name}, Tags: ${it.tags.joinToString()}, ID: ${it.id}"
+//                            )
+//                        }
                     }
                 }
             }

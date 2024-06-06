@@ -55,8 +55,8 @@ class PhoneSamplerScreenTest {
 //    @Before
 //    fun setUp() {
         //val mockAudioRepository = MyAudioRepository()
-        val mockMediaPlayerWrapper = MockMediaPlayerWrapper()
-        val mockRecorderControl = MockRecorderControl()
+       // val mockMediaPlayerWrapper = MockMediaPlayerWrapper()
+       // val mockRecorderControl = MockRecorderControl()
 
 
 //        audioViewModel = AudioViewModel(
