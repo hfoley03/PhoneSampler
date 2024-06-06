@@ -177,7 +177,7 @@ fun RecordingsListScreen(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Web",
+                        text = "FreeSound",
                         fontSize = fileNameFontSize.sp,
                         modifier = Modifier.padding(fileNameFontSize.dp/2)
                     )

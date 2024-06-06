@@ -81,6 +81,14 @@ fun PlaybackScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
+    val boxPadding = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 16.dp
+        WindowWidthSizeClass.Medium -> 24.dp
+        WindowWidthSizeClass.Expanded -> 32.dp
+        else -> 12.dp
+    }
+
+    Log.d("PADDING", boxPadding.toString())
 
     val (iconSize, textSize, lineHeight) = getIconAndTextSize(windowSizeClass = windowSizeClass, isLandscape = isLandscape)
     val displayedTextLengthLandscape = when {
@@ -147,7 +155,7 @@ fun PlaybackScreen(
 
                         Box(
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(1.5f)
                                 .fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
@@ -196,7 +204,7 @@ fun PlaybackScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                             .padding(16.dp),
-                        verticalArrangement = Arrangement.Center,
+                        Arrangement.SpaceEvenly,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         if (showSpeedSlider.value) {
@@ -222,8 +230,7 @@ fun PlaybackScreen(
 
                         Row(
                             modifier = Modifier
-                                .padding(bottom = 16.dp)
-                                .padding(horizontal = 16.dp)
+                                .padding(start = boxPadding, end = boxPadding, bottom = boxPadding/2)
                                 .align(Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly
@@ -266,7 +273,7 @@ fun PlaybackScreen(
 
                         Row(
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(start = boxPadding, end = boxPadding, top = boxPadding/2)
                                 .align(Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly

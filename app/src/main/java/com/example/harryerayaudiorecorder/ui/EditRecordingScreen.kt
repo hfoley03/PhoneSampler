@@ -154,7 +154,7 @@ fun EditRecordingScreen(
 
                             Box(
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .weight(1.5f)
                                     .fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
