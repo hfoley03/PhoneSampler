@@ -79,6 +79,8 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation ("com.google.code.gson:gson:2.8.6")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+    implementation ("androidx.compose.runtime:runtime-livedata")
 
 
     testImplementation("junit:junit:4.13.2")

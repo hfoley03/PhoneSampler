@@ -81,7 +81,7 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
                     val tempByteArray = ByteArray(1024)
                     audioRecord?.read(tempByteArray, 0, tempByteArray.size) //read from Audio into the byteArray
                     fileOutputStream.write(tempByteArray)    //write the byteArray into the file
-                    Log.d(TAG, "File Written")
+//                    Log.d(TAG, "File Written")
                 } catch (e: IOException){
                     Log.d(TAG, e.toString())
                 }
