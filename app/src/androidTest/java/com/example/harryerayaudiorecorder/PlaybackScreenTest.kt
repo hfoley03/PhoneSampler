@@ -5,6 +5,7 @@ import MockMediaPlayerWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -57,48 +58,35 @@ class PlaybackScreenTest {
     @Test
     fun testPlayButton() {
         composeTestRule.onNodeWithContentDescription("Play").assertExists()
-
         composeTestRule.onNodeWithContentDescription("Play").performClick()
-
-       // composeTestRule.onNodeWithContentDescription("Stop").assertExists()
+        composeTestRule.onNodeWithContentDescription("Stop").assertExists()
     }
 
-//    @Test
-//    fun testPauseButton() {
-//        composeTestRule.onNodeWithContentDescription("Play").assertExists()
-//
-//        composeTestRule.onNodeWithContentDescription("Play").performClick()
-//
-//        composeTestRule.onNodeWithContentDescription("Stop").performClick()
-//
-//        composeTestRule.onNodeWithContentDescription("Play").assertExists()
-//    }
+    @Test
+    fun testPauseButton() {
+        composeTestRule.onNodeWithContentDescription("Play").assertExists()
+        composeTestRule.onNodeWithContentDescription("Play").performClick()
+        composeTestRule.onNodeWithContentDescription("Stop").performClick()
+        composeTestRule.onNodeWithContentDescription("Play").assertExists()
+    }
 
     @Test
     fun testRepeatButton() {
-        // Initially, the repeat button should be in off state
         composeTestRule.onNodeWithContentDescription("Repeat").assertExists()
-
-        // Click the repeat button to turn it on
         composeTestRule.onNodeWithContentDescription("Repeat").performClick()
-
-        // Verify the repeat button is in on state
         composeTestRule.onNodeWithContentDescription("Repeat").assertExists()
     }
 
     @Test
     fun testSpeedButton() {
-        // Click the speed button
         composeTestRule.onNodeWithContentDescription("Speed").performClick()
-
-        // Verify the slider is displayed
         composeTestRule.onNodeWithTag("SpeedSlider").assertExists()
     }
 
     fun navigateToPlaybackScreen(){
         composeTestRule.onNodeWithContentDescription("Menu Icon")
             .performClick()
-        composeTestRule.onNodeWithTag("SoundCard")
-            .performClick()
+        composeTestRule.onAllNodesWithTag("SoundCard")[0].performClick()
+
     }
 }

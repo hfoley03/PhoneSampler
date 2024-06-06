@@ -288,10 +288,13 @@ fun PlaybackScreen(
                             Button(
                                 onClick = {
                                     if (isPlaying.value) {
+                                        Log.d("play", "pause")
                                         audioViewModel.pauseAudio()
                                         isPlaying.value = false
                                     } else {
-                                        if (audioFile.exists()) {
+//                                        if (audioFile.exists()) {
+                                        if (true) {
+                                            Log.d("play", "playclick")
                                             val startPosition = audioViewModel.getCurrentPosition().toLong()
                                             audioViewModel.playAudio(audioFile, startPosition)
                                             audioViewModel.setPlaybackSpeed(playbackSpeed.value)
@@ -509,10 +512,13 @@ fun PlaybackScreen(
                         Button(
                             onClick = {
                                 if (isPlaying.value) {
+                                    Log.d("play", "pauseclick")
+
                                     audioViewModel.pauseAudio()
                                     isPlaying.value = false
                                 } else {
-                                    if (audioFile.exists()) {
+                                    if (true) {
+                                        Log.d("play", "playclick")
                                         val startPosition =
                                             audioViewModel.getCurrentPosition().toLong()
                                         audioViewModel.playAudio(audioFile, startPosition)

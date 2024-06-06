@@ -165,7 +165,6 @@ class MyAudioRepository(
 
 
             val filesiInFolder = audioCapturesDirectory.listFiles()
-            Log.d("AudioRep", audioCapturesDirectory.name)
 
             if (filesiInFolder == null || filesiInFolder.isEmpty()) {
                 Log.d("AudioRep", "No files found in directory: ${audioCapturesDirectory.absolutePath}")
@@ -181,11 +180,11 @@ class MyAudioRepository(
                 Log.d("AudioRecordRepository", "Found file: ${file.absolutePath}")
                 if (file.isFile && !dbFilePaths.contains(file.absolutePath)){
                     Log.d("AudioRepo", "found file not in db")
-                    val dur = getAudioDuration(file)
-                    val fSizeMB = file.length().toDouble() / (1024 * 1024)
-                    val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
-                    val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
-                    db.audioRecordDoa().insert(record)
+//                    val dur = getAudioDuration(file)
+//                    val fSizeMB = file.length().toDouble() / (1024 * 1024)
+//                    val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
+//                    val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
+//                    db.audioRecordDoa().insert(record)
                 }
             }
         }
