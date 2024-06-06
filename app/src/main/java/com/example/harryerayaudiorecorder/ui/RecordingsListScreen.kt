@@ -111,14 +111,19 @@ fun RecordingsListScreen(
         }
     }
 
-    audioViewModel.performSearchWithCoroutines(
-        clientSecret = stringResource(R.string.client_secret),
-        searchText = searchText,
-        updateUI = { newSounds ->
-            fsSoundCards.clear()
-            fsSoundCards.addAll(newSounds)
+
+    LaunchedEffect(searchText, fileOpacity) {
+        if (fileOpacity == 0.25f) {
+            audioViewModel.performSearchWithCoroutines(
+                clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
+                searchText = searchText,
+                updateUI = { newSounds ->
+                    fsSoundCards.clear()
+                    fsSoundCards.addAll(newSounds)
+                }
+            )
         }
-    )
+    }
     Column {
         Row(
             modifier = Modifier
