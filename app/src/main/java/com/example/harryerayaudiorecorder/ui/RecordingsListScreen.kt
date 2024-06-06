@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,10 +73,9 @@ fun RecordingsListScreen(
         SamplerViewModel().isTablet() -> 32
         else -> 22
     }
-//    var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
-    var fileOpacity by remember{mutableStateOf(0.75f)}
+    var fileOpacity by rememberSaveable { mutableStateOf(0.75f) }
     var downloadTrigger by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit,downloadTrigger) {
