@@ -33,7 +33,7 @@ interface AudioRepository {
     suspend fun syncFolderandDatabase()
 }
 
-class MyAudioRepository(
+open class MyAudioRepository(
     private val db: AudioRecordDatabase,
     val audioCapturesDirectory: File
 ) : AudioRepository {
