@@ -71,7 +71,7 @@ fun RecordingsListScreen(
         SamplerViewModel().isTablet() -> 32
         else -> 22
     }
-    var showOAuthWebView by remember { mutableStateOf(false) }
+//    var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
     val searchText = audioViewModel.searchText.value
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
@@ -129,138 +129,108 @@ fun RecordingsListScreen(
             fsSoundCards.addAll(newSounds)
         }
     )
-
-
-        if (showOAuthWebView) {
-            authenticate(
-                audioViewModel = audioViewModel,
-                setShowOAuthWebView = { showOAuthWebView = it },
-                context = context,
-                onAuthenticated = { token ->
-                    accessToken.value = token
-                    showOAuthWebView = false
-                    audioViewModel.showUploadDialog()                }
-            )
-        } else {
-
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = fileNameFontSize.dp / 3f),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clickable(onClick = {
-                                fileOpacity = 0.75f
-                            })
-                            .padding((fileNameFontSize / 4).dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = fileOpacity),
-                                shape = RoundedCornerShape((fileNameFontSize / 2).dp)
-                            )            ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "My Files",
-                                fontSize = fileNameFontSize.sp,
-                                modifier = Modifier.padding(fileNameFontSize.dp/2)
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Local Search",
-                                modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
-                            )
-                        }
-                    }
-
-                    // Spacer for visual separation
-                    Spacer(modifier = Modifier.width(fileNameFontSize.dp))
-
-                    // Box for "Web" with text first and icon second
-                    Box(
-                        modifier = Modifier
-                            .clickable(onClick = {
-                                fileOpacity = 0.25f
-                            })
-                            .padding((fileNameFontSize / 4).dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - fileOpacity),
-                                shape = RoundedCornerShape((fileNameFontSize / 2).dp)
-                            )
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Web",
-                                fontSize = fileNameFontSize.sp,
-                                modifier = Modifier.padding(fileNameFontSize.dp/2)
-                            )
-                            Icon(
-                                painter = painterResource(id = R.drawable.internet_browsing_icon),
-                                contentDescription = "Search on Internet",
-                                modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
-                            )
-                        }
-                    }
-                }
-                // means web button selected
-                if (fileOpacity == 0.25f) {
-                    LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
-                        items(fsSoundCards) { item ->
-                            FsSoundCard(item,
-                                fileNameFontSize,
-                                audioViewModel,
-                                accessToken.value,
-                                audioCapturesDirectory,
-                                downloadTrigger = downloadTrigger,
-                                setDownloadTrigger = {downloadTrigger = it},
-                                setShowOAuthWebView = { showOAuthWebView = it },)
-                        }
-                    }
-                }
-                else if(fileOpacity == 0.75f) {
-                    LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
-                        items(filteredSoundCards) { item ->
-                            SoundRecordingCard(
-
-                                audioViewModel,
-                                soundCard = item.value,
-                                audioCapturesDirectory = audioCapturesDirectory,
-                                fileNameFontSize = fileNameFontSize,
-                                onClick = { onSongButtonClicked(item.value) },
-                                onPencilClicked = { newFileName ->
-                                    audioViewModel.renameSoundCard(
-                                        item.value,
-                                        newFileName,
-                                        soundCardList
-                                    )
-                                },
-                                onDeleteClick = {
-                                    audioViewModel.deleteSoundCard(item.value, soundCardList)
-                                },
-                                setShowOAuthWebView = { showOAuthWebView = it },
-                                accessToken = accessToken.value,
-                                context = LocalContext.current
-
-                            )
-                        }
-                    }
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = fileNameFontSize.dp / 3f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .clickable(onClick = {
+                        fileOpacity = 0.75f
+                    })
+                    .padding((fileNameFontSize / 4).dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = fileOpacity),
+                        shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                    )            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "My Files",
+                        fontSize = fileNameFontSize.sp,
+                        modifier = Modifier.padding(fileNameFontSize.dp/2)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Local Search",
+                        modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
+                    )
                 }
             }
 
+            // Spacer for visual separation
+            Spacer(modifier = Modifier.width(fileNameFontSize.dp))
 
-
+            // Box for "Web" with text first and icon second
+            Box(
+                modifier = Modifier
+                    .clickable(onClick = {
+                        fileOpacity = 0.25f
+                    })
+                    .padding((fileNameFontSize / 4).dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - fileOpacity),
+                        shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                    )
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Web",
+                        fontSize = fileNameFontSize.sp,
+                        modifier = Modifier.padding(fileNameFontSize.dp/2)
+                    )
+                    Icon(
+                        painter = painterResource(id = R.drawable.internet_browsing_icon),
+                        contentDescription = "Search on Internet",
+                        modifier = Modifier.size(fileNameFontSize.dp * 1.5f)
+                    )
+                }
+            }
         }
+        // means web button selected
+        if (fileOpacity == 0.25f) {
+            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
+                items(fsSoundCards) { item ->
+                    FsSoundCard(item,
+                        fileNameFontSize,
+                        audioViewModel,
+                        audioCapturesDirectory,
+                        downloadTrigger = downloadTrigger,
+                        setDownloadTrigger = {downloadTrigger = it})
+                }
+            }
+        }
+        else if(fileOpacity == 0.75f) {
+            LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/1.2).dp)) {
+                items(filteredSoundCards) { item ->
+                    SoundRecordingCard(
 
-        ApiResponseDialog(audioViewModel)
-//    }
+                        audioViewModel,
+                        soundCard = item.value,
+                        audioCapturesDirectory = audioCapturesDirectory,
+                        fileNameFontSize = fileNameFontSize,
+                        onClick = { onSongButtonClicked(item.value) },
+                        onPencilClicked = { newFileName ->
+                            audioViewModel.renameSoundCard(
+                                item.value,
+                                newFileName,
+                                soundCardList
+                            )
+                        },
+                        onDeleteClick = {
+                            audioViewModel.deleteSoundCard(item.value, soundCardList)
+                        },
+                        context = LocalContext.current
 
-
-
-
-
-
+                    )
+                }
+            }
+        }
+    }
+    ApiResponseDialog(audioViewModel)
 }
 
 
