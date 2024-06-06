@@ -296,7 +296,6 @@ fun EditRecordingScreen(
 
                                         }
                                     },
-
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.round_content_cut_24),
@@ -339,10 +338,10 @@ fun EditRecordingScreen(
                             EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
                         }
                         Box(
-                            modifier = Modifier.weight(1f),
-//                                .onGloballyPositioned { coordinates: LayoutCoordinates ->
-//                                    boxWidth = coordinates.size.width.toFloat()
-//                                },
+                            modifier = Modifier.weight(1f)
+                                .onGloballyPositioned { coordinates: LayoutCoordinates ->
+                                    boxWidth = coordinates.size.width.toFloat()
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             AudioWaveform(

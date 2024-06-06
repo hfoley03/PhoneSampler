@@ -170,8 +170,8 @@ fun PlaybackScreen(
                             AudioWaveform(
                                 amplitudes = amplitudesData,
                                 progress = waveformProgress,
-                                progressBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                                waveformBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                                progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                                waveformBrush = SolidColor(MaterialTheme.colorScheme.primary),
                                 onProgressChange = { newProgress ->
                                     waveformProgress = newProgress
                                     val newPosition =
@@ -381,7 +381,7 @@ fun PlaybackScreen(
                             amplitudes = amplitudesData,
                             progress = waveformProgress,
                             progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
-                            waveformBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
+                            waveformBrush = SolidColor(MaterialTheme.colorScheme.primary),
                             onProgressChange = { newProgress ->
                                 waveformProgress = newProgress
                                 val newPosition =
