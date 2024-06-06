@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import com.example.harryerayaudiorecorder.R
+import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.SoundCard
 import java.io.File
 
@@ -47,13 +48,38 @@ import java.io.File
 fun FsSoundCard(sound: FreesoundSoundCard,
                 fileNameFontSize:Int,
                 audioViewModel: AudioViewModel,
-                accessToken: String?,
                 audioCapturesDirectory: File,
                 downloadTrigger: Boolean,
-                setDownloadTrigger: (Boolean) -> Unit,
-                setShowOAuthWebView: (Boolean) -> Unit) {
+                setDownloadTrigger: (Boolean) -> Unit) {
     val context = LocalContext.current
     val isPlaying = audioViewModel.getPlayingState(sound.id)
+    var showOAuthWebView by remember { mutableStateOf(false) }
+    var accessToken by remember { mutableStateOf<String?>(null) }
+
+    if (showOAuthWebView) {
+        authenticate(
+            audioViewModel = audioViewModel,
+            setShowOAuthWebView = { showOAuthWebView = it },
+            context = context,
+            onAuthenticated = { token ->
+                accessToken = token
+                showOAuthWebView = false
+                if (token != null) {
+                    //download if authenticated
+                    audioViewModel.downloadSound(
+                        sound.id.toString(),
+                        accessToken!!,
+                        sound.name,
+                        audioCapturesDirectory,
+                        downloadTrigger,
+                        setDownloadTrigger,
+                        context
+                    )
+                }
+            }
+        )
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
         shape = RoundedCornerShape(16.dp),
@@ -93,11 +119,11 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                     }
                     IconButton(onClick = {
                         if (accessToken == null) {
-                            setShowOAuthWebView(true)
+                            showOAuthWebView = true
                         }else{
                             audioViewModel.downloadSound(
                                 sound.id.toString(),
-                                accessToken,
+                                accessToken!!,
                                 sound.name,
                                 audioCapturesDirectory,
                                 downloadTrigger,
@@ -149,11 +175,12 @@ fun SoundRecordingCard(
     onClick: () -> Unit,
     onPencilClicked: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    setShowOAuthWebView: (Boolean) -> Unit,
-    accessToken: String?,
     context: Context
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
+    var showUploadDialog by remember { mutableStateOf(false) }
+    var showOAuthWebView by remember { mutableStateOf(false) }
+    var accessToken by remember { mutableStateOf<String?>(null) }
 
     if (showEditFileNameDialog) {
         FileNameEditDialog(
@@ -166,16 +193,31 @@ fun SoundRecordingCard(
         ) { showEditFileNameDialog = false }
     }
 
-    if (audioViewModel.showUploadDialog.value) {
+    if (showOAuthWebView) {
+        authenticate(
+            audioViewModel = audioViewModel,
+            setShowOAuthWebView = { showOAuthWebView = it },
+            context = context,
+            onAuthenticated = { token ->
+                accessToken = token
+                showOAuthWebView = false
+                if (token != null) {
+                    showUploadDialog = true
+                }
+            }
+        )
+    }
+
+    if (showUploadDialog) {
         UploadSoundDialog(
-            onDismiss = { audioViewModel.hideUploadDialog() },
+            onDismiss = { showUploadDialog = false },
             onConfirm = { tags, description, license, pack, geotag ->
                 if (accessToken != null) {
                     Log.d("filename", audioCapturesDirectory.absolutePath + "/" + soundCard.fileName)
-                    Log.d("accessToken", accessToken)
+//                    Log.d("accessToken", accessToken)
                     Log.d("License Info", "License: $license")
                     audioViewModel.uploadSound(
-                        accessToken,
+                        accessToken!!,
                         File(audioCapturesDirectory.absolutePath + "/" + soundCard.fileName),
                         name = soundCard.fileName,
                         tags = tags,
@@ -232,9 +274,9 @@ fun SoundRecordingCard(
                     }
                     IconButton(onClick = {
                         if (accessToken == null) {
-                            setShowOAuthWebView(true)
+                            showOAuthWebView = true
                         } else {
-                            audioViewModel.showUploadDialog()
+                            showUploadDialog = true
                         }
                     }) {
                         Icon(Icons.Default.AddCircle,
