@@ -432,8 +432,10 @@ open class AudioViewModel(
     fun downloadSound(soundId: String, accessToken: String, fileName:String, audioCapturesDirectory: File, downloadTrigger:Boolean ,setDownloadTrigger: (Boolean) -> Unit,context: Context) {
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         val call = freesoundService.downloadSound(soundId, "Bearer $accessToken")
+        _downloadStatusMessage.value = "Download Started: $fileName"
 
         call.enqueue(object : Callback<ResponseBody> {
+
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     // Handle the binary data of the sound file
