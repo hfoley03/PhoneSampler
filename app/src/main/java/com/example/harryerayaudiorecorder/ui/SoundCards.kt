@@ -54,7 +54,7 @@ fun FsSoundCard(sound: FreesoundSoundCard,
     val context = LocalContext.current
     val isPlaying = audioViewModel.getPlayingState(sound.id)
     var showOAuthWebView by remember { mutableStateOf(false) }
-    var accessToken by remember { mutableStateOf<String?>(null) }
+    var accessToken = audioViewModel.getAccessToken(context)
 
     if (showOAuthWebView) {
         authenticate(
@@ -62,7 +62,7 @@ fun FsSoundCard(sound: FreesoundSoundCard,
             setShowOAuthWebView = { showOAuthWebView = it },
             context = context,
             onAuthenticated = { token ->
-                accessToken = token
+                accessToken = audioViewModel.getAccessToken(context)
                 showOAuthWebView = false
                 if (token != null) {
                     //download if authenticated
@@ -180,7 +180,7 @@ fun SoundRecordingCard(
     var showEditFileNameDialog by remember { mutableStateOf(false) }
     var showUploadDialog by remember { mutableStateOf(false) }
     var showOAuthWebView by remember { mutableStateOf(false) }
-    var accessToken by remember { mutableStateOf<String?>(null) }
+    var accessToken = audioViewModel.getAccessToken(context)
 
     if (showEditFileNameDialog) {
         FileNameEditDialog(
@@ -199,7 +199,7 @@ fun SoundRecordingCard(
             setShowOAuthWebView = { showOAuthWebView = it },
             context = context,
             onAuthenticated = { token ->
-                accessToken = token
+                accessToken = audioViewModel.getAccessToken(context)
                 showOAuthWebView = false
                 if (token != null) {
                     showUploadDialog = true
