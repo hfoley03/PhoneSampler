@@ -62,6 +62,7 @@ import java.io.File
 fun RecordingsListScreen(
     audioViewModel: AudioViewModel,
     onSongButtonClicked: (SoundCard) -> Unit,
+    searchText: String,
     modifier: Modifier = Modifier
 )  {
     val context = LocalContext.current
@@ -73,7 +74,6 @@ fun RecordingsListScreen(
     }
 //    var showOAuthWebView by remember { mutableStateOf(false) }
     val accessToken = remember { mutableStateOf<String?>(null) }
-    val searchText = audioViewModel.searchText.value
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
     var fileOpacity by remember{mutableStateOf(0.75f)}
     var downloadTrigger by remember { mutableStateOf(false) }

@@ -5,12 +5,14 @@ import AudioViewModel
 import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -26,18 +28,23 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -49,6 +56,7 @@ import com.example.harryerayaudiorecorder.ui.PlaybackScreen
 import com.example.harryerayaudiorecorder.ui.RecordScreen
 import com.example.harryerayaudiorecorder.ui.RecordingsListScreen
 import com.example.harryerayaudiorecorder.ui.SamplerViewModel
+import kotlinx.coroutines.delay
 
 enum class PhoneSamplerScreen(@StringRes val title: Int) {
     Record(title = R.string.record),
@@ -116,7 +124,8 @@ fun PhoneSamplerApp(
         SamplerViewModel().isTablet() -> 32
         else -> 22
     }
-    var searchText by remember { mutableStateOf("") }
+    var searchText by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+
 
 
     Scaffold(
@@ -152,7 +161,7 @@ fun PhoneSamplerApp(
                                 value = searchText,
                                 onValueChange = {
                                     searchText = it
-                                    audioViewModel.updateSearchText(it)
+                                    audioViewModel.updateSearchText(it.text)
                                 },
                                 placeholder = { Text("Search Sounds") },
                                 singleLine = true,
@@ -208,7 +217,7 @@ fun PhoneSamplerApp(
                             viewModel.setSoundCard(it)
                             navController.navigate(PhoneSamplerScreen.Playback.name)
                         },
-
+                        searchText.text,
                         modifier = Modifier.fillMaxHeight()
                     )
                 }
@@ -233,8 +242,42 @@ fun PhoneSamplerApp(
                         windowSizeClass
                     )
                 }
-
             }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                        shape = RoundedCornerShape((fileNameFontSize / 2).dp)
+                    )
+
+            ) {
+                DownloadNotification(audioViewModel,fileNameFontSize)
+            }
+        }
+    }
+}
+
+
+@Composable
+fun DownloadNotification(viewModel: AudioViewModel,fileNameFontSize:Int) {
+    viewModel.downloadStatusMessage.value?.let { message ->
+        Text(
+            text = message,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(fileNameFontSize.dp),
+            color = Color.White,
+            textAlign = TextAlign.Center
+        )
+
+        // clear the message after 3 seconds
+        LaunchedEffect(message) {
+            delay(3000)
+            viewModel.clearDownloadStatusMessage()
         }
     }
 }

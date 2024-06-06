@@ -264,6 +264,9 @@ open class AudioViewModel(
     val searchText = mutableStateOf("")
     val timerRunning: MutableState<Boolean> = mutableStateOf(false)
     val showUploadDialog = mutableStateOf(false)
+    private val _downloadStatusMessage = mutableStateOf<String?>(null)
+    val downloadStatusMessage: State<String?> = _downloadStatusMessage
+
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -439,6 +442,7 @@ open class AudioViewModel(
 
                         //trigger the fetch db
                         setDownloadTrigger(!downloadTrigger)
+                        _downloadStatusMessage.value = "Download complete: $fileName"
                     }
                 } else {
 
@@ -698,12 +702,9 @@ open class AudioViewModel(
         }
     }
 
-    fun showUploadDialog() {
-        showUploadDialog.value = true
-    }
 
-    fun hideUploadDialog() {
-        showUploadDialog.value = false
+    fun clearDownloadStatusMessage() {
+        _downloadStatusMessage.value = null
     }
 
 }
