@@ -263,6 +263,7 @@ open class AudioViewModel(
     private val _playingStates = mutableMapOf<Int, MutableState<Boolean>>()
     val searchText = mutableStateOf("")
     val timerRunning: MutableState<Boolean> = mutableStateOf(false)
+    val showUploadDialog = mutableStateOf(false)
 
     // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
@@ -701,7 +702,12 @@ open class AudioViewModel(
         }
     }
 
+    fun showUploadDialog() {
+        showUploadDialog.value = true
+    }
 
-
+    fun hideUploadDialog() {
+        showUploadDialog.value = false
+    }
 
 }

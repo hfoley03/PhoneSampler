@@ -139,7 +139,7 @@ fun RecordingsListScreen(
                 onAuthenticated = { token ->
                     accessToken.value = token
                     showOAuthWebView = false
-                }
+                    audioViewModel.showUploadDialog()                }
             )
         } else {
 

@@ -154,7 +154,6 @@ fun SoundRecordingCard(
     context: Context
 ) {
     var showEditFileNameDialog by remember { mutableStateOf(false) }
-    var showUploadDialog by remember { mutableStateOf(false) }
 
     if (showEditFileNameDialog) {
         FileNameEditDialog(
@@ -167,9 +166,9 @@ fun SoundRecordingCard(
         ) { showEditFileNameDialog = false }
     }
 
-    if (showUploadDialog) {
+    if (audioViewModel.showUploadDialog.value) {
         UploadSoundDialog(
-            onDismiss = { showUploadDialog = false },
+            onDismiss = { audioViewModel.hideUploadDialog() },
             onConfirm = { tags, description, license, pack, geotag ->
                 if (accessToken != null) {
                     Log.d("filename", audioCapturesDirectory.absolutePath + "/" + soundCard.fileName)
@@ -235,7 +234,7 @@ fun SoundRecordingCard(
                         if (accessToken == null) {
                             setShowOAuthWebView(true)
                         } else {
-                            showUploadDialog = true
+                            audioViewModel.showUploadDialog()
                         }
                     }) {
                         Icon(Icons.Default.AddCircle,
