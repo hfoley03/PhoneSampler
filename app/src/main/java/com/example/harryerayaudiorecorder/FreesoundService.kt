@@ -37,7 +37,7 @@ interface FreesoundService {
     fun searchSounds(
         @Query("token") clientSecret: String,
         @Query("query") query: String,
-        @Query("filter") filter: String = "type:wav",
+        @Query("filter") filter: String = "type:wav AND duration:[* TO 7] AND samplerate:44100 AND channels:1",
         @Query("fields") fields: String = "id,name,tags,description,created,license,channels,filesize,bitrate,bitdepth,duration,samplerate,username,download,previews,avg_rating",
 
         ): Call<ResponseBody>
