@@ -44,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import com.example.harryerayaudiorecorder.R
 import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.SoundCard
+import com.example.harryerayaudiorecorder.shareAudioFile
 import java.io.File
 
 
@@ -287,6 +288,13 @@ fun SoundRecordingCard(
                                 onDeleteClick()
                             },
                             text = { Text("Delete") }
+                        )
+                        DropdownMenuItem(
+                            onClick = {
+                                showMenu = false
+                                shareAudioFile(context,  File(audioCapturesDirectory.absolutePath, soundCard.fileName))
+                            },
+                            text = { Text("Share") }
                         )
                         DropdownMenuItem(
                             onClick = {
