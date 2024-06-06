@@ -4,6 +4,8 @@ import AndroidMediaPlayerWrapper
 import AudioViewModel
 import android.Manifest
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.util.Log
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
         val intent = Intent(this, AudioRecordService::class.java)
         stopService(intent)
         audioViewModel.timerRunning.value = false
+        unlockScreenOrientation()
     }
 
     private val resultLauncher =
@@ -85,6 +88,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
             Log.d(TAG, "Media projection permission granted")
             audioViewModel.timerRunning.value = true
             AudioRecordService.start(this.applicationContext, it)
+            lockScreenOrientation()
         }
 
     fun requestAudioPermissions() {
@@ -96,5 +100,18 @@ class MainActivity : ComponentActivity(), RecorderControl {
                 RECORD_AUDIO_REQUEST_CODE
             )
         }
+    }
+
+    private fun lockScreenOrientation() {
+        val currentOrientation = resources.configuration.orientation
+        requestedOrientation = if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        }
+    }
+
+    private fun unlockScreenOrientation() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 }

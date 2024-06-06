@@ -40,9 +40,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.ApiResponseDialog
+import com.example.harryerayaudiorecorder.R
 import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +71,10 @@ fun RecordingsListScreen(
     var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
     var fileOpacity by rememberSaveable { mutableStateOf(0.75f) }
     var downloadTrigger by remember { mutableStateOf(false) }
+    val sortOptions = listOf("Name","Duration","Size", "Date")
+    var sortBy by rememberSaveable { mutableStateOf("Name") }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit,downloadTrigger) {
         soundCardList.clear()
@@ -106,11 +112,11 @@ fun RecordingsListScreen(
     }
 
     val filteredSoundCards = if (searchText.isBlank()) {
-        soundCardList
+        sortSoundCards(soundCardList, sortBy)
     } else {
-        soundCardList.filter {
+        sortSoundCards(soundCardList.filter {
             it.value.fileName.contains(searchText, ignoreCase = true)
-        }
+        }, sortBy)
     }
 
 
@@ -181,6 +187,37 @@ fun RecordingsListScreen(
                         fontSize = fileNameFontSize.sp,
                         modifier = Modifier.padding(fileNameFontSize.dp/2)
                     )
+                }
+            }
+            Box(
+                modifier = Modifier
+
+                    .weight(0.4f)
+                    .padding((fileNameFontSize / 2).dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape((fileNameFontSize/2).dp)
+                    ),
+                contentAlignment = Alignment.Center
+            )
+            {
+//
+                IconButton(onClick = { expanded = true }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.sort),
+                                contentDescription = "Dropdown")
+                        }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+
+                ) {
+                    sortOptions.forEach { option ->
+                        DropdownMenuItem(text = { Text(option) }, onClick = {
+                            sortBy = option
+                            expanded = false
+                        })
+                    }
                 }
             }
         }
@@ -368,3 +405,12 @@ fun UploadSoundDialog(
 }
 
 
+fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String): List<MutableState<SoundCard>> {
+    return when (sortBy) {
+        "Name" -> cards.sortedBy { it.value.fileName }
+        "Duration" -> cards.sortedBy { it.value.duration }
+        "Size" -> cards.sortedBy { it.value.fileSize }
+        "Date" -> cards.sortedBy { it.value.date }
+        else -> cards
+    }
+}

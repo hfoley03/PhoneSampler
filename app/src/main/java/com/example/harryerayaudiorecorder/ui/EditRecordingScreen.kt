@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,12 +77,16 @@ fun EditRecordingScreen(
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
     val audioFile = File(audioCapturesDirectory.absolutePath, fileName)
     val scope = rememberCoroutineScope()
-    var waveformProgress by remember { mutableStateOf(0F) }
+    var waveformProgress = rememberSaveable { mutableStateOf(0F) }
     var amplitudesData: List<Int> = listOf()
-    var currentPosition by remember { mutableStateOf(0) }
-    val startPosition = remember { mutableStateOf(0.0f) }
-    val endPosition = remember { mutableStateOf(1.0f) }
-    var sliderPosition by remember { mutableStateOf(0.0f..1.0f) }
+    var currentPosition = rememberSaveable { mutableStateOf(0) }
+    val startPosition = rememberSaveable{ mutableStateOf(0.0f) }
+    val endPosition = rememberSaveable { mutableStateOf(1.0f) }
+//    var sliderPosition by remember { mutableStateOf(0.0f..1.0f) }
+    val startSlider = rememberSaveable { mutableStateOf(1.0f) }
+    val endSlider = rememberSaveable { mutableStateOf(1.0f) }
+
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     val amplituda = Amplituda(context)
@@ -109,7 +114,7 @@ fun EditRecordingScreen(
     LaunchedEffect(isPlaying.value) {
         while (isPlaying.value) {
             val maxPosition = ((endPosition.value * durationSample)).toInt()
-            if(currentPosition >= maxPosition){
+            if(currentPosition.value >= maxPosition){
                 val newCurrent = startPosition.value * durationSample
                 audioViewModel.playAudio(
                     audioFile,
@@ -117,8 +122,8 @@ fun EditRecordingScreen(
                 )
             }
 
-            currentPosition = audioViewModel.getCurrentPosition()
-            waveformProgress = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
+            currentPosition.value = audioViewModel.getCurrentPosition()
+            waveformProgress.value = (audioViewModel.getCurrentPosition() / durationSample.toFloat())
             delay(20)
         }
     }
@@ -166,7 +171,7 @@ fun EditRecordingScreen(
                                     .fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
+                                EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition.value ))
                             }
                             Box(
                                 modifier = Modifier
@@ -179,11 +184,11 @@ fun EditRecordingScreen(
                             ) {
                                 AudioWaveform(
                                     amplitudes = amplitudesData,
-                                    progress = waveformProgress,
+                                    progress = waveformProgress.value ,
                                     progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
                                     waveformBrush = SolidColor(MaterialTheme.colorScheme.primary),
                                     onProgressChange = { newProgress ->
-                                        waveformProgress = newProgress
+                                        waveformProgress.value  = newProgress
                                         val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
                                         val minPosition = (startPosition.value * durationSample).toLong()
                                         val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
@@ -237,10 +242,12 @@ fun EditRecordingScreen(
                             ) {
                                 Text(text = "Set Trim Points", fontSize = textSize.value.sp)
                                 RangeSlider(
-                                    value = sliderPosition,
-                                    onValueChange = { range -> sliderPosition = range
-                                        startPosition.value = sliderPosition.start
-                                        endPosition.value = sliderPosition.endInclusive
+                                    value = startSlider.value ..endSlider.value ,
+                                    onValueChange = { range ->
+                                        startSlider.value  = range.start
+                                        endSlider .value = range.endInclusive
+                                        startPosition.value = startSlider.value
+                                        endPosition.value = endSlider .value
                                     },
                                     valueRange = 0.0f..1.0f,
                                     onValueChangeFinished = {
@@ -257,6 +264,7 @@ fun EditRecordingScreen(
                                         if (isPlaying.value) {
                                             audioViewModel.pauseAudio()
                                             isPlaying.value = false
+                                            context.unlockOrientation()
                                         } else {
                                             if (audioFile.exists()) {
 
@@ -275,6 +283,7 @@ fun EditRecordingScreen(
                                                     )
                                                 }
                                                 isPlaying.value = true
+                                                context.lockOrientation()
                                             }
                                         }
                                     }) {
@@ -335,10 +344,11 @@ fun EditRecordingScreen(
                             modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition))
+                            EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(currentPosition.value))
                         }
                         Box(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
                                 .onGloballyPositioned { coordinates: LayoutCoordinates ->
                                     boxWidth = coordinates.size.width.toFloat()
                                 },
@@ -346,11 +356,11 @@ fun EditRecordingScreen(
                         ) {
                             AudioWaveform(
                                 amplitudes = amplitudesData,
-                                progress = waveformProgress,
+                                progress = waveformProgress.value,
                                 progressBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
                                 waveformBrush = SolidColor(MaterialTheme.colorScheme.primary),
                                 onProgressChange = { newProgress ->
-                                    waveformProgress = newProgress
+                                    waveformProgress.value = newProgress
                                     val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
                                     val minPosition = (startPosition.value * durationSample).toLong()
                                     val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
@@ -406,12 +416,13 @@ fun EditRecordingScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(text = "Set Trim Points", modifier = Modifier.padding(8.dp), fontSize = textSize.value.sp)
-                        Log.d("slider", sliderPosition.toString())
                         RangeSlider(
-                            value = sliderPosition,
-                            onValueChange = { range -> sliderPosition = range
-                                startPosition.value = sliderPosition.start
-                                endPosition.value = sliderPosition.endInclusive
+                            value = startSlider.value ..endSlider.value ,
+                            onValueChange = { range ->
+                                startSlider.value  = range.start
+                                endSlider .value = range.endInclusive
+                                startPosition.value = startSlider.value
+                                endPosition.value = endSlider .value
                             },
                             valueRange = 0.0f..1.0f,
                             onValueChangeFinished = {
@@ -426,8 +437,8 @@ fun EditRecordingScreen(
                                     )
                                 }
                         )
-                        Log.d("slider", sliderPosition.toString())
-                        Log.d("slider", sliderPosition.start.toString())
+//                        Log.d("slider", sliderPosition.toString())
+//                        Log.d("slider", sliderPosition.start.toString())
                         Log.d("slider", startPosition.toString())
 
                         Row(
@@ -440,6 +451,7 @@ fun EditRecordingScreen(
                                 if (isPlaying.value) {
                                     audioViewModel.pauseAudio()
                                     isPlaying.value = false
+                                    context.unlockOrientation()
                                 } else {
                                     if (audioFile.exists()) {
 
@@ -461,6 +473,7 @@ fun EditRecordingScreen(
                                     } else { // file not found
                                         isPlaying.value = true
                                     }
+                                    context.lockOrientation()
                                 }
                             }) {
                                 Icon(

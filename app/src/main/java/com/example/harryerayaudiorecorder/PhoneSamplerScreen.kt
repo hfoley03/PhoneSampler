@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -165,6 +166,19 @@ fun PhoneSamplerApp(
                                 placeholder = { Text("Search Sounds") },
                                 singleLine = true,
                                 shape = RoundedCornerShape((fileNameFontSize / 2).dp),
+                                trailingIcon = {
+                                    if (searchText.text.isNotEmpty()) {
+                                        IconButton(onClick = {
+                                            searchText = TextFieldValue()
+                                            audioViewModel.updateSearchText("")
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Clear,
+                                                contentDescription = "Clear text"
+                                            )
+                                        }
+                                    }
+                                },
                                 modifier = Modifier
                                     .padding(start = (fileNameFontSize*2).dp, end = (fileNameFontSize).dp)
                                     .weight(1f)
