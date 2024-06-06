@@ -155,13 +155,19 @@ fun FsSoundCard(sound: FreesoundSoundCard,
             }
 
             Text(
-                text = "Duration: ${audioViewModel.formatDurationCantiSec((sound.duration*1000).toInt())} ",
+                text = "${audioViewModel.formatDurationCantiSec((sound.duration*1000).toInt())} ",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
 
             Text(
-                text = "File Size:  ${String.format("%.2f", sound.filesize / 1_000_000.0)} MB",
+                text = "${String.format("%.2f", sound.filesize / 1_000_000.0)} MB",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontSize = fileNameFontSize.sp
+            )
+
+            Text(
+                text = sound.created,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
