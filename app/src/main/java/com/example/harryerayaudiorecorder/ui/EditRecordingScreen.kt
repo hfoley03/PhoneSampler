@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.R
 import com.linc.audiowaveform.AudioWaveform
 import kotlinx.coroutines.delay
@@ -87,6 +88,7 @@ fun EditRecordingScreen(
     var boxWidth by remember { mutableStateOf(0f) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val (iconSize, textSize, lineHeight) = getIconAndTextSize(windowSizeClass = windowSizeClass, isLandscape = isLandscape)
 
     // process audio for waveform
     amplituda.processAudio(audioFile.path)[
@@ -99,6 +101,10 @@ fun EditRecordingScreen(
         }
     ]
 
+    val displayedTextLengthPortrait = when {
+        isTablet() -> 53
+        else -> 35
+    }
 
     LaunchedEffect(isPlaying.value) {
         while (isPlaying.value) {
@@ -118,7 +124,9 @@ fun EditRecordingScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent
+
     ) {
         if (isLandscape) {
             Box(
@@ -134,7 +142,7 @@ fun EditRecordingScreen(
                             .weight(3f)
                             .fillMaxHeight()
                             .padding(
-                            PaddingValues(
+                                PaddingValues(
                                     start = 16.dp,
                                     top = 8.dp,
                                     end = 8.dp,
@@ -148,7 +156,7 @@ fun EditRecordingScreen(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .padding(16.dp),
-                            verticalArrangement = Arrangement.Center,
+                            verticalArrangement = Arrangement.SpaceEvenly,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
 
@@ -217,20 +225,17 @@ fun EditRecordingScreen(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .padding(16.dp),
-                            verticalArrangement = Arrangement.Center,
+                            verticalArrangement = Arrangement.SpaceEvenly,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .padding(16.dp),
-                                verticalArrangement = Arrangement.Center,
+                                verticalArrangement = Arrangement.SpaceEvenly,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    text = "Set Trim Points",
-                                    //modifier = Modifier.padding(8.dp)
-                                )
+                                Text(text = "Set Trim Points", fontSize = textSize.value.sp)
                                 RangeSlider(
                                     value = sliderPosition,
                                     onValueChange = { range -> sliderPosition = range
@@ -276,7 +281,7 @@ fun EditRecordingScreen(
                                         Icon(
                                             painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
                                             tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(24.dp),
+                                            modifier = Modifier.size(iconSize),
                                             contentDescription = if (isPlaying.value) "Pause" else "Play",
                                         )
                                     }
@@ -292,7 +297,12 @@ fun EditRecordingScreen(
                                         }
                                     },
                                     ) {
-                                        Text("Trim")
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.round_content_cut_24),
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(iconSize),
+                                            contentDescription = "trim"
+                                        )
                                     }
                                 }
                             }
@@ -361,6 +371,26 @@ fun EditRecordingScreen(
 
                 Box(
                     modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(16.dp, 8.dp, 16.dp, 8.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ){
+
+                        val displayedFileName = if (fileName.length > displayedTextLengthPortrait) fileName.substring(0, displayedTextLengthPortrait) + "…" else fileName
+                        Text(text = displayedFileName,
+                            fontSize = textSize.value.sp,
+                            lineHeight = lineHeight.value.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = modifier.padding(16.dp)
+                        )
+
+                }
+
+                Box(
+                    modifier = Modifier
                         .weight(2f)
                         .fillMaxWidth()
                         .padding(16.dp, 8.dp, 16.dp, 8.dp)
@@ -375,7 +405,7 @@ fun EditRecordingScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "Set Trim Points", modifier = Modifier.padding(8.dp))
+                        Text(text = "Set Trim Points", modifier = Modifier.padding(8.dp), fontSize = textSize.value.sp)
                         Log.d("slider", sliderPosition.toString())
                         RangeSlider(
                             value = sliderPosition,
@@ -386,8 +416,8 @@ fun EditRecordingScreen(
                             valueRange = 0.0f..1.0f,
                             onValueChangeFinished = {
                             },
-                            modifier =  Modifier.
-                                testTag("doubleSlider")
+                            modifier = Modifier
+                                .testTag("doubleSlider")
                                 .semantics {
                                     progressBarRangeInfo = ProgressBarRangeInfo(
                                         current = (startPosition.value),
@@ -436,11 +466,10 @@ fun EditRecordingScreen(
                                 Icon(
                                     painter = painterResource(id = if (isPlaying.value) R.drawable.ic_pause2 else R.drawable.round_play_circle),
                                     tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.size(iconSize),
                                     contentDescription = if (isPlaying.value) "Pause" else "Play",
                                 )
                             }
-
                             Button(onClick = {
                                 val startMillis = (startPosition.value * durationSample).toInt()
                                 val endMillis = (endPosition.value * durationSample).toInt()
@@ -449,9 +478,14 @@ fun EditRecordingScreen(
                                         snackbarHostState.showSnackbar(trimmedFile.name)
                                     }
                                 }
-                            }) {
-                                Text("Trim")
-                            }
+                            },
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.round_content_cut_24),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(iconSize),
+                                    contentDescription = "trim"
+                                )                            }
                         }
                     }
                 }
