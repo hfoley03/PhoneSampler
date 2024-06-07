@@ -135,7 +135,8 @@ fun EditRecordingScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState)
+                       },
         containerColor = Color.Transparent
 
     ) {

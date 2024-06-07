@@ -5,6 +5,7 @@ import MockMediaPlayerWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -12,11 +13,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.action.ViewActions.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.harryerayaudiorecorder.data.MockAudioRepository
 import org.junit.Before
@@ -68,13 +67,10 @@ class EditRecordingScreenTest {
     }
 
     @Test
-    fun testTrimButton() {
-        composeTestRule.onNodeWithText("Trim").assertExists()
-//        composeTestRule.onNodeWithText("Start Position: 00:00:00").performTouchInput { swipeRight() }
-//
-//        composeTestRule.onNodeWithText("Trim").performClick()
-
-        // Verify the trim functionality
+    fun testTrimButtonAndSnackBarConfirmation() {
+        composeTestRule.onNodeWithContentDescription("trim").assertExists()
+        composeTestRule.onNodeWithContentDescription("trim").performClick()
+        composeTestRule.onNodeWithText("trimmed_trimmed_tomatoes.wav").assertIsDisplayed()
     }
 
     @Test
@@ -82,14 +78,10 @@ class EditRecordingScreenTest {
         val initRange = ProgressBarRangeInfo(0.0f, 0.0f..1.0f)
         composeTestRule.onNodeWithTag("doubleSlider").assertExists()
         composeTestRule.onNodeWithTag("doubleSlider").assertRangeInfoEquals(initRange)
-        composeTestRule.onNodeWithTag("doubleSlider").performTouchInput { swipeRight()  }
     }
     fun navigateToEditScreen(){
-        composeTestRule.onNodeWithContentDescription("Menu Icon")
-            .performClick()
+        composeTestRule.onNodeWithContentDescription("Menu Icon").performClick()
         composeTestRule.onAllNodesWithTag("SoundCard")[0].performClick()
-
-        val editText = composeTestRule.activity.getString(R.string.edit_recording)
-        composeTestRule.onNodeWithContentDescription(editText).performClick()
+        composeTestRule.onNodeWithContentDescription(composeTestRule.activity.getString(R.string.edit_recording)).performClick()
     }
 }

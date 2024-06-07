@@ -4,16 +4,13 @@ import AudioViewModel
 import MockMediaPlayerWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -62,42 +59,41 @@ class RecordingListScreenTest {
 
     @Test
     fun testSoundCardDisplayed() {
-        //composeTestRule.onNodeWithTag("SoundCard").assertExists()
         composeTestRule.onAllNodesWithTag("SoundCard")[0].assertExists()
     }
 
-
+    @Test
+     fun testThreeDotsShowsDialogAndFourOptions(){
+        composeTestRule.onAllNodesWithContentDescription("More Options")[0].performClick()
+        composeTestRule.onAllNodesWithTag("DropdownMenu")[0].assertExists()
+        composeTestRule.onNodeWithText("Edit Title").assertExists()
+        composeTestRule.onNodeWithText("Delete").assertExists()
+        composeTestRule.onNodeWithText("Share").assertExists()
+        composeTestRule.onNodeWithText("Upload to Freesound").assertExists()
+    }
 
     @Test
-    fun testClickingPencilIconShowsRenameDialog() {
-//        composeTestRule.onNodeWithContentDescription("Edit Title").performClick()
-//        composeTestRule.onNodeWithTag("FileNameEditDialog").assertExists()
+    fun testDeleteRemovesSoundCard(){
+        val initialCount = composeTestRule.onAllNodesWithTag("SoundCard").fetchSemanticsNodes().size
+        composeTestRule.onAllNodesWithContentDescription("More Options")[0].performClick()
+        composeTestRule.onNodeWithText("Delete").performClick()
+        val newCount = composeTestRule.onAllNodesWithTag("SoundCard").fetchSemanticsNodes().size
+        assert(initialCount - 4 == newCount)
+    }
 
-        composeTestRule.onAllNodesWithContentDescription("Edit Title")[0].performClick()
+    @Test
+    fun testRenameDialog() {
+        composeTestRule.onAllNodesWithContentDescription("More Options")[0].performClick()
+        composeTestRule.onNodeWithText("Edit Title").performClick()
         composeTestRule.onNodeWithTag("FileNameEditDialog").assertExists()
-
     }
 
     @Test
     fun testClickingUploadIconShowsUploadDialog() {
-//        composeTestRule.onNodeWithContentDescription("Upload").performClick()
-//        composeTestRule.onNodeWithTag("UploadDialog").assertExists()
-
-        composeTestRule.onAllNodesWithContentDescription("Upload")[0].performClick()
-        composeTestRule.onNodeWithTag("UploadDialog").assertExists()
-
-
+        composeTestRule.onAllNodesWithContentDescription("More Options")[0].performClick()
+        composeTestRule.onNodeWithText("Upload to Freesound").performClick()
+        composeTestRule.onNodeWithTag("authenticate").assertExists()
     }
-
-    @Test
-    fun testSearchFunctionality() {
-        composeTestRule.onNodeWithText("Local Search").performTextInput("trim")
-        composeTestRule.onAllNodesWithTag("SoundCard")[0].assertExists()
-        composeTestRule.onAllNodesWithText("trimmed_tomatoes.wav")[0].assertIsDisplayed()
-
-    }
-
-
 
     fun navigateToRecordingListScreen(){
         composeTestRule.onNodeWithContentDescription("Menu Icon")

@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import retrofit2.Call
 import retrofit2.Callback
@@ -23,7 +24,7 @@ fun OAuthWebViewScreen(
     clientId: String,
     redirectUri: String,
     scope: String,
-    onCodeReceived: (String) -> Unit
+    onCodeReceived: (String) -> Unit,
 ) {
     val authUrl = "https://freesound.org/apiv2/oauth2/authorize/?client_id=$clientId&response_type=code&redirect_uri=$redirectUri&scope=$scope"
 
@@ -53,7 +54,8 @@ fun authenticate(
     audioViewModel: AudioViewModel,
     setShowOAuthWebView: (Boolean) -> Unit,
     context: Context,
-    onAuthenticated: (String) -> Unit // This is the lambda callback
+    onAuthenticated: (String) -> Unit, // This is the lambda callback,
+    modifier: Modifier
 ) {
     val tokenState = remember { mutableStateOf<String?>(null) }
 

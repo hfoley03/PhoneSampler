@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
@@ -27,22 +24,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.harryerayaudiorecorder.R
 import com.example.harryerayaudiorecorder.authenticate
+import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import com.example.harryerayaudiorecorder.data.SoundCard
 import com.example.harryerayaudiorecorder.shareAudioFile
 import java.io.File
@@ -80,7 +76,8 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                         context
                     )
                 }
-            }
+            },
+            modifier = Modifier.testTag("authenticate")
         )
     }
 
@@ -215,7 +212,8 @@ fun SoundRecordingCard(
                 if (token != null) {
                     showUploadDialog = true
                 }
-            }
+            },
+            modifier = Modifier.testTag("authenticate")
         )
     }
 
@@ -248,11 +246,11 @@ fun SoundRecordingCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 8.dp, 16.dp, 8.dp)
-            .testTag("SoundCard") // Adding test tag here
+            .testTag("SoundCard")
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onLongPress = { }, // Handle long press
-                    onTap = { onClick() } // Handle single tap
+                    onLongPress = { },
+                    onTap = { onClick() }
                 )
             }
     ) {
@@ -272,15 +270,16 @@ fun SoundRecordingCard(
 
                     IconButton(onClick = { showMenu = !showMenu }) {
                         Icon(
-                            imageVector = Icons.Default.MoreVert, // This is the three dots vertical icon
+                            imageVector = Icons.Default.MoreVert, // three dots
                             contentDescription = "More Options",
                             modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                         )
                     }
                     DropdownMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
+                        onDismissRequest = { showMenu = false },
+                        modifier = Modifier.testTag("DropdownMenu")
+                        ) {
                         DropdownMenuItem(
                             onClick = {
                                 showMenu = false

@@ -277,12 +277,12 @@ class MockAudioRepository : AudioRepository {
     override fun trimAudio(file: File, startMillis: Int, endMillis: Int, onTrimmed: (File) -> Unit) {
         val outputTrimmedFile = File("trimmed_${file.name}")
         onTrimmed(outputTrimmedFile)
+        println(outputTrimmedFile.name)
+        println("outputfilename")
         saveTrimmed(outputTrimmedFile)
     }
 
-    override suspend fun getAllAudioRecords(): List<AudioRecordEntity> {
-        return mockData
-    }
+
 
     override fun saveTrimmed(file: File) {
         val dur = getAudioDuration(file)
@@ -293,6 +293,9 @@ class MockAudioRepository : AudioRepository {
         mockData.add(record)
     }
 
+    override suspend fun getAllAudioRecords(): List<AudioRecordEntity> {
+        return mockData
+    }
     override fun getLastCreatedFile(directory: File): File? {
         return directory.listFiles()?.sortedByDescending { it.lastModified() }?.firstOrNull()
     }
