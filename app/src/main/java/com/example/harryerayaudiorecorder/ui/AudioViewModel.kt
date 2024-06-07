@@ -1,4 +1,3 @@
-// Import necessary packages and libraries
 import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
@@ -36,7 +35,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-// Interface defining methods for MediaPlayer abstraction
 interface MediaPlayerWrapper {
     fun setDataSource(path: String)
     fun prepare()
@@ -334,26 +332,22 @@ open class AudioViewModel(
                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
     }
 
-    // Seek to a specific position in the audio
     fun seekTo(position: Long) {
         mediaPlayerWrapper.seekTo(position, MediaPlayer.SEEK_CLOSEST)
         _recorderRunning.value = true
     }
 
-    // Clear resources when the ViewModel is cleared
     override fun onCleared() {
         Log.d("AndroidMediaPlayerWrapper", "oncleared()")
         mediaPlayerWrapper.release()
     }
 
-    // Fast forward audio playback by a specified number of milliseconds
     fun fastForward(skipMillis: Int) {
         val newPosition = (getCurrentPosition() + skipMillis)
         seekTo(newPosition.toLong())
         _recorderRunning.value = true
     }
 
-    // Rewind audio playback by a specified number of milliseconds
     fun fastRewind(skipMillis: Int) {
         val newPosition = (getCurrentPosition() - skipMillis).coerceAtLeast(0)
         seekTo(newPosition.toLong())
@@ -363,14 +357,12 @@ open class AudioViewModel(
     fun setRecorderRunningBool(valu : Boolean){
         _recorderRunning.value = valu
     }
-    // Start recording audio
     fun startRecording() {
         recorderControl.startRecorder()
         _recorderRunning.value = true
         mediaPlayerWrapper.startBoolean(this)
     }
 
-    // Stop recording audio and set the default file name
     fun stopRecording(defaultFileName: String) {
         recorderControl.stopRecorder()
         _recorderRunning.value = false
@@ -408,13 +400,11 @@ open class AudioViewModel(
         audioRepository.trimAudio(file, startMillis, endMillis, onTrimmed)
     }
 
-    // Rename an audio file to a new name
     fun renameFile(newName: String) {
         audioRepository.renameFile(newName)
         _currentFileName.value = newName
     }
 
-    // Rename a file from a list of files
     fun renameFileFromList(oldName: String, newName: String) {
         audioRepository.renameFileFromList(oldName, newName)
     }

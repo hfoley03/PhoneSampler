@@ -92,7 +92,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:4.8.0")
     testImplementation("androidx.compose.ui:ui-test-junit4")
     testImplementation("androidx.test:core:1.5.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")  // Add this line
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 
     androidTestImplementation("org.mockito:mockito-core:4.0.0")
     androidTestImplementation("io.mockk:mockk-android:1.12.0")

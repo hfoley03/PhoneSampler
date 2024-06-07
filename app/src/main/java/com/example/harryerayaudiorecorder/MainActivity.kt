@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
             audioRepository = audioRepository
         )
 
-//        audioViewModel.syncFiles()
+        audioViewModel.syncFiles()
 
         setContent {
             AppTheme {

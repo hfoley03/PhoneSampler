@@ -50,8 +50,6 @@ import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -234,6 +232,8 @@ fun RecordingsListScreen(
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape((fileNameFontSize).dp)
 
                 ) {
                     sortOptions.forEach { option ->
@@ -242,7 +242,7 @@ fun RecordingsListScreen(
                             expanded = false
                         })
                     }
-                    Row (verticalAlignment = Alignment.CenterVertically){
+                    Row (verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center){
                         Box (modifier = Modifier
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = ascendingFloat),
@@ -253,7 +253,7 @@ fun RecordingsListScreen(
                             ascendingFloat=1.0f
                             }) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.sort_ascending),
+                                    painter = painterResource(id = R.drawable.upward_24),
                                     contentDescription = "Ascending"
                                 )
                             }
@@ -268,7 +268,7 @@ fun RecordingsListScreen(
                             IconButton(onClick = { expanded = true
                                 ascendingFloat=0.0f}) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.sort_descending),
+                                    painter = painterResource(id = R.drawable.downward_24),
                                     contentDescription = "Descending"
                                 )
                             }
@@ -378,7 +378,8 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
 @Composable
 fun UploadSoundDialog(
     onDismiss: () -> Unit,
-    onConfirm: (tags: String, description: String, license: String, pack: String, geotag: String) -> Unit
+    onConfirm: (tags: String, description: String, license: String, pack: String, geotag: String) -> Unit,
+    fileNameFontSize : Int
 ) {
     var tags by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -418,7 +419,9 @@ fun UploadSoundDialog(
                     )
                     DropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onDismissRequest = { expanded = false },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        shape = RoundedCornerShape((fileNameFontSize).dp)
                     ) {
                         licenseOptions.forEach { option ->
                             DropdownMenuItem(text = { Text(option) },onClick = {
