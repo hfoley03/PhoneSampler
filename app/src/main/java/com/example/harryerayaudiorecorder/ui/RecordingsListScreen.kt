@@ -50,6 +50,7 @@ import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,6 +120,13 @@ fun RecordingsListScreen(
             it.value.fileName.contains(searchText, ignoreCase = true)
         }, sortBy)
     }
+
+
+    filteredSoundCards.forEach { card ->
+        Log.d("SortSoundCard", card.value.date.substringAfterLast('/'))
+    }
+
+
 
 
 
@@ -422,7 +430,7 @@ fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String): List<M
             .lowercase(Locale.getDefault()) }
         "Duration" -> cards.sortedBy { it.value.duration }
         "Size" -> cards.sortedBy { it.value.fileSize }
-        "Date" -> cards.sortedBy { it.value.date }
+        "Date" -> cards.sortedBy {convertDateFormat(it.value.date)        }
         else -> cards
     }
 
@@ -436,4 +444,12 @@ fun sortFsSoundCards(cards: List<MutableState<FreesoundSoundCard>>, sortBy: Stri
         "Date" -> cards.sortedBy { it.value.created }
         else -> cards
     }
+}
+
+fun convertDateFormat(dateString: String): String {
+    val parts = dateString.split("-")  // Split the date string into [dd, MM, yyyy]
+    if (parts.size == 3) {
+        return "${parts[2]}-${parts[1]}-${parts[0]}"  // Rearrange to "yyyy-MM-dd"
+    }
+    return dateString  // Return the original string if it doesn't match expected format
 }
