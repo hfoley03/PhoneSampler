@@ -139,7 +139,8 @@ fun PhoneSamplerApp(
 
                 if (currentScreen == PhoneSamplerScreen.Playback) {
                     {
-                        IconButton(onClick = { navController.navigate(PhoneSamplerScreen.EditRecord.name) }) {
+                        IconButton(onClick = { navController.navigate(PhoneSamplerScreen.EditRecord.name) })
+                        {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = stringResource(R.string.edit_recording),
@@ -150,7 +151,7 @@ fun PhoneSamplerApp(
                 }
 
                 else if (currentScreen == PhoneSamplerScreen.RecordingsList){
-                    {
+                {
 
 
                         Row(
@@ -286,8 +287,6 @@ fun DownloadNotification(viewModel: AudioViewModel,fileNameFontSize:Int) {
             color = Color.White,
             textAlign = TextAlign.Center
         )
-
-        // clear the message after 3 seconds
         LaunchedEffect(message) {
             delay(3000)
             viewModel.clearDownloadStatusMessage()

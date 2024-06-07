@@ -306,17 +306,10 @@ fun PlaybackScreen(
                                         audioViewModel.pauseAudio()
                                         isPlaying = false
                                     } else {
-//                                        if (audioFile.exists()) {
-                                        if (true) {
-                                            val startPosition = currentPosition.toLong()
-
-                                            audioViewModel.playAudio(audioFile, startPosition)
-                                            audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                                            isPlaying = true
-
-                                        } else {
-                                            // file does not exist
-                                        }
+                                        val startPosition = currentPosition.toLong()
+                                        audioViewModel.playAudio(audioFile, startPosition)
+                                        audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                                        isPlaying = true
                                     }
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -483,7 +476,6 @@ fun PlaybackScreen(
 
                         Button(onClick = {
                             shareAudioFile(context, audioFile)
-
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.share),
@@ -493,7 +485,6 @@ fun PlaybackScreen(
                             )
                         }
                     }
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -519,25 +510,15 @@ fun PlaybackScreen(
                         Button(
                             onClick = {
                                 if (isPlaying) {
-
-
                                     audioViewModel.pauseAudio()
                                     isPlaying = false
                                     context.unlockOrientation()
-
                                 } else {
-                                    if (true) {
-
-                                        val startPosition = currentPosition.toLong()
-                                        audioViewModel.playAudio(audioFile, startPosition)
-                                        audioViewModel.setPlaybackSpeed(playbackSpeed.value)
-                                        isPlaying = true
-                                        context.lockOrientation()
-
-
-                                    } else {
-                                        // Handle the case where the file does not exist
-                                    }
+                                    val startPosition = currentPosition.toLong()
+                                    audioViewModel.playAudio(audioFile, startPosition)
+                                    audioViewModel.setPlaybackSpeed(playbackSpeed.value)
+                                    isPlaying = true
+                                    context.lockOrientation()
                                 }
                             },
                         ) {

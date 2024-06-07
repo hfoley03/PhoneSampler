@@ -196,15 +196,14 @@ fun RecordingsListScreen(
                     .padding((fileNameFontSize / 2).dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape((fileNameFontSize/2).dp)
+                        shape = RoundedCornerShape((fileNameFontSize).dp)
                     ),
                 contentAlignment = Alignment.Center
             )
             {
-//
                 IconButton(onClick = { expanded = true }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.sort),
+                                painter = painterResource(id = R.drawable.round_sort_24),
                                 contentDescription = "Dropdown")
                         }
                 DropdownMenu(

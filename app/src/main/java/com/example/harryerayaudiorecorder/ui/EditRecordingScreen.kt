@@ -84,7 +84,7 @@ fun EditRecordingScreen(
     val startPosition = rememberSaveable{ mutableStateOf(0.0f) }
     val endPosition = rememberSaveable { mutableStateOf(1.0f) }
 //    var sliderPosition by remember { mutableStateOf(0.0f..1.0f) }
-    val startSlider = rememberSaveable { mutableStateOf(1.0f) }
+    val startSlider = rememberSaveable { mutableStateOf(0.0f) }
     val endSlider = rememberSaveable { mutableStateOf(1.0f) }
 
 
@@ -96,7 +96,6 @@ fun EditRecordingScreen(
     val coroutineScope = rememberCoroutineScope()
     val (iconSize, textSize, lineHeight) = getIconAndTextSize(windowSizeClass = windowSizeClass, isLandscape = isLandscape)
 
-    // process audio for waveform
     amplituda.processAudio(audioFile.path)[
         { result: AmplitudaResult<String?> ->
             amplitudesData = result.amplitudesAsList()
@@ -396,14 +395,13 @@ fun EditRecordingScreen(
                     contentAlignment = Alignment.Center
                 ){
 
-                        val displayedFileName = if (fileName.length > displayedTextLengthPortrait) fileName.substring(0, displayedTextLengthPortrait) + "…" else fileName
-                        Text(text = displayedFileName,
-                            fontSize = textSize.value.sp,
-                            lineHeight = lineHeight.value.sp,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = modifier.padding(16.dp)
-                        )
-
+                    val displayedFileName = if (fileName.length > displayedTextLengthPortrait) fileName.substring(0, displayedTextLengthPortrait) + "…" else fileName
+                    Text(text = displayedFileName,
+                        fontSize = textSize.value.sp,
+                        lineHeight = lineHeight.value.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = modifier.padding(16.dp)
+                    )
                 }
 
                 Box(
@@ -527,32 +525,18 @@ fun DrawVerticalLines(
 ) {
     Canvas(modifier = modifier) {
         val halfHeight = size.height / 2
-
         drawRoundRect(
             color = lineColor,
             topLeft = androidx.compose.ui.geometry.Offset(x = 0f, y = halfHeight / 2),
             size = androidx.compose.ui.geometry.Size(width = startPos.value * boxWidth, height = halfHeight),
             cornerRadius = CornerRadius(cornerRadius, cornerRadius)
         )
-
-//        drawLine(
-//            color = lineColor,
-//            start = androidx.compose.ui.geometry.Offset(x = startPos.value *  boxWidth, y = halfHeight / 2),
-//            end = androidx.compose.ui.geometry.Offset(x = startPos.value * boxWidth, y = halfHeight * 1.5f),
-//            strokeWidth = lineWidth
-//        )
         drawRoundRect(
             color = lineColor,
             topLeft = androidx.compose.ui.geometry.Offset(x = endPos.value * boxWidth, y = halfHeight/2),
             size = androidx.compose.ui.geometry.Size(width = (1 - endPos.value) * boxWidth, height = halfHeight),
             cornerRadius = CornerRadius(cornerRadius, cornerRadius)
         )
-//        drawLine(
-//            color = lineColor,
-//            start = androidx.compose.ui.geometry.Offset(x = endPos.value *  boxWidth, y = halfHeight / 2),
-//            end = androidx.compose.ui.geometry.Offset(x = endPos.value * boxWidth, y = halfHeight * 1.5f),
-//            strokeWidth = lineWidth
-//        )
     }
 }
 

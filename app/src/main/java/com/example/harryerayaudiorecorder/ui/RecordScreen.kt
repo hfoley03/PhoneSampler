@@ -84,15 +84,18 @@ fun RecordScreen(
         WindowWidthSizeClass.Expanded -> 96.dp
         else -> 84.dp
     }
+    val (iconSize_, textSize, lineHeight) = getIconAndTextSize(windowSizeClass = windowSizeClass, isLandscape = isLandscape)
 
     LayoutForOrientation(
         isLandscape,
         boxPadding,
         iconSize,
+        textSize,
         isRecording,
         audioViewModel,
         onListButtonClicked,
-        setShowBottomSheet = { showBottomSheet = it } // Passing the setter function
+        setShowBottomSheet = { showBottomSheet = it } // Passing the setter function,
+
     )
 
     if (showBottomSheet) {
@@ -105,6 +108,7 @@ fun LayoutForOrientation(
     isLandscape: Boolean,
     boxPadding: Dp,
     iconSize: Dp,
+    textSize: Dp,
     isRecording: Boolean,
     audioViewModel: AudioViewModel,
     onListButtonClicked: () -> Unit,
@@ -121,7 +125,7 @@ fun LayoutForOrientation(
                     .clip(RoundedCornerShape(boxPadding / 2))
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
             ) {
-                MyBezierCanvas(Modifier.fillMaxHeight(), isLandscape, timerRunning = audioViewModel.timerRunning.value, audioViewModel = audioViewModel)
+                MyBezierCanvas(Modifier.fillMaxHeight(), isLandscape, timerRunning = audioViewModel.timerRunning.value, audioViewModel = audioViewModel, textSize = textSize)
             }
 
             Box(
@@ -150,7 +154,7 @@ fun LayoutForOrientation(
                     .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                 contentAlignment = Alignment.Center
             ){
-                MyBezierCanvas(Modifier.fillMaxWidth(), isLandscape ,timerRunning = audioViewModel.timerRunning.value, audioViewModel = audioViewModel)
+                MyBezierCanvas(Modifier.fillMaxWidth(), isLandscape ,timerRunning = audioViewModel.timerRunning.value, audioViewModel = audioViewModel, textSize = textSize)
             }
             Box(
                 modifier = Modifier
@@ -201,26 +205,28 @@ fun ControlButtonsRow(
 
     ColumnOrRow(isLandscape = isLandscape) {
 
-
-        ScalableIconButton(
-                onClick = { },
-                modifier = Modifier.size(iconSize)
-                    .semantics { contentDescription = "Settings Icon" },
-                iconResId = R.drawable.ic_settings
-            )
+//
+//        ScalableIconButton(
+//                onClick = { },
+//                modifier = Modifier.size(iconSize)
+//                    .semantics { contentDescription = "Settings Icon" },
+//                iconResId = R.drawable.ic_settings
+//            )
 
 
         if (audioViewModel.timerRunning.value) {
             ScalableIconButton(
                 onClick = { audioViewModel.stopWithoutSavingRecording()},
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier
+                    .size(iconSize)
                     .semantics { contentDescription = "Delete Icon" },
                 iconResId = R.drawable.ic_delete
             )
         } else {
             ScalableIconButton(
                 onClick = { audioViewModel.startRecording() },
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier
+                    .size(iconSize)
                     .semantics { contentDescription = "Record Icon" },
                 iconResId = R.drawable.ic_record
             )
@@ -238,14 +244,16 @@ fun ControlButtonsRow(
                     audioViewModel.stopRecording(defaultFileName)
                     setShowBottomSheet(true)
                 },
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier
+                    .size(iconSize)
                     .semantics { contentDescription = "Stop Icon" },
                 iconResId = R.drawable.ic_stop
             )
         } else {
             ScalableIconButton(
                 onClick = onListButtonClicked,
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier
+                    .size(iconSize)
                     .semantics { contentDescription = "Menu Icon" },
                 iconResId = R.drawable.ic_menu,
 
@@ -369,7 +377,8 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
                    isLandscape: Boolean,
                    lineColor: Color = MaterialTheme.colorScheme.onPrimary,
                    timerRunning: Boolean,
-                   audioViewModel: AudioViewModel
+                   audioViewModel: AudioViewModel,
+                   textSize : Dp
                    ) {
     // State to control the animation progress
     val infiniteTransition = rememberInfiniteTransition()
@@ -417,7 +426,7 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
             val halfWidth = canvasWidth / 2
             val d1 = if (isLandscape) canvasWidth / 5 else canvasHeight / 5
             val d2 = if (isLandscape) canvasWidth / 4 else canvasHeight / 2
-            val alphaFloat = 0.2f
+            val alphaFloat = 0.6f
 
 
             val p0 = if (isLandscape) Offset(halfWidth - d1, halfHeight) else Offset(
@@ -465,8 +474,8 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = msg, fontSize = 32.sp)
-            Text(text = audioViewModel.formatDurationCantiSec(elapsedTime), fontSize = 32.sp)
+            Text(text = msg, fontSize = textSize.value.sp)
+            EvenlySpacedText2(text = audioViewModel.formatDurationCantiSec(elapsedTime))
         }
     }
 }
