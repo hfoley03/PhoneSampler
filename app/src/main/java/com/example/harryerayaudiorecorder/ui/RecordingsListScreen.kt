@@ -50,6 +50,7 @@ import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -121,8 +122,8 @@ fun RecordingsListScreen(
 
 
 
-
     LaunchedEffect(searchText, fileOpacity) {
+        Log.d("RL screen search called","search called ")
         // this (.25f) is the web search mode
         if (fileOpacity == 0.25f && searchText.isNotEmpty()) {
             audioViewModel.performSearchWithCoroutines(
@@ -417,12 +418,14 @@ fun UploadSoundDialog(
 
 fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String): List<MutableState<SoundCard>> {
     return when (sortBy) {
-        "Name" -> cards.sortedBy { it.value.fileName }
+        "Name" -> cards.sortedBy { it.value.fileName.substringAfterLast('/')
+            .lowercase(Locale.getDefault()) }
         "Duration" -> cards.sortedBy { it.value.duration }
         "Size" -> cards.sortedBy { it.value.fileSize }
         "Date" -> cards.sortedBy { it.value.date }
         else -> cards
     }
+
 }
 
 fun sortFsSoundCards(cards: List<MutableState<FreesoundSoundCard>>, sortBy: String): List<MutableState<FreesoundSoundCard>> {
