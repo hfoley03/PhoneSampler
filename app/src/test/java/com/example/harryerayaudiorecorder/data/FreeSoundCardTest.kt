@@ -1,5 +1,6 @@
 package com.example.harryerayaudiorecorder.data
 
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -48,6 +49,51 @@ class FreeSoundCardTest {
             assertFalse(soundCard.isPlaying.value)
         }
 
+
+
+    @Test
+    fun testInequality() {
+        val tags = listOf("ambient", "nature")
+        val previews = mapOf("mp3" to "http://example.com/mp3", "ogg" to "http://example.com/ogg")
+        val soundCard1 = FreesoundSoundCard(
+            id = 12345,
+            name = "rain",
+            tags = tags,
+            description = "rain sound",
+            created = "2023-01-15",
+            license = "Creative Commons",
+            channels = 2,
+            filesize = 10485760, // 10 MB
+            bitrate = 182,
+            bitdepth = 16,
+            duration = 180.0f, // 3 minutes
+            sampleRate = 44100,
+            username = "soundCreator",
+            download = "http://example.com/download",
+            previews = previews,
+            avgRating = 4.5
+        )
+        val soundCard2 = FreesoundSoundCard(
+            id = 12345,
+            name = "rain",
+            tags = tags,
+            description = "rain sound",
+            created = "2023-01-15",
+            license = "Creative Commons",
+            channels = 2,
+            filesize = 10485760, // 10 MB
+            bitrate = 192,
+            bitdepth = 16,
+            duration = 180.0f, // 3 minutes
+            sampleRate = 44100,
+            username = "soundCreator",
+            download = "http://example.com/download",
+            previews = previews,
+            avgRating = 4.5
+        )
+        Assert.assertNotEquals(soundCard1, soundCard2)
+    }
+
     @Test
     fun freeSoundSoundCardEmptyandPreview() {
         val soundCard = FreesoundSoundCard(
@@ -95,5 +141,51 @@ class FreeSoundCardTest {
         assertFalse(soundCard.isPlaying.value)
         soundCard.isPlaying.value = true
         assertTrue(soundCard.isPlaying.value)
+    }
+
+    @Test
+    fun testCopy() {
+        val tags = listOf("ambient", "nature")
+        val previews = mapOf("mp3" to "http://example.com/mp3", "ogg" to "http://example.com/ogg")
+        val soundCardToCopy = FreesoundSoundCard(
+            id = 12345,
+            name = "rain",
+            tags = tags,
+            description = "rain sound",
+            created = "2023-01-15",
+            license = "Creative Commons",
+            channels = 2,
+            filesize = 10485760, // 10 MB
+            bitrate = 192,
+            bitdepth = 16,
+            duration = 180.0f, // 3 minutes
+            sampleRate = 44100,
+            username = "soundCreator",
+            download = "http://example.com/download",
+            previews = previews,
+            avgRating = 4.5
+        )
+        val soundCard = soundCardToCopy.copy(name = "notrain")
+
+
+        assertEquals(12345, soundCard.id)
+        assertEquals("notrain", soundCard.name)
+        assertEquals(tags, soundCard.tags)
+        assertEquals("rain sound", soundCard.description)
+        assertEquals("2023-01-15", soundCard.created)
+        assertEquals("Creative Commons", soundCard.license)
+        assertEquals(2, soundCard.channels)
+        assertEquals(10485760, soundCard.filesize)
+        assertEquals(192, soundCard.bitrate)
+        assertEquals(16, soundCard.bitdepth)
+        assertEquals(180.0f, soundCard.duration)
+        assertEquals(44100, soundCard.sampleRate)
+        assertEquals("soundCreator", soundCard.username)
+        assertEquals("http://example.com/download", soundCard.download)
+        assertEquals(previews, soundCard.previews)
+        assertEquals(4.5, soundCard.avgRating, 0.01)
+        assertFalse(soundCard.isPlaying.value)
+        Assert.assertNotEquals(soundCard.name, soundCardToCopy.name)
+
     }
 }
