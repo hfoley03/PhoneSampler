@@ -76,6 +76,7 @@ fun RecordingsListScreen(
     val sortOptions = listOf("Name","Duration","Size", "Date")
     var sortBy by rememberSaveable { mutableStateOf("Name") }
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var ascendingFloat by rememberSaveable { mutableStateOf(1f) }
 
 
     LaunchedEffect(Unit,downloadTrigger) {
@@ -114,11 +115,11 @@ fun RecordingsListScreen(
     }
 
     val filteredSoundCards = if (searchText.isBlank()) {
-        sortSoundCards(soundCardList, sortBy)
+        audioViewModel.sortSoundCards(soundCardList, sortBy, ascendingFloat)
     } else {
-        sortSoundCards(soundCardList.filter {
+        audioViewModel.sortSoundCards(soundCardList.filter {
             it.value.fileName.contains(searchText, ignoreCase = true)
-        }, sortBy)
+        }, sortBy, ascendingFloat)
     }
 
 
@@ -146,11 +147,15 @@ fun RecordingsListScreen(
     }
 
     val filteredFsSoundCards = if (searchText.isBlank()) {
-        sortFsSoundCards(fsSoundCards, sortBy)
+        audioViewModel.sortFsSoundCards(fsSoundCards, sortBy, ascendingFloat)
     } else {
-        sortFsSoundCards(fsSoundCards.filter {
+        audioViewModel.sortFsSoundCards(fsSoundCards.filter {
             it.value.name.contains(searchText, ignoreCase = true)
-        }, sortBy)
+        }, sortBy,ascendingFloat)
+    }
+
+    filteredFsSoundCards.forEach { card ->
+        Log.d("SortSoundCard", card.value.created.substringAfterLast('/'))
     }
 
     Column {
@@ -236,6 +241,38 @@ fun RecordingsListScreen(
                             sortBy = option
                             expanded = false
                         })
+                    }
+                    Row (verticalAlignment = Alignment.CenterVertically){
+                        Box (modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = ascendingFloat),
+                                shape = RoundedCornerShape((fileNameFontSize).dp),
+                            )
+                        ){
+                            IconButton(onClick = { expanded = true
+                            ascendingFloat=1.0f
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.sort_ascending),
+                                    contentDescription = "Ascending"
+                                )
+                            }
+                        }
+                        Box (modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - ascendingFloat),
+                                shape = RoundedCornerShape((fileNameFontSize).dp)
+                            )
+                        )
+                        {
+                            IconButton(onClick = { expanded = true
+                                ascendingFloat=0.0f}) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.sort_descending),
+                                    contentDescription = "Descending"
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -424,32 +461,4 @@ fun UploadSoundDialog(
 }
 
 
-fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String): List<MutableState<SoundCard>> {
-    return when (sortBy) {
-        "Name" -> cards.sortedBy { it.value.fileName.substringAfterLast('/')
-            .lowercase(Locale.getDefault()) }
-        "Duration" -> cards.sortedBy { it.value.duration }
-        "Size" -> cards.sortedBy { it.value.fileSize }
-        "Date" -> cards.sortedBy {convertDateFormat(it.value.date)        }
-        else -> cards
-    }
 
-}
-
-fun sortFsSoundCards(cards: List<MutableState<FreesoundSoundCard>>, sortBy: String): List<MutableState<FreesoundSoundCard>> {
-    return when (sortBy) {
-        "Name" -> cards.sortedBy { it.value.name }
-        "Duration" -> cards.sortedBy { it.value.duration }
-        "Size" -> cards.sortedBy { it.value.filesize }
-        "Date" -> cards.sortedBy { it.value.created }
-        else -> cards
-    }
-}
-
-fun convertDateFormat(dateString: String): String {
-    val parts = dateString.split("-")  // Split the date string into [dd, MM, yyyy]
-    if (parts.size == 3) {
-        return "${parts[2]}-${parts[1]}-${parts[0]}"  // Rearrange to "yyyy-MM-dd"
-    }
-    return dateString  // Return the original string if it doesn't match expected format
-}

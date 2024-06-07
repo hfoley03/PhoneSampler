@@ -30,8 +30,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 // Interface defining methods for MediaPlayer abstraction
@@ -329,6 +331,13 @@ open class AudioViewModel(
         val dateTime = LocalDateTime.parse(originalString, formatter)
         val targetFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         return dateTime.format(targetFormatter)
+    }
+    // used from dd-mm-yyyy to reverse
+    fun convertDateFormatYearFirst(dateStr: String): String {
+        val originalFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ITALIAN)
+        val newFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALIAN)
+        val date = originalFormat.parse(dateStr)
+        return newFormat.format(date ?: return "")
     }
 
     // Format  HH:mm:ss
@@ -746,5 +755,50 @@ open class AudioViewModel(
         val exists = audioRepository.doesFileExist(fileName)
         return exists
     }
+
+    fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String,sortDirection: Float): List<MutableState<SoundCard>> {
+        return when (sortBy) {
+            "Name" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.fileName.substringAfterLast('/').lowercase(Locale.getDefault()) }
+                else cards.sortedByDescending { it.value.fileName.substringAfterLast('/').lowercase(Locale.getDefault()) }
+            }
+            "Duration" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.duration }
+                else cards.sortedByDescending { it.value.duration }
+            }
+            "Size" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.fileSize }
+                else cards.sortedByDescending { it.value.fileSize }
+            }
+            "Date" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { convertDateFormatYearFirst(it.value.date) }
+                else cards.sortedByDescending { convertDateFormatYearFirst(it.value.date) }
+            }
+            else -> cards
+        }
+    }
+
+    fun sortFsSoundCards(cards: List<MutableState<FreesoundSoundCard>>, sortBy: String, sortDirection: Float): List<MutableState<FreesoundSoundCard>> {
+        return when (sortBy) {
+            "Name" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.name.substringAfterLast('/').lowercase(Locale.getDefault()) }
+                else cards.sortedByDescending { it.value.name.substringAfterLast('/').lowercase(Locale.getDefault()) }
+            }
+            "Duration" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.duration }
+                else cards.sortedByDescending { it.value.duration }
+            }
+            "Size" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.filesize }
+                else cards.sortedByDescending { it.value.filesize }
+            }
+            "Date" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.created }
+                else cards.sortedByDescending { it.value.created }
+            }
+            else -> cards
+        }
+    }
+
 
 }
