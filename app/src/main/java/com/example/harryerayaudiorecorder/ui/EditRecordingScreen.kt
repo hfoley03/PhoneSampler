@@ -257,7 +257,15 @@ fun EditRecordingScreen(
                                     },
                                     valueRange = 0.0f..1.0f,
                                     onValueChangeFinished = {
-
+                                        if(isPlaying.value) {
+                                            if (audioViewModel.getCurrentPosition() < startPosition.value * durationSample) {
+                                                val newCurrent = startPosition.value * durationSample
+                                                audioViewModel.playAudio(
+                                                    audioFile,
+                                                    newCurrent.toLong()
+                                                )
+                                            }
+                                        }
                                     },
                                 )
                                 Row(
@@ -431,6 +439,15 @@ fun EditRecordingScreen(
                             },
                             valueRange = 0.0f..1.0f,
                             onValueChangeFinished = {
+                                if(isPlaying.value) {
+                                    if (audioViewModel.getCurrentPosition() < startPosition.value * durationSample) {
+                                        val newCurrent = startPosition.value * durationSample
+                                        audioViewModel.playAudio(
+                                            audioFile,
+                                            newCurrent.toLong()
+                                        )
+                                    }
+                                }
                             },
                             modifier = Modifier
                                 .testTag("doubleSlider")
