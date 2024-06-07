@@ -83,11 +83,16 @@ class MainActivity : ComponentActivity(), RecorderControl {
     }
 
     private val resultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            Log.d(TAG, "Media projection permission granted")
-            audioViewModel.timerRunning.value = true
-            AudioRecordService.start(this.applicationContext, it)
-            lockScreenOrientation()
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                Log.d(TAG, "Media projection permission granted")
+                audioViewModel.timerRunning.value = true
+                AudioRecordService.start(this.applicationContext, result)
+                lockScreenOrientation()
+            } else {
+                Log.d(TAG, "Media projection permission denied")
+                audioViewModel.timerRunning.value = false
+            }
         }
 
     fun requestAudioPermissions() {
