@@ -40,7 +40,6 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
 
         if(hasRecordAudioPermission(context))
         {
-            //config the audioRecord
             val audioFormatSettings = AudioFormat.Builder().setEncoding(audioSettings.encoding).setSampleRate(audioSettings.sampleRate)
                 .setChannelMask(audioSettings.channelMask).build()    //NEED TO CHANGE TO STEREO MIGHT EFFECT WAV CONVERSION ASK ERAY
 
@@ -50,7 +49,6 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
                 .addMatchingUsage(audioSettings.usages[2])
                 .build()
 
-            //build audioRecord object
             audioRecord = AudioRecord.Builder().setAudioFormat(audioFormatSettings).setBufferSizeInBytes(audioSettings.bufferSize) //2*1024*1024
                 .setAudioPlaybackCaptureConfig(audioPlaybackCapConfig).build()
 

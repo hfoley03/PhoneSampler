@@ -96,11 +96,9 @@ class MockMediaPlayerWrapper : MediaPlayerWrapper {
 
 
 
-// Real implementation of MediaPlayer using Android's MediaPlayer
 class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
     private var mediaPlayer: MediaPlayer? = null
 
-    // Set the data source for the media player
     override fun setDataSource(path: String) {
         mediaPlayer?.reset()
         if (mediaPlayer == null) {
@@ -118,19 +116,16 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         Log.d("AndroidMediaPlayerWrapper", "setDataSource() - path: $path")
     }
 
-    // Prepare the media player for playback
     override fun prepare() {
         mediaPlayer?.prepare()
         Log.d("AndroidMediaPlayerWrapper", "prepare() - MediaPlayer prepared")
     }
 
-    // Start media playback
     override fun start() {
         mediaPlayer?.start()
         Log.d("AndroidMediaPlayerWrapper", "start() - MediaPlayer started")
     }
 
-    // Seek to a specific position in the media
     override fun seekTo(position: Long, mode: Int) {
         Log.d("AndroidMediaPlayerWrapper", "seekTo() - position: $position, mode: $mode")
         if (mediaPlayer != null) {
@@ -141,13 +136,11 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         }
     }
 
-    // Pause media playback
     override fun pause() {
         mediaPlayer?.pause()
         Log.d("AndroidMediaPlayerWrapper", "pause() - MediaPlayer paused")
     }
 
-    // Release the media player resources
     override fun release() {
         mediaPlayer?.let {
             it.release()
@@ -156,7 +149,6 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         }
     }
 
-    // Stop media playback and release resources
     override fun stop() {
         mediaPlayer?.stop()
         mediaPlayer?.release()
@@ -164,31 +156,24 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         Log.d("AndroidMediaPlayerWrapper", "stop() - MediaPlayer stopped and released")
     }
 
-    // Check if media is currently playing
     override fun isPlaying(): Boolean = mediaPlayer?.isPlaying ?: false
 
-    // Get the current position of the media playback
     override fun getCurrentPosition(): Int = mediaPlayer?.currentPosition ?: 0
 
-    // Get the duration of the media
     override fun getDuration(): Int = mediaPlayer?.duration ?: 0
 
-    // Reset the media player
     override fun reset() {
         mediaPlayer?.reset()
         Log.d("AndroidMediaPlayerWrapper", "reset() - MediaPlayer reset")
     }
 
-    // Check if the media player is initialized
     override fun isMediaPlayer(): Boolean = mediaPlayer != null
 
-    // Set the looping state for media playback
     override fun setLooping(state: Boolean) {
         mediaPlayer?.isLooping = state
         Log.d("looping", mediaPlayer?.isLooping.toString())
     }
 
-    // Set the playback speed for the media
     override fun setPlaybackSpeed(speed: Float) {
         mediaPlayer?.let {
             it.playbackParams = it.playbackParams.setSpeed(speed)
@@ -196,7 +181,6 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         }
     }
 
-    // Release resources when the ViewModel is cleared
     override fun onCleared() {
         mediaPlayer?.release()
         mediaPlayer = null
@@ -208,7 +192,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
             mediaPlayer = MediaPlayer()
             setupMediaPlayerListeners()
         } else {
-            mediaPlayer?.reset() // Reset the player to ensure it's in a clean state
+            mediaPlayer?.reset()
         }
 
         mediaPlayer?.apply {
@@ -427,14 +411,12 @@ open class AudioViewModel(
         return audioRepository.getAudioDuration(file)
     }
 
-    // Set the playback speed for audio
     fun setPlaybackSpeed(speed: Float) {
         if (mediaPlayerWrapper.isPlaying()) {
             mediaPlayerWrapper.setPlaybackSpeed(speed)
         }
     }
 
-    // Adjust the playback speed for audio
     fun adjustPlaybackSpeed(speed: Float) {
         mediaPlayerWrapper.setPlaybackSpeed(speed)
     }

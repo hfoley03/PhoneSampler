@@ -28,10 +28,6 @@ class AudioRecordService : Service() {
         fun start(context: Context, mediaProjectionActivityResult: ActivityResult) {
             activityResult = mediaProjectionActivityResult
             val intent = Intent(context, AudioRecordService::class.java)
-
-//                .apply{
-//                putExtra("FILE_NAME", fileName)
-//            }
             context.startForegroundService(intent)
         }
     }
@@ -51,8 +47,6 @@ class AudioRecordService : Service() {
         return null
     }
 
-    private val timestamp = SimpleDateFormat("dd-MM-yyyy-hh-mm-ss", Locale.ITALY).format(Date())
-    //private val fileNamePCM = "SystemAudio-$timestamp.pcm" //PCM file
     private lateinit var fileNamePCM: String
 
     private val fileOutputStream by lazy {
@@ -60,7 +54,6 @@ class AudioRecordService : Service() {
         if (!audioCapturesDirectory.exists()) {
             audioCapturesDirectory.mkdirs()
         }
-
         File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM)
         FileOutputStream(File(audioCapturesDirectory.absolutePath + "/" + fileNamePCM))
     }
