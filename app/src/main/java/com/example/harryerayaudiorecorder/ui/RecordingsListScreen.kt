@@ -187,10 +187,6 @@ fun RecordingsListScreen(
                 }
             }
 
-            // Spacer for visual separation
-//            Spacer(modifier = Modifier.width(fileNameFontSize.dp))
-
-            // Box for "Web" with text first and icon second
             Box(
                 modifier = Modifier
                     .clickable(onClick = {
@@ -277,7 +273,6 @@ fun RecordingsListScreen(
                 }
             }
         }
-        // means web button selected
         if (fileOpacity == 0.25f) {
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/4).dp)) {
                 items(filteredFsSoundCards) { item ->
@@ -378,14 +373,12 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
 @Composable
 fun UploadSoundDialog(
     onDismiss: () -> Unit,
-    onConfirm: (tags: String, description: String, license: String, pack: String, geotag: String) -> Unit,
+    onConfirm: (tags: String, description: String, license: String) -> Unit,
     fileNameFontSize : Int
 ) {
     var tags by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var license by remember { mutableStateOf("") }
-    var pack by remember { mutableStateOf("") }
-    var geotag by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val licenseOptions = listOf("Attribution", "Attribution NonCommercial", "Creative Commons 0")
     val isUploadEnabled = tags.split(" ").filter { it.isNotEmpty() }.size >= 3 && description.isNotEmpty() && license.isNotEmpty()
@@ -431,22 +424,12 @@ fun UploadSoundDialog(
                         }
                     }
                 }
-//                TextField(
-//                    value = pack,
-//                    onValueChange = { pack = it },
-//                    label = { Text("Pack (Optional)") }
-//                )
-//                TextField(
-//                    value = geotag,
-//                    onValueChange = { geotag = it },
-//                    label = { Text("Geotag (Optional)") }
-//                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    onConfirm(tags, description, license, pack, geotag)
+                    onConfirm(tags, description, license)
                     onDismiss()
                 },
                 enabled = isUploadEnabled

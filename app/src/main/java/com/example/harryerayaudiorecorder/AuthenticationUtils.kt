@@ -39,9 +39,9 @@ fun OAuthWebViewScreen(
                         if (code != null) {
                             onCodeReceived(code)
                         }
-                        return true // Intercept URL loading
+                        return true
                     }
-                    return false // Allow WebView to load other URLs
+                    return false
                 }
             }
             loadUrl(authUrl)
@@ -54,7 +54,7 @@ fun authenticate(
     audioViewModel: AudioViewModel,
     setShowOAuthWebView: (Boolean) -> Unit,
     context: Context,
-    onAuthenticated: (String) -> Unit, // This is the lambda callback,
+    onAuthenticated: (String) -> Unit,
     modifier: Modifier
 ) {
     val tokenState = remember { mutableStateOf<String?>(null) }
@@ -62,13 +62,13 @@ fun authenticate(
     OAuthWebViewScreen(
         clientId = "iwKIY7IGaujDQhiLWj8m",
         redirectUri = "http://freesound.org/home/app_permissions/permission_granted/",
-        scope = "read write", // Ensure you include the write scope
+        scope = "read write",
         onCodeReceived = { code ->
             Log.d("authcode", code)
 
             audioViewModel.exchangeCode(
                 clientId = "iwKIY7IGaujDQhiLWj8m",
-                clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy", // Ensure this is kept secure
+                clientSecret = "DFYwiCdqrNbhB9RFGiENSXURVlF30uGFrGcLMFWy",
                 code = code,
                 redirectUri = "http://freesound.org/home/app_permissions/permission_granted/",
                 callback = object : Callback<TokenResponse> {
@@ -120,4 +120,3 @@ fun ApiResponseDialog(audioViewModel: AudioViewModel) {
     }
 }
 
-//                tokenState.value?.let { audioViewModel.downloadSound("738484", it, context) }

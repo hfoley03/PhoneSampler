@@ -49,8 +49,6 @@ interface FreesoundService {
         @Part("tags") tags: RequestBody,
         @Part("description") description: RequestBody,
         @Part("license") license: RequestBody,
-//        @Part("pack") pack: RequestBody,
-//        @Part("geotag") geotag: RequestBody
     ): Call<ResponseBody>
 }
 

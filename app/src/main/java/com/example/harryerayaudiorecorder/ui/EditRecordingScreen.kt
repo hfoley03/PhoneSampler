@@ -199,7 +199,6 @@ fun EditRecordingScreen(
                                         val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
                                         val minPosition = (startPosition.value * durationSample).toLong()
                                         val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
-                                        //audioViewModel.seekTo(newPosition.coerceIn(minPosition, maxPosition))
                                         audioViewModel.playAudio(audioFile, newPosition.coerceIn(minPosition, maxPosition))
                                         Log.d(
                                             "playbackscreen",
@@ -379,7 +378,6 @@ fun EditRecordingScreen(
                                     val newPosition = (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
                                     val minPosition = (startPosition.value * durationSample).toLong()
                                     val maxPosition = ((endPosition.value * durationSample) - 10).toLong()
-                                    //audioViewModel.seekTo(newPosition.coerceIn(minPosition, maxPosition))
                                     audioViewModel.playAudio(audioFile, newPosition.coerceIn(minPosition, maxPosition))
                                     isPlaying.value = true
                                 }
@@ -460,8 +458,6 @@ fun EditRecordingScreen(
                                     )
                                 }
                         )
-//                        Log.d("slider", sliderPosition.toString())
-//                        Log.d("slider", sliderPosition.start.toString())
                         Log.d("slider", startPosition.toString())
 
                         Row(

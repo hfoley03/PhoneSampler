@@ -41,7 +41,7 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
         if(hasRecordAudioPermission(context))
         {
             val audioFormatSettings = AudioFormat.Builder().setEncoding(audioSettings.encoding).setSampleRate(audioSettings.sampleRate)
-                .setChannelMask(audioSettings.channelMask).build()    //NEED TO CHANGE TO STEREO MIGHT EFFECT WAV CONVERSION ASK ERAY
+                .setChannelMask(audioSettings.channelMask).build()
 
             val audioPlaybackCapConfig = AudioPlaybackCaptureConfiguration.Builder(mediaProjection)
                 .addMatchingUsage(audioSettings.usages[0])
@@ -77,9 +77,8 @@ class AudioRecordingTask(context: Context, mediaProjection: MediaProjection) : C
             while (taskRunning) {
                 try {
                     val tempByteArray = ByteArray(1024)
-                    audioRecord?.read(tempByteArray, 0, tempByteArray.size) //read from Audio into the byteArray
-                    fileOutputStream.write(tempByteArray)    //write the byteArray into the file
-//                    Log.d(TAG, "File Written")
+                    audioRecord?.read(tempByteArray, 0, tempByteArray.size)
+                    fileOutputStream.write(tempByteArray)
                 } catch (e: IOException){
                     Log.d(TAG, e.toString())
                 }

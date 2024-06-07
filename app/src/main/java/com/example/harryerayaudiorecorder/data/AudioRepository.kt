@@ -39,7 +39,6 @@ open class MyAudioRepository(
     val audioCapturesDirectory: File
 ) : AudioRepository {
     override fun save(name: String) {
-        //val file = File(audioCapturesDirectory, name)
         val file = getLastCreatedFile(audioCapturesDirectory)
 
         if(file != null){
@@ -59,7 +58,6 @@ open class MyAudioRepository(
 
 
     override fun saveFromFile(file:File) {
-        //val file = File(audioCapturesDirectory, name)
 
         if(file != null){
             Log.d("saving", file.absolutePath);
@@ -80,7 +78,7 @@ open class MyAudioRepository(
     override fun deleteSoundCard(soundCard: SoundCard, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         GlobalScope.launch(Dispatchers.IO) {
             val audioRecordEntity = db.audioRecordDoa().getAll()
-                .find { it.filename == soundCard.fileName } // Assuming filename is unique
+                .find { it.filename == soundCard.fileName }
             audioRecordEntity?.let {
                 db.audioRecordDoa().delete(it)
 
@@ -100,7 +98,7 @@ open class MyAudioRepository(
     override fun renameSoundCard(soundCard: SoundCard, newFileName: String, soundCardList: SnapshotStateList<MutableState<SoundCard>>) {
         GlobalScope.launch(Dispatchers.IO) {
             val audioRecordEntity = db.audioRecordDoa().getAll()
-                .find { it.filename == soundCard.fileName } // Assuming filename is unique
+                .find { it.filename == soundCard.fileName }
             audioRecordEntity?.let { entity ->
                 entity.filename = newFileName
                 db.audioRecordDoa().update(entity)
@@ -181,11 +179,6 @@ open class MyAudioRepository(
                 Log.d("AudioRecordRepository", "Found file: ${file.absolutePath}")
                 if (file.isFile && !dbFilePaths.contains(file.absolutePath)){
                     Log.d("AudioRepo", "found file not in db")
-//                    val dur = getAudioDuration(file)
-//                    val fSizeMB = file.length().toDouble() / (1024 * 1024)
-//                    val lastModDate = SimpleDateFormat("dd-MM-yyyy").format(Date(file.lastModified()))
-//                    val record = AudioRecordEntity(file.name, file.absolutePath, dur, fSizeMB, lastModDate)
-//                    db.audioRecordDoa().insert(record)
                 }
             }
         }
