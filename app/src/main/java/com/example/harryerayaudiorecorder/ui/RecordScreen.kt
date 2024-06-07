@@ -284,7 +284,7 @@ fun ScalableIconButton(
 
 @Composable
 fun BottomSheet(audioViewModel: AudioViewModel, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf(audioViewModel.currentFileName.value ?: "") }
+    var text by remember { mutableStateOf(audioViewModel.currentFileName.value?.dropLast(4) ?: "") }
     var showMaxLengthWarning by remember { mutableStateOf(false)}
 
     AlertDialog(
@@ -324,7 +324,7 @@ fun BottomSheet(audioViewModel: AudioViewModel, onDismiss: () -> Unit) {
                 onClick = {
                     if (!showMaxLengthWarning && text.isNotEmpty()) {
                         audioViewModel.currentFileName.value?.let { currentFileName ->
-                            audioViewModel.renameFile(text)
+                            audioViewModel.renameFile("$text.wav")
                         }
                         audioViewModel.currentFileName.value?.let { audioViewModel.save(it) }                    }
 
