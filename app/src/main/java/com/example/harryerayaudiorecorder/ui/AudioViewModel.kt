@@ -30,6 +30,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 // Interface defining methods for MediaPlayer abstraction
@@ -321,6 +323,14 @@ open class AudioViewModel(
         val centiseconds = (milliseconds / 10) % 100
         return String.format("%02d:%02d.%02d", minutes, seconds, centiseconds)
     }
+
+    fun reformatDateString(originalString: String): String {
+        val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        val dateTime = LocalDateTime.parse(originalString, formatter)
+        val targetFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        return dateTime.format(targetFormatter)
+    }
+
     // Format  HH:mm:ss
     fun formatDuration(millis: Long): String {
         return String.format("%02d:%02d:%02d",
@@ -730,6 +740,11 @@ open class AudioViewModel(
 
     fun clearDownloadStatusMessage() {
         _downloadStatusMessage.value = null
+    }
+
+    suspend fun doesFileExist(fileName: String): Boolean {
+        val exists = audioRepository.doesFileExist(fileName)
+        return exists
     }
 
 }

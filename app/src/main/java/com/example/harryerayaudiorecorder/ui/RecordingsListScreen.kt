@@ -70,7 +70,7 @@ fun RecordingsListScreen(
     val accessToken = remember { mutableStateOf<String?>(null) }
     var fsSoundCards = remember { mutableStateListOf<MutableState<FreesoundSoundCard>>() }
     var fileOpacity by rememberSaveable { mutableStateOf(0.75f) }
-    var downloadTrigger by remember { mutableStateOf(false) }
+    var downloadTrigger by rememberSaveable { mutableStateOf(false) }
     val sortOptions = listOf("Name","Duration","Size", "Date")
     var sortBy by rememberSaveable { mutableStateOf("Name") }
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -99,9 +99,9 @@ fun RecordingsListScreen(
         // Add a dummy sound card
         val dummySoundCard = SoundCard(
             duration = 20,
-            fileName = "trimmed_tomatoes.wav",
+            fileName = "Welcome!.wav",
             fileSize = 1.7,
-            date = "2024-01-01"
+            date = "01-01-2024"
         )
         withContext(Dispatchers.Main) {
             soundCardList.add(mutableStateOf(dummySoundCard))

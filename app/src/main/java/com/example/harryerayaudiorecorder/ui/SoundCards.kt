@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
@@ -24,10 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +45,8 @@ import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import com.example.harryerayaudiorecorder.data.SoundCard
 import com.example.harryerayaudiorecorder.shareAudioFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -57,6 +62,15 @@ fun FsSoundCard(
     val isPlaying = audioViewModel.getPlayingState(sound.value.id)
     var showOAuthWebView by remember { mutableStateOf(false) }
     var accessToken = audioViewModel.getAccessToken(context)
+    var ifFileExists by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit,downloadTrigger){
+        withContext(Dispatchers.IO) {
+            ifFileExists = audioViewModel.doesFileExist(sound.value.name)
+            Log.d("ifFileExists",ifFileExists.toString())
+        }
+    }
+    Log.d("ifFileExists", sound.value.name + ifFileExists.toString())
 
     if (showOAuthWebView) {
         authenticate(
@@ -121,26 +135,41 @@ fun FsSoundCard(
                         }
                     }
                     IconButton(onClick = {
-                        if (accessToken == null) {
-                            showOAuthWebView = true
-                        }else{
-                            audioViewModel.downloadSound(
-                                sound.value.id.toString(),
-                                accessToken!!,
-                                sound.value.name,
-                                audioCapturesDirectory,
-                                downloadTrigger,
-                                setDownloadTrigger,
-                                context
+                        if (!ifFileExists)
+                            {
+                            if (accessToken == null) {
+                                showOAuthWebView = true
+                            } else {
+                                audioViewModel.downloadSound(
+                                    sound.value.id.toString(),
+                                    accessToken!!,
+                                    sound.value.name,
+                                    audioCapturesDirectory,
+                                    downloadTrigger,
+                                    setDownloadTrigger,
+                                    context
+                                )
+                            }
+                        }
+
+                    },
+                    enabled = !ifFileExists
+                    ) {
+                        if (!ifFileExists) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.download_icon),
+                                contentDescription = "Download",
+                                modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
+                            )
+                        }
+                        else{
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Downloaded",
+                                modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                             )
                         }
 
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.download_icon),
-                            contentDescription = "Download",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
                     }
                     IconButton(onClick = { }) {
                         Icon(
@@ -166,7 +195,7 @@ fun FsSoundCard(
             )
 
             Text(
-                text = sound.value.created,
+                text = audioViewModel.reformatDateString(sound.value.created),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
