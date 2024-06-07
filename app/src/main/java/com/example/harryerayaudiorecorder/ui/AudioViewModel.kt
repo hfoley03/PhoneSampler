@@ -38,7 +38,6 @@ interface MediaPlayerWrapper {
     fun prepare()
     fun start()
     fun stop()
-
     fun release()
     fun isPlaying(): Boolean
     fun getCurrentPosition(): Int
@@ -53,6 +52,9 @@ interface MediaPlayerWrapper {
     fun setDataSourceFromUrl(url: String)
     fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener)
     fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener)
+
+    fun startBoolean(audioViewModel: AudioViewModel)
+    fun stopBoolean(audioViewModel: AudioViewModel)
 
 }
 
@@ -73,7 +75,6 @@ class MockMediaPlayerWrapper : MediaPlayerWrapper {
     override fun onCleared() {}
     override fun reset() {}
     override fun setDataSourceFromUrl(url: String) {
-        TODO("Not yet implemented")
     }
 
     override fun setOnCompletionListener(listener: MediaPlayer.OnCompletionListener) {
@@ -82,6 +83,14 @@ class MockMediaPlayerWrapper : MediaPlayerWrapper {
 
     override fun setOnPreparedListener(listener: MediaPlayer.OnPreparedListener) {
         TODO("Not yet implemented")
+    }
+
+    override fun startBoolean(audioViewModel: AudioViewModel){
+        audioViewModel.timerRunning.value = true
+    }
+
+    override fun stopBoolean(audioViewModel: AudioViewModel){
+        audioViewModel.timerRunning.value = false
     }
 }
 
@@ -244,11 +253,17 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         mediaPlayer?.setOnPreparedListener(listener)
     }
 
+    override fun startBoolean(audioViewModel: AudioViewModel) {
+        //do nothing
+    }
+
+    override fun stopBoolean(audioViewModel: AudioViewModel) {
+        //do nothing
+    }
 
 
 }
 
-// ViewModel managing audio playback and recording using the media player wrapper
 open class AudioViewModel(
     private val mediaPlayerWrapper: MediaPlayerWrapper,
     private val recorderControl: RecorderControl,
@@ -268,9 +283,8 @@ open class AudioViewModel(
     val downloadStatusMessage: State<String?> = _downloadStatusMessage
 
 
-    // Play an audio file from a specified position
     fun playAudio(file: File, startPosition: Long = 0) {
-        stopAudio() // Ensure the previous instance is stopped and released
+        stopAudio()
 
         mediaPlayerWrapper.setDataSource(file.absolutePath)
         try {
@@ -282,13 +296,11 @@ open class AudioViewModel(
         }
     }
 
-    // Pause audio playback
     fun pauseAudio(){
         mediaPlayerWrapper.pause()
         currentPosition = mediaPlayerWrapper.getCurrentPosition().toLong()
     }
 
-    // Stop audio playback
     fun stopAudio() {
         if (mediaPlayerWrapper.isPlaying()) {
             currentPosition = mediaPlayerWrapper.getCurrentPosition().toLong()
@@ -297,10 +309,8 @@ open class AudioViewModel(
         mediaPlayerWrapper.onCleared()
     }
 
-    // Get the current position of audio playback
     fun getCurrentPosition(): Int = mediaPlayerWrapper.getCurrentPosition()
 
-    // Set the looping state for audio playback
     fun setLooping(state: Boolean){
         mediaPlayerWrapper.setLooping(state)
     }
@@ -311,7 +321,7 @@ open class AudioViewModel(
         val centiseconds = (milliseconds / 10) % 100
         return String.format("%02d:%02d.%02d", minutes, seconds, centiseconds)
     }
-    // Format a duration in milliseconds to a string in HH:mm:ss format
+    // Format  HH:mm:ss
     fun formatDuration(millis: Long): String {
         return String.format("%02d:%02d:%02d",
             TimeUnit.MILLISECONDS.toHours(millis),
@@ -354,6 +364,7 @@ open class AudioViewModel(
     fun startRecording() {
         recorderControl.startRecorder()
         _recorderRunning.value = true
+        mediaPlayerWrapper.startBoolean(this)
     }
 
     // Stop recording audio and set the default file name
@@ -361,11 +372,13 @@ open class AudioViewModel(
         recorderControl.stopRecorder()
         _recorderRunning.value = false
         _currentFileName.value = "$defaultFileName.wav"
+        mediaPlayerWrapper.stopBoolean(this)
     }
 
     fun stopWithoutSavingRecording(){
         recorderControl.stopRecorder()
         _recorderRunning.value = false
+        mediaPlayerWrapper.stopBoolean(this)
     }
 
     fun setTemporaryFileName(tempFileName: String) {

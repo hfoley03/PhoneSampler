@@ -70,13 +70,10 @@ fun PlaybackScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-//    val isPlaying = remember { mutableStateOf(false) }
-//    val isRepeatOn = remember { mutableStateOf(false) }
     var isPlaying by rememberSaveable { mutableStateOf(false) }
     var isRepeatOn by rememberSaveable { mutableStateOf(false) }
     val audioCapturesDirectory = File(context.getExternalFilesDir(null), "/AudioCaptures")
     val audioFile = File(audioCapturesDirectory.absolutePath, fileName)
-//    val scope = rememberCoroutineScope()
     var waveformProgress by rememberSaveable { mutableStateOf(0F) }
     var amplitudesData: List<Int> = listOf()
     var currentPosition by rememberSaveable { mutableStateOf(0) }
@@ -386,7 +383,6 @@ fun PlaybackScreen(
                                 waveformProgress = newProgress
                                 val newPosition =
                                     (newProgress * audioViewModel.getAudioDuration(audioFile)).toLong()
-//                                audioViewModel.seekTo(newPosition)
                                 audioViewModel.playAudio(audioFile, newPosition)
                                 audioViewModel.adjustPlaybackSpeed(playbackSpeed.value)
                                 isPlaying = true

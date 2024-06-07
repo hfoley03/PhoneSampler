@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="deploymentTargetDropDown">
+    <runningDeviceTargetSelectedWithDropDown>
+      <Target>
+        <type value="RUNNING_DEVICE_TARGET" />
+        <deviceKey>
+          <Key>
+            <type value="VIRTUAL_DEVICE_PATH" />
+            <value value="$USER_HOME$/.android/avd/Pixel_4a_API_34_2.avd" />
+          </Key>
+        </deviceKey>
+      </Target>
+    </runningDeviceTargetSelectedWithDropDown>
     <targetSelectedWithDropDown>
       <Target>
         <type value="BOOT_WITH_SNAPSHOT_TARGET" />
@@ -13,6 +24,6 @@
         <snapshotKey value="$USER_HOME$/.android/avd/Pixel_4a_API_34_2.avd/snapshots/snap_2024-06-06_11-58-52" />
       </Target>
     </targetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2024-06-06T20:18:26.534704Z" />
+    <timeTargetWasSelectedWithDropDown value="2024-06-07T08:48:17.067590Z" />
   </component>
 </project>

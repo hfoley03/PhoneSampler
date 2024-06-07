@@ -5,6 +5,7 @@ import MockMediaPlayerWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -74,6 +75,28 @@ class RecordScreenTest {
         composeTestRule.onNodeWithContentDescription("Stop Icon").performClick()
         composeTestRule.onNodeWithText("ready").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Menu Icon").assertIsDisplayed()
+    }
+
+    @Test
+    fun testExitDeleteRecording() {
+        composeTestRule.onNodeWithContentDescription("Record Icon").performClick()
+        composeTestRule.onNodeWithContentDescription("Delete Icon").performClick()
+        composeTestRule.onNodeWithText("ready").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Menu Icon").assertIsDisplayed()
+    }
+
+    @Test
+    fun testNamingDialogPopUp() {
+        composeTestRule.onNodeWithContentDescription("Record Icon").performClick()
+        composeTestRule.onNodeWithContentDescription("Stop Icon").performClick()
+        composeTestRule.onNodeWithText("File Name").assertIsDisplayed()
+    }
+
+    @Test
+    fun testNoNamingDialogPopUpForDeleteRecording() {
+        composeTestRule.onNodeWithContentDescription("Record Icon").performClick()
+        composeTestRule.onNodeWithContentDescription("Delete Icon").performClick()
+        composeTestRule.onNodeWithText("File Name").assertIsNotDisplayed()
     }
 
 }

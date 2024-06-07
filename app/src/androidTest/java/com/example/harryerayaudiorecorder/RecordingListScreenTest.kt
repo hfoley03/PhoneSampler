@@ -91,40 +91,13 @@ class RecordingListScreenTest {
 
     @Test
     fun testSearchFunctionality() {
-        // Set the search text
         composeTestRule.onNodeWithText("Local Search").performTextInput("trim")
-
-        // Verify the search result
-//        composeTestRule.onNodeWithTag("SoundCard").assertExists()
-//        composeTestRule.onNodeWithText("trimmed_tomatoes.wav").assertIsDisplayed()
-
         composeTestRule.onAllNodesWithTag("SoundCard")[0].assertExists()
         composeTestRule.onAllNodesWithText("trimmed_tomatoes.wav")[0].assertIsDisplayed()
 
     }
 
-//    @Test
-//    fun testInitialUIState() {
-//        composeTestRule.onNodeWithText("ready").assertIsDisplayed()
-//        composeTestRule.onNodeWithContentDescription("Menu Icon").assertIsDisplayed()
-//        composeTestRule.onNodeWithContentDescription("Record Icon").assertIsDisplayed()
-//    }
-//
-//    @Test
-//    fun testStartRecording() {
-//        composeTestRule.onNodeWithContentDescription("Record Icon").performClick()
-//        composeTestRule.onNodeWithText("recording").assertIsDisplayed()
-//        composeTestRule.onNodeWithContentDescription("Stop Icon").assertIsDisplayed()
-//        composeTestRule.onNodeWithContentDescription("Delete Icon").assertIsDisplayed()
-//    }
-//
-//    @Test
-//    fun testStopRecording() {
-//        composeTestRule.onNodeWithContentDescription("Record Icon").performClick()
-//        composeTestRule.onNodeWithContentDescription("Stop Icon").performClick()
-//        composeTestRule.onNodeWithText("ready").assertIsDisplayed()
-//        composeTestRule.onNodeWithContentDescription("Menu Icon").assertIsDisplayed()
-//    }
+
 
     fun navigateToRecordingListScreen(){
         composeTestRule.onNodeWithContentDescription("Menu Icon")
