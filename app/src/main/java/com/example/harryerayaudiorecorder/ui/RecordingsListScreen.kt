@@ -68,7 +68,7 @@ fun RecordingsListScreen(
         else -> 16
     }
     val accessToken = remember { mutableStateOf<String?>(null) }
-    var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
+    var fsSoundCards = remember { mutableStateListOf<MutableState<FreesoundSoundCard>>() }
     var fileOpacity by rememberSaveable { mutableStateOf(0.75f) }
     var downloadTrigger by remember { mutableStateOf(false) }
     val sortOptions = listOf("Name","Duration","Size", "Date")
@@ -120,6 +120,8 @@ fun RecordingsListScreen(
     }
 
 
+
+
     LaunchedEffect(searchText, fileOpacity) {
         // this (.25f) is the web search mode
         if (fileOpacity == 0.25f && searchText.isNotEmpty()) {
@@ -133,6 +135,15 @@ fun RecordingsListScreen(
             )
         }
     }
+
+    val filteredFsSoundCards = if (searchText.isBlank()) {
+        sortFsSoundCards(fsSoundCards, sortBy)
+    } else {
+        sortFsSoundCards(fsSoundCards.filter {
+            it.value.name.contains(searchText, ignoreCase = true)
+        }, sortBy)
+    }
+
     Column {
         Row(
             modifier = Modifier
@@ -223,13 +234,13 @@ fun RecordingsListScreen(
         // means web button selected
         if (fileOpacity == 0.25f) {
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/4).dp)) {
-                items(fsSoundCards) { item ->
+                items(filteredFsSoundCards) { item ->
                     FsSoundCard(item,
                         fileNameFontSize,
                         audioViewModel,
                         audioCapturesDirectory,
-                        downloadTrigger = downloadTrigger,
-                        setDownloadTrigger = {downloadTrigger = it})
+                        downloadTrigger = downloadTrigger
+                    ) { downloadTrigger = it }
                 }
             }
         }
@@ -410,6 +421,16 @@ fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String): List<M
         "Duration" -> cards.sortedBy { it.value.duration }
         "Size" -> cards.sortedBy { it.value.fileSize }
         "Date" -> cards.sortedBy { it.value.date }
+        else -> cards
+    }
+}
+
+fun sortFsSoundCards(cards: List<MutableState<FreesoundSoundCard>>, sortBy: String): List<MutableState<FreesoundSoundCard>> {
+    return when (sortBy) {
+        "Name" -> cards.sortedBy { it.value.name }
+        "Duration" -> cards.sortedBy { it.value.duration }
+        "Size" -> cards.sortedBy { it.value.filesize }
+        "Date" -> cards.sortedBy { it.value.created }
         else -> cards
     }
 }

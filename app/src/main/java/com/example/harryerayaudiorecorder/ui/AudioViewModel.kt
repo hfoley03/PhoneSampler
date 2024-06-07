@@ -614,7 +614,7 @@ open class AudioViewModel(
     }
 
 
-    fun performSearch(clientSecret: String, query: String, setFreesoundSoundCards: (MutableList<FreesoundSoundCard>) -> Unit) {
+    fun performSearch(clientSecret: String, query: String, setFreesoundSoundCards: (Collection<MutableState<FreesoundSoundCard>>) -> Unit) {
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         freesoundService.searchSounds(clientSecret = clientSecret, query = query).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -628,8 +628,12 @@ open class AudioViewModel(
                             type
                         )
                         val soundCards: MutableList<FreesoundSoundCard> = searchResponse.results.toMutableList()
+
+                        val mutableStateCollection: Collection<MutableState<FreesoundSoundCard>> = soundCards.map {
+                            mutableStateOf(it)
+                        }
 //                        Log.d("soundCards", soundCards.toString())
-                        setFreesoundSoundCards(soundCards)
+                        setFreesoundSoundCards(mutableStateCollection)
 //                        searchResponse.results.forEach {
 //                            Log.d(
 //                                "SearchResult",
@@ -703,7 +707,8 @@ open class AudioViewModel(
         searchText.value = newText
     }
 
-    fun performSearchWithCoroutines(clientSecret: String, searchText: String, updateUI: (MutableList<FreesoundSoundCard>) -> Unit) {
+    fun performSearchWithCoroutines(clientSecret: String, searchText: String, updateUI: (
+        Collection<MutableState<FreesoundSoundCard>>) -> Unit) {
         viewModelScope.launch {
             performSearch(
                 clientSecret = clientSecret,
