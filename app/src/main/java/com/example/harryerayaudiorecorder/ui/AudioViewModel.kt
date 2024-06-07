@@ -30,6 +30,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 // Interface defining methods for MediaPlayer abstraction
@@ -305,6 +309,21 @@ open class AudioViewModel(
         val centiseconds = (milliseconds / 10) % 100
         return String.format("%02d:%02d.%02d", minutes, seconds, centiseconds)
     }
+
+    fun reformatDateString(originalString: String): String {
+        val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        val dateTime = LocalDateTime.parse(originalString, formatter)
+        val targetFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+        return dateTime.format(targetFormatter)
+    }
+    // used from dd-mm-yyyy to reverse
+    fun convertDateFormatYearFirst(dateStr: String): String {
+        val originalFormat = SimpleDateFormat("dd-MM-yyyy", Locale.ITALIAN)
+        val newFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALIAN)
+        val date = originalFormat.parse(dateStr)
+        return newFormat.format(date ?: return "")
+    }
+
     // Format  HH:mm:ss
     fun formatDuration(millis: Long): String {
         return String.format("%02d:%02d:%02d",
@@ -596,7 +615,7 @@ open class AudioViewModel(
     }
 
 
-    fun performSearch(clientSecret: String, query: String, setFreesoundSoundCards: (MutableList<FreesoundSoundCard>) -> Unit) {
+    fun performSearch(clientSecret: String, query: String, setFreesoundSoundCards: (Collection<MutableState<FreesoundSoundCard>>) -> Unit) {
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         freesoundService.searchSounds(clientSecret = clientSecret, query = query).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -610,8 +629,12 @@ open class AudioViewModel(
                             type
                         )
                         val soundCards: MutableList<FreesoundSoundCard> = searchResponse.results.toMutableList()
+
+                        val mutableStateCollection: Collection<MutableState<FreesoundSoundCard>> = soundCards.map {
+                            mutableStateOf(it)
+                        }
 //                        Log.d("soundCards", soundCards.toString())
-                        setFreesoundSoundCards(soundCards)
+                        setFreesoundSoundCards(mutableStateCollection)
 //                        searchResponse.results.forEach {
 //                            Log.d(
 //                                "SearchResult",
@@ -685,7 +708,8 @@ open class AudioViewModel(
         searchText.value = newText
     }
 
-    fun performSearchWithCoroutines(clientSecret: String, searchText: String, updateUI: (MutableList<FreesoundSoundCard>) -> Unit) {
+    fun performSearchWithCoroutines(clientSecret: String, searchText: String, updateUI: (
+        Collection<MutableState<FreesoundSoundCard>>) -> Unit) {
         viewModelScope.launch {
             performSearch(
                 clientSecret = clientSecret,
@@ -708,5 +732,55 @@ open class AudioViewModel(
     fun clearDownloadStatusMessage() {
         _downloadStatusMessage.value = null
     }
+
+    suspend fun doesFileExist(fileName: String): Boolean {
+        val exists = audioRepository.doesFileExist(fileName)
+        return exists
+    }
+
+    fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String,sortDirection: Float): List<MutableState<SoundCard>> {
+        return when (sortBy) {
+            "Name" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.fileName.substringAfterLast('/').lowercase(Locale.getDefault()) }
+                else cards.sortedByDescending { it.value.fileName.substringAfterLast('/').lowercase(Locale.getDefault()) }
+            }
+            "Duration" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.duration }
+                else cards.sortedByDescending { it.value.duration }
+            }
+            "Size" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.fileSize }
+                else cards.sortedByDescending { it.value.fileSize }
+            }
+            "Date" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { convertDateFormatYearFirst(it.value.date) }
+                else cards.sortedByDescending { convertDateFormatYearFirst(it.value.date) }
+            }
+            else -> cards
+        }
+    }
+
+    fun sortFsSoundCards(cards: List<MutableState<FreesoundSoundCard>>, sortBy: String, sortDirection: Float): List<MutableState<FreesoundSoundCard>> {
+        return when (sortBy) {
+            "Name" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.name.substringAfterLast('/').lowercase(Locale.getDefault()) }
+                else cards.sortedByDescending { it.value.name.substringAfterLast('/').lowercase(Locale.getDefault()) }
+            }
+            "Duration" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.duration }
+                else cards.sortedByDescending { it.value.duration }
+            }
+            "Size" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.filesize }
+                else cards.sortedByDescending { it.value.filesize }
+            }
+            "Date" -> {
+                if (sortDirection == 1.0f) cards.sortedBy { it.value.created }
+                else cards.sortedByDescending { it.value.created }
+            }
+            else -> cards
+        }
+    }
+
 
 }

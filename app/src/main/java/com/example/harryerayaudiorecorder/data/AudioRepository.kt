@@ -31,6 +31,7 @@ interface AudioRepository {
     fun deleteAllRecords()
 
     suspend fun syncFolderandDatabase()
+    suspend fun doesFileExist(fileName: String): Boolean
 }
 
 open class MyAudioRepository(
@@ -230,6 +231,11 @@ open class MyAudioRepository(
         retriever.release()
         return durationStr?.toIntOrNull() ?: 0
     }
+
+    override suspend fun doesFileExist(fileName: String): Boolean {
+        val adjustedFileName = if (fileName.endsWith(".wav")) fileName else "$fileName.wav"
+        return db.audioRecordDoa().doesAudioRecordExist(adjustedFileName)
+    }
 }
 
 class MockAudioRepository : AudioRepository {
@@ -332,6 +338,12 @@ class MockAudioRepository : AudioRepository {
     override fun getAudioDuration(file: File): Int {
         return 20
     }
+
+    override suspend fun doesFileExist(fileName: String): Boolean {
+        return true
+    }
+
+
 
 
 

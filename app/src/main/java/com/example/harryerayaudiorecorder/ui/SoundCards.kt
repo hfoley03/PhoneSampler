@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
@@ -24,9 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,20 +45,32 @@ import com.example.harryerayaudiorecorder.authenticate
 import com.example.harryerayaudiorecorder.data.FreesoundSoundCard
 import com.example.harryerayaudiorecorder.data.SoundCard
 import com.example.harryerayaudiorecorder.shareAudioFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
 @Composable
-fun FsSoundCard(sound: FreesoundSoundCard,
-                fileNameFontSize:Int,
-                audioViewModel: AudioViewModel,
-                audioCapturesDirectory: File,
-                downloadTrigger: Boolean,
-                setDownloadTrigger: (Boolean) -> Unit) {
+fun FsSoundCard(
+    sound: MutableState<FreesoundSoundCard>,
+    fileNameFontSize:Int,
+    audioViewModel: AudioViewModel,
+    audioCapturesDirectory: File,
+    downloadTrigger: Boolean,
+    setDownloadTrigger: (Boolean) -> Unit) {
     val context = LocalContext.current
-    val isPlaying = audioViewModel.getPlayingState(sound.id)
+    val isPlaying = audioViewModel.getPlayingState(sound.value.id)
     var showOAuthWebView by remember { mutableStateOf(false) }
     var accessToken = audioViewModel.getAccessToken(context)
+    var ifFileExists by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit,downloadTrigger){
+        withContext(Dispatchers.IO) {
+            ifFileExists = audioViewModel.doesFileExist(sound.value.name)
+            Log.d("ifFileExists",ifFileExists.toString())
+        }
+    }
+    Log.d("ifFileExists", sound.value.name + ifFileExists.toString())
 
     if (showOAuthWebView) {
         authenticate(
@@ -67,9 +83,9 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                 if (token != null) {
                     //download if authenticated
                     audioViewModel.downloadSound(
-                        sound.id.toString(),
+                        sound.value.id.toString(),
                         accessToken!!,
-                        sound.name,
+                        sound.value.name,
                         audioCapturesDirectory,
                         downloadTrigger,
                         setDownloadTrigger,
@@ -94,7 +110,7 @@ fun FsSoundCard(sound: FreesoundSoundCard,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = sound.name,
+                    text = sound.value.name,
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontSize = fileNameFontSize.sp,
@@ -104,7 +120,7 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                 Column {
 
                     IconButton(onClick = {
-                        audioViewModel.togglePlayPause(sound)
+                        audioViewModel.togglePlayPause(sound.value)
                     }) {
                         if (isPlaying.value) {
                             Icon(
@@ -119,52 +135,60 @@ fun FsSoundCard(sound: FreesoundSoundCard,
                         }
                     }
                     IconButton(onClick = {
-                        if (accessToken == null) {
-                            showOAuthWebView = true
-                        }else{
-                            audioViewModel.downloadSound(
-                                sound.id.toString(),
-                                accessToken!!,
-                                sound.name,
-                                audioCapturesDirectory,
-                                downloadTrigger,
-                                setDownloadTrigger,
-                                context
+                        if (!ifFileExists)
+                            {
+                            if (accessToken == null) {
+                                showOAuthWebView = true
+                            } else {
+                                audioViewModel.downloadSound(
+                                    sound.value.id.toString(),
+                                    accessToken!!,
+                                    sound.value.name,
+                                    audioCapturesDirectory,
+                                    downloadTrigger,
+                                    setDownloadTrigger,
+                                    context
+                                )
+                            }
+                        }
+
+                    },
+                    enabled = !ifFileExists
+                    ) {
+                        if (!ifFileExists) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.download_icon),
+                                contentDescription = "Download",
+                                modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
+                            )
+                        }
+                        else{
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Downloaded",
+                                modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
                             )
                         }
 
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.download_icon),
-                            contentDescription = "Download",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
-                    IconButton(onClick = { }) {
-                        Icon(
-                            Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Description",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
                     }
 
                 }
             }
 
             Text(
-                text = "${audioViewModel.formatDurationCantiSec((sound.duration*1000).toInt())} ",
+                text = "${audioViewModel.formatDurationCantiSec((sound.value.duration*1000).toInt())} ",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
 
             Text(
-                text = "${String.format("%.2f", sound.filesize / 1_000_000.0)} MB",
+                text = "${String.format("%.2f", sound.value.filesize / 1_000_000.0)} MB",
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )
 
             Text(
-                text = sound.created,
+                text = audioViewModel.reformatDateString(sound.value.created),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontSize = fileNameFontSize.sp
             )

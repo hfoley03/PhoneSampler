@@ -26,4 +26,7 @@ interface AudioRecordDoa {
 
     @Query("DELETE FROM audioRecords")
     fun deleteAll()
+
+    @Query("SELECT EXISTS(SELECT 1 FROM audioRecords WHERE filename = :fileName)")
+    suspend fun doesAudioRecordExist(fileName: String): Boolean
 }

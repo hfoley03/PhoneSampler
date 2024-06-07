@@ -50,6 +50,8 @@ import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -68,12 +70,13 @@ fun RecordingsListScreen(
         else -> 16
     }
     val accessToken = remember { mutableStateOf<String?>(null) }
-    var fsSoundCards = remember { mutableStateListOf<FreesoundSoundCard>() }
+    var fsSoundCards = remember { mutableStateListOf<MutableState<FreesoundSoundCard>>() }
     var fileOpacity by rememberSaveable { mutableStateOf(0.75f) }
-    var downloadTrigger by remember { mutableStateOf(false) }
+    var downloadTrigger by rememberSaveable { mutableStateOf(false) }
     val sortOptions = listOf("Name","Duration","Size", "Date")
     var sortBy by rememberSaveable { mutableStateOf("Name") }
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var ascendingFloat by rememberSaveable { mutableStateOf(1f) }
 
 
     LaunchedEffect(Unit,downloadTrigger) {
@@ -99,9 +102,9 @@ fun RecordingsListScreen(
         // Add a dummy sound card
         val dummySoundCard = SoundCard(
             duration = 20,
-            fileName = "trimmed_tomatoes.wav",
+            fileName = "Welcome!.wav",
             fileSize = 1.7,
-            date = "2024-01-01"
+            date = "01-01-2024"
         )
         withContext(Dispatchers.Main) {
             soundCardList.add(mutableStateOf(dummySoundCard))
@@ -112,15 +115,24 @@ fun RecordingsListScreen(
     }
 
     val filteredSoundCards = if (searchText.isBlank()) {
-        sortSoundCards(soundCardList, sortBy)
+        audioViewModel.sortSoundCards(soundCardList, sortBy, ascendingFloat)
     } else {
-        sortSoundCards(soundCardList.filter {
+        audioViewModel.sortSoundCards(soundCardList.filter {
             it.value.fileName.contains(searchText, ignoreCase = true)
-        }, sortBy)
+        }, sortBy, ascendingFloat)
     }
 
 
+    filteredSoundCards.forEach { card ->
+        Log.d("SortSoundCard", card.value.date.substringAfterLast('/'))
+    }
+
+
+
+
+
     LaunchedEffect(searchText, fileOpacity) {
+        Log.d("RL screen search called","search called ")
         // this (.25f) is the web search mode
         if (fileOpacity == 0.25f && searchText.isNotEmpty()) {
             audioViewModel.performSearchWithCoroutines(
@@ -133,6 +145,19 @@ fun RecordingsListScreen(
             )
         }
     }
+
+    val filteredFsSoundCards = if (searchText.isBlank()) {
+        audioViewModel.sortFsSoundCards(fsSoundCards, sortBy, ascendingFloat)
+    } else {
+        audioViewModel.sortFsSoundCards(fsSoundCards.filter {
+            it.value.name.contains(searchText, ignoreCase = true)
+        }, sortBy,ascendingFloat)
+    }
+
+    filteredFsSoundCards.forEach { card ->
+        Log.d("SortSoundCard", card.value.created.substringAfterLast('/'))
+    }
+
     Column {
         Row(
             modifier = Modifier
@@ -217,19 +242,51 @@ fun RecordingsListScreen(
                             expanded = false
                         })
                     }
+                    Row (verticalAlignment = Alignment.CenterVertically){
+                        Box (modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = ascendingFloat),
+                                shape = RoundedCornerShape((fileNameFontSize).dp),
+                            )
+                        ){
+                            IconButton(onClick = { expanded = true
+                            ascendingFloat=1.0f
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.sort_ascending),
+                                    contentDescription = "Ascending"
+                                )
+                            }
+                        }
+                        Box (modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 1.0f - ascendingFloat),
+                                shape = RoundedCornerShape((fileNameFontSize).dp)
+                            )
+                        )
+                        {
+                            IconButton(onClick = { expanded = true
+                                ascendingFloat=0.0f}) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.sort_descending),
+                                    contentDescription = "Descending"
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
         // means web button selected
         if (fileOpacity == 0.25f) {
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/4).dp)) {
-                items(fsSoundCards) { item ->
+                items(filteredFsSoundCards) { item ->
                     FsSoundCard(item,
                         fileNameFontSize,
                         audioViewModel,
                         audioCapturesDirectory,
-                        downloadTrigger = downloadTrigger,
-                        setDownloadTrigger = {downloadTrigger = it})
+                        downloadTrigger = downloadTrigger
+                    ) { downloadTrigger = it }
                 }
             }
         }
@@ -404,12 +461,4 @@ fun UploadSoundDialog(
 }
 
 
-fun sortSoundCards(cards: List<MutableState<SoundCard>>, sortBy: String): List<MutableState<SoundCard>> {
-    return when (sortBy) {
-        "Name" -> cards.sortedBy { it.value.fileName }
-        "Duration" -> cards.sortedBy { it.value.duration }
-        "Size" -> cards.sortedBy { it.value.fileSize }
-        "Date" -> cards.sortedBy { it.value.date }
-        else -> cards
-    }
-}
+
