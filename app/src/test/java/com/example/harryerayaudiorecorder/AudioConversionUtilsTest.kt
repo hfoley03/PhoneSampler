@@ -16,7 +16,6 @@ class AudioConversionUtilsTest {
     private lateinit var byteArrayInputStream: ByteArrayInputStream
     private lateinit var dataOutputStream: DataOutputStream
 
-    val testFile = File("/harryerayaudiorecorder/resources/SystemAudio-07-06-2024-12-44-31.pcm")
     val outFile = File("/harryerayaudiorecorder/resources/")
     @Mock
     private lateinit var mockInputStream: FileInputStream
@@ -42,6 +41,9 @@ class AudioConversionUtilsTest {
 
     @Test
     fun testRawToWave() {
+        //val testFile = File("/harryerayaudiorecorder/resources/SystemAudio-07-06-2024-12-44-31.pcm")
+        val testFile = File("/harryerayaudiorecorder/resources/rooster.mp3")
+
         AudioConversionUtils.rawToWave(testFile, outFile)
         verify(byteArrayOutputStream, atLeastOnce()).write(any(ByteArray::class.java), anyInt(), anyInt())
     }

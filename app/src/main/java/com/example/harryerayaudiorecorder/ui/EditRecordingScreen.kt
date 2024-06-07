@@ -208,7 +208,7 @@ fun EditRecordingScreen(
                                         isPlaying.value = true
                                     }
                                 )
-                                DrawVerticalLines(
+                                DrawTrimWalls(
                                     modifier = Modifier.fillMaxSize(),
                                     startPos = startPosition,
                                     endPos = endPosition,
@@ -384,7 +384,7 @@ fun EditRecordingScreen(
                                     isPlaying.value = true
                                 }
                             )
-                            DrawVerticalLines(
+                            DrawTrimWalls(
                                 modifier = Modifier.fillMaxSize(),
                                 startPos = startPosition,
                                 endPos = endPosition,
@@ -532,7 +532,7 @@ fun EditRecordingScreen(
 
 
 @Composable
-fun DrawVerticalLines(
+fun DrawTrimWalls(
     modifier: Modifier = Modifier,
     boxWidth: Float,
     startPos: MutableState<Float>,

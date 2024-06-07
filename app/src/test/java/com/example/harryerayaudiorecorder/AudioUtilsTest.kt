@@ -13,7 +13,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.OLDEST_SDK]) // Specify an SDK version that matches your testing needs
+@Config(sdk = [Config.OLDEST_SDK])
 class AudioUtilsTest {
 
     private lateinit var context: Context
@@ -23,18 +23,16 @@ class AudioUtilsTest {
         context = mockk(relaxed = true)
         mockkStatic(ContextCompat::class)
     }
-
     @Test
     fun hasRecordAudioPermissionEeturnsTrueWhenPermissionIsGranted() {
         every { ContextCompat.checkSelfPermission(any(), android.Manifest.permission.RECORD_AUDIO) } returns PackageManager.PERMISSION_GRANTED
         val result = AudioUtils.hasRecordAudioPermission(context)
-        assert(result) { "Expected to have record audio permission" }
+        assert(result) { "Expected permission" }
     }
-
     @Test
     fun hasRecordAudioPermissionEeturnsFalseeWhenPermissionIsNotGranted() {
         every { ContextCompat.checkSelfPermission(any(), android.Manifest.permission.RECORD_AUDIO) } returns PackageManager.PERMISSION_DENIED
         val result = AudioUtils.hasRecordAudioPermission(context)
-        assert(!result) { "Expected not to have record audio permission" }
+        assert(!result) { "Expected no permission" }
     }
 }
