@@ -527,20 +527,15 @@ open class AudioViewModel(
         call.enqueue(callback)
     }
 
-    fun uploadSound(accessToken: String, file: File, name: String, tags: String, description: String, license: String,
-                    pack: String, geotag: String) {
+    fun uploadSound(accessToken: String, file: File, name: String, tags: String, description: String, license: String) {
         val requestFile = file.asRequestBody("audio/wav".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("audiofile", file.name, requestFile)
         val license = license.toRequestBody("text/plain".toMediaTypeOrNull())
         val name = name.toRequestBody("text/plain".toMediaTypeOrNull())
         val description = description.toRequestBody("text/plain".toMediaTypeOrNull())
         val tags = tags.toRequestBody("text/plain".toMediaTypeOrNull())
-        val pack = pack.toRequestBody("text/plain".toMediaTypeOrNull())
-        val geotag = geotag.toRequestBody("text/plain".toMediaTypeOrNull())
 
 
-        Log.d("UploadSound", "Access Token: $accessToken")
-        Log.d("UploadSound", "File: ${file.absolutePath}")
 
         val freesoundService = ApiService.retrofit.create(FreesoundService::class.java)
         val call = freesoundService.uploadSound(
@@ -549,9 +544,7 @@ open class AudioViewModel(
             name = name,
             tags = tags,
             description = description,
-            license = license,
-//            pack = pack,
-//            geotag = geotag
+            license = license
         )
 
         call.enqueue(object : Callback<ResponseBody> {

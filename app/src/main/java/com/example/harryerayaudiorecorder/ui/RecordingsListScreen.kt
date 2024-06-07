@@ -50,8 +50,6 @@ import com.example.harryerayaudiorecorder.data.SoundCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -378,13 +376,11 @@ fun FileNameEditDialog(soundCard: SoundCard, onFileNameChange: (String) -> Unit,
 @Composable
 fun UploadSoundDialog(
     onDismiss: () -> Unit,
-    onConfirm: (tags: String, description: String, license: String, pack: String, geotag: String) -> Unit
+    onConfirm: (tags: String, description: String, license: String) -> Unit
 ) {
     var tags by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var license by remember { mutableStateOf("") }
-    var pack by remember { mutableStateOf("") }
-    var geotag by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     val licenseOptions = listOf("Attribution", "Attribution NonCommercial", "Creative Commons 0")
     val isUploadEnabled = tags.split(" ").filter { it.isNotEmpty() }.size >= 3 && description.isNotEmpty() && license.isNotEmpty()
@@ -443,7 +439,7 @@ fun UploadSoundDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onConfirm(tags, description, license, pack, geotag)
+                    onConfirm(tags, description, license)
                     onDismiss()
                 },
                 enabled = isUploadEnabled

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.DropdownMenu
@@ -244,7 +243,7 @@ fun SoundRecordingCard(
     if (showUploadDialog) {
         UploadSoundDialog(
             onDismiss = { showUploadDialog = false },
-            onConfirm = { tags, description, license, pack, geotag ->
+            onConfirm = { tags, description, license->
                 if (accessToken != null) {
                     Log.d("filename", audioCapturesDirectory.absolutePath + "/" + soundCard.fileName)
 //                    Log.d("accessToken", accessToken)
@@ -255,9 +254,7 @@ fun SoundRecordingCard(
                         name = soundCard.fileName,
                         tags = tags,
                         description = description,
-                        license = license,
-                        pack = pack,
-                        geotag = geotag
+                        license = license
                     )
                 }
             }
