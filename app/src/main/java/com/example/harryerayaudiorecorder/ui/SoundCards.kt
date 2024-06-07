@@ -171,13 +171,6 @@ fun FsSoundCard(
                         }
 
                     }
-                    IconButton(onClick = { }) {
-                        Icon(
-                            Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Description",
-                            modifier = Modifier.size((fileNameFontSize * 1.5).toInt().dp)
-                        )
-                    }
 
                 }
             }
