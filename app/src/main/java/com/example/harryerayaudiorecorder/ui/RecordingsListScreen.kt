@@ -187,10 +187,6 @@ fun RecordingsListScreen(
                 }
             }
 
-            // Spacer for visual separation
-//            Spacer(modifier = Modifier.width(fileNameFontSize.dp))
-
-            // Box for "Web" with text first and icon second
             Box(
                 modifier = Modifier
                     .clickable(onClick = {
@@ -275,7 +271,6 @@ fun RecordingsListScreen(
                 }
             }
         }
-        // means web button selected
         if (fileOpacity == 0.25f) {
             LazyColumn(modifier = Modifier.padding(top = (fileNameFontSize/4).dp)) {
                 items(filteredFsSoundCards) { item ->
@@ -424,16 +419,6 @@ fun UploadSoundDialog(
                         }
                     }
                 }
-//                TextField(
-//                    value = pack,
-//                    onValueChange = { pack = it },
-//                    label = { Text("Pack (Optional)") }
-//                )
-//                TextField(
-//                    value = geotag,
-//                    onValueChange = { geotag = it },
-//                    label = { Text("Geotag (Optional)") }
-//                )
             }
         },
         confirmButton = {

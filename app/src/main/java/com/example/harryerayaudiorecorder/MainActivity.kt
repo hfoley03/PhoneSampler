@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity(), RecorderControl {
             this,
             AudioRecordDatabase::class.java,
             "audioRecordsDatabase"
-        ).fallbackToDestructiveMigration() // Add this line
+        ).fallbackToDestructiveMigration()
             .build()
 
         val audioCapturesDirectory = File(this.getExternalFilesDir(null), "/AudioCaptures")
@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity(), RecorderControl {
             audioRepository = audioRepository
         )
 
-//        audioViewModel.syncFiles()
 
         setContent {
             AppTheme {

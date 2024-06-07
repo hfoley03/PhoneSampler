@@ -246,7 +246,6 @@ fun SoundRecordingCard(
             onConfirm = { tags, description, license->
                 if (accessToken != null) {
                     Log.d("filename", audioCapturesDirectory.absolutePath + "/" + soundCard.fileName)
-//                    Log.d("accessToken", accessToken)
                     Log.d("License Info", "License: $license")
                     audioViewModel.uploadSound(
                         accessToken!!,

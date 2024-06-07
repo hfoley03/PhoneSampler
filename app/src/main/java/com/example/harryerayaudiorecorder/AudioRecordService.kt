@@ -60,7 +60,6 @@ class AudioRecordService : Service() {
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
-        // Stop the task
         audioRecordingTask.cancel()
         fileOutputStream.close()
 
@@ -81,7 +80,6 @@ class AudioRecordService : Service() {
         val originalFilePath = audioCapturesDirectory.absolutePath + "/" + fileNameWAV
         val trimmedFilePath = audioCapturesDirectory.absolutePath + "/" + fileNameWAVTrimmed
 
-        //trim
         AudioRemoveSilence.trimSilenceFromAudio( originalFilePath, trimmedFilePath) { success ->
             if (success) {
                 Log.d(TAG, "audio trimmed")

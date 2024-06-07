@@ -94,7 +94,7 @@ fun RecordScreen(
         isRecording,
         audioViewModel,
         onListButtonClicked,
-        setShowBottomSheet = { showBottomSheet = it } // Passing the setter function,
+        setShowBottomSheet = { showBottomSheet = it } // Passing the setter fnc
 
     )
 
@@ -401,7 +401,6 @@ fun MyBezierCanvas(modifier: Modifier = Modifier,
         )
     )
 
-    // Timer state
     var elapsedTime by remember { mutableStateOf(0) }
 
     LaunchedEffect(timerRunning) {

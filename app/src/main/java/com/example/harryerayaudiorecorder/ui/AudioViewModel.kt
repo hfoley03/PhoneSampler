@@ -1,4 +1,3 @@
-// Import necessary packages and libraries
 import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
@@ -36,7 +35,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-// Interface defining methods for MediaPlayer abstraction
 interface MediaPlayerWrapper {
     fun setDataSource(path: String)
     fun prepare()
@@ -112,7 +110,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
                 }
                 setOnSeekCompleteListener {
                     Log.d("AndroidMediaPlayerWrapper", "Seek completed")
-                    start()  // Start playback after seek completes
+                    start()
                 }
             }
         }
@@ -133,7 +131,7 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
     override fun seekTo(position: Long, mode: Int) {
         Log.d("AndroidMediaPlayerWrapper", "seekTo() - position: $position, mode: $mode")
         if (mediaPlayer != null) {
-            mediaPlayer?.seekTo(position, mode) // Ensure position is converted to Int
+            mediaPlayer?.seekTo(position, mode)
             Log.d("AndroidMediaPlayerWrapper", "seekTo() - Seek operation called")
         } else {
             Log.e("AndroidMediaPlayerWrapper", "seekTo() - MediaPlayer is null")
@@ -201,9 +199,9 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
 
         mediaPlayer?.apply {
             setDataSource(url)
-            prepareAsync() // Use prepareAsync for network sources
+            prepareAsync()
             setOnPreparedListener {
-                it.start() // Start playback automatically once prepared
+                it.start()
             }
             setOnErrorListener { mp, what, extra ->
                 Log.e("MediaPlayer Error", "What: $what, Extra: $extra")
@@ -221,11 +219,10 @@ class AndroidMediaPlayerWrapper : MediaPlayerWrapper {
         mediaPlayer?.apply {
             setOnPreparedListener {
                 Log.d("AndroidMediaPlayerWrapper", "MediaPlayer prepared")
-                start() // Optionally start playback immediately upon preparing
+                start()
             }
             setOnCompletionListener {
                 Log.d("AndroidMediaPlayerScript", "Playback completed")
-                // Handle completion of playback
             }
             setOnErrorListener { _, what, extra ->
                 Log.e("AndroidMediaPlayer Error", "MediaPlayer error occurred: What $what, Extra $extra")
@@ -324,36 +321,22 @@ open class AudioViewModel(
         return newFormat.format(date ?: return "")
     }
 
-    // Format  HH:mm:ss
-    fun formatDuration(millis: Long): String {
-        return String.format("%02d:%02d:%02d",
-            TimeUnit.MILLISECONDS.toHours(millis),
-            TimeUnit.MILLISECONDS.toMinutes(millis) -
-                    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
-            TimeUnit.MILLISECONDS.toSeconds(millis) -
-                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))
-    }
-
-    // Seek to a specific position in the audio
     fun seekTo(position: Long) {
         mediaPlayerWrapper.seekTo(position, MediaPlayer.SEEK_CLOSEST)
         _recorderRunning.value = true
     }
 
-    // Clear resources when the ViewModel is cleared
     override fun onCleared() {
         Log.d("AndroidMediaPlayerWrapper", "oncleared()")
         mediaPlayerWrapper.release()
     }
 
-    // Fast forward audio playback by a specified number of milliseconds
     fun fastForward(skipMillis: Int) {
         val newPosition = (getCurrentPosition() + skipMillis)
         seekTo(newPosition.toLong())
         _recorderRunning.value = true
     }
 
-    // Rewind audio playback by a specified number of milliseconds
     fun fastRewind(skipMillis: Int) {
         val newPosition = (getCurrentPosition() - skipMillis).coerceAtLeast(0)
         seekTo(newPosition.toLong())
@@ -363,14 +346,12 @@ open class AudioViewModel(
     fun setRecorderRunningBool(valu : Boolean){
         _recorderRunning.value = valu
     }
-    // Start recording audio
     fun startRecording() {
         recorderControl.startRecorder()
         _recorderRunning.value = true
         mediaPlayerWrapper.startBoolean(this)
     }
 
-    // Stop recording audio and set the default file name
     fun stopRecording(defaultFileName: String) {
         recorderControl.stopRecorder()
         _recorderRunning.value = false
@@ -408,23 +389,15 @@ open class AudioViewModel(
         audioRepository.trimAudio(file, startMillis, endMillis, onTrimmed)
     }
 
-    // Rename an audio file to a new name
     fun renameFile(newName: String) {
         audioRepository.renameFile(newName)
         _currentFileName.value = newName
     }
 
-    // Rename a file from a list of files
     fun renameFileFromList(oldName: String, newName: String) {
         audioRepository.renameFileFromList(oldName, newName)
     }
 
-    // Get the duration of an audio file
-//    fun getAudioDuration(file: File): Int {
-//        mediaPlayerWrapper.setDataSource(file.absolutePath)
-//        mediaPlayerWrapper.prepare()
-//        return mediaPlayerWrapper.getDuration()
-//    }
 
     fun getAudioDuration(file: File): Int {
         return audioRepository.getAudioDuration(file)
@@ -452,12 +425,8 @@ open class AudioViewModel(
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
-                    // Handle the binary data of the sound file
                     response.body()?.let { responseBody ->
-                        // Save the file or process it as needed
                         saveSoundToFile(responseBody,fileName,audioCapturesDirectory,context)
-
-                        //trigger the fetch db
                         setDownloadTrigger(!downloadTrigger)
                         _downloadStatusMessage.value = "Download complete: $fileName"
                     }
@@ -558,7 +527,6 @@ open class AudioViewModel(
     }
 
 
-    // Function to get the authentication token
     fun getAccessToken(context: Context): String? {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val currentTime = System.currentTimeMillis()
@@ -572,7 +540,6 @@ open class AudioViewModel(
         }
     }
 
-    // Function to set the authentication token
     fun setAccessToken(context: Context, token: String) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val currentTime = System.currentTimeMillis()
@@ -584,7 +551,6 @@ open class AudioViewModel(
     }
 
 
-    // Function to clear the authentication token
     fun clearAccessToken(context: Context) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -598,7 +564,6 @@ open class AudioViewModel(
     private val _apiResponse = mutableStateOf<Pair<String, Boolean>?>(null)
     val apiResponse: State<Pair<String, Boolean>?> = _apiResponse
 
-    // Call this method to show an API response message
     fun showApiResponseMessage(message: String, isSuccess: Boolean) {
         _apiResponse.value = Pair(message, isSuccess)
     }
@@ -626,14 +591,7 @@ open class AudioViewModel(
                         val mutableStateCollection: Collection<MutableState<FreesoundSoundCard>> = soundCards.map {
                             mutableStateOf(it)
                         }
-//                        Log.d("soundCards", soundCards.toString())
                         setFreesoundSoundCards(mutableStateCollection)
-//                        searchResponse.results.forEach {
-//                            Log.d(
-//                                "SearchResult",
-//                                "Sound: ${it.name}, Tags: ${it.tags.joinToString()}, ID: ${it.id}"
-//                            )
-//                        }
                     }
                 }
             }
@@ -645,7 +603,6 @@ open class AudioViewModel(
     }
 
     fun playPreview(sound: FreesoundSoundCard) {
-        // Prioritize preview links in the order of preference
         val url = sound.previews["preview-hq-mp3"]
             ?: sound.previews["preview-lq-mp3"]
             ?: sound.previews["preview-hq-ogg"]
@@ -657,11 +614,9 @@ open class AudioViewModel(
                 mediaPlayerWrapper.setDataSourceFromUrl(url)
             } catch (e: IOException) {
                 Log.e("AudioViewModel", "Error playing preview: ${e.message}")
-                // Handle errors such as network issues or corrupted audio paths
             }
         } else {
             Log.e("AudioViewModel", "No valid preview URL found")
-            // Notify user or handle the absence of a preview URL
         }
         mediaPlayerWrapper.setOnCompletionListener {
             togglePlayPause(sound)

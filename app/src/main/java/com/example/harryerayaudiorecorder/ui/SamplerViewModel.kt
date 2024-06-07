@@ -33,7 +33,7 @@ class SamplerViewModel : ViewModel(), ISamplerViewModel {
     @Composable
     fun isTablet(): Boolean {
         val configuration = LocalConfiguration.current
-        // Tablets typically have a smallest width of 600dp or more.
+        //tablets have>600dp
         return configuration.smallestScreenWidthDp >= 600
     }
 }
