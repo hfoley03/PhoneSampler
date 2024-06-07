@@ -276,20 +276,3 @@ fun PhoneSamplerApp(
 }
 
 
-@Composable
-fun DownloadNotification(viewModel: AudioViewModel,fileNameFontSize:Int) {
-    viewModel.downloadStatusMessage.value?.let { message ->
-        Text(
-            text = message,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(fileNameFontSize.dp),
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-        LaunchedEffect(message) {
-            delay(3000)
-            viewModel.clearDownloadStatusMessage()
-        }
-    }
-}
